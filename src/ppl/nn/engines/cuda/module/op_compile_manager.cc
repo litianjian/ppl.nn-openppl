@@ -15,28 +15,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
-#define _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
+#include "ppl/nn/engines/cuda/module/op_compile_manager.h"
 
-#if defined(__linux__)
-#include <sys/stat.h>
-#endif
+namespace ppl { namespace nn { namespace cuda {
 
-#include <map>
-#include <cuda_runtime.h>
+OpCompiler* OpCompilerManager::FindCompiler(const std::string& kernel_type) const{
+    auto res = type2compiler_.find(kernel_type);
+    if (res == type2compiler_.end()) {
+        return nullptr;
+    }
+    return res->second;
+}
 
-namespace ppl { namespace nn {
+OpCompilerManager::OpCompilerManager() {
+    type2compiler_.emplace("Conv", &conv_);
+    type2compiler_.emplace("Gemm", &gemm_);
+    type2compiler_.emplace("Transpose", &normal_);
+    type2compiler_.emplace("MMCVModulatedDeformConv2d", &normal_);
+}
 
-struct CudaCtxParam {
-    int device_id;
-    cudaStream_t stream = nullptr;
-};
-std::pair<int, int> PPLCudaGetDeviceArch(int device);
-std::string CUDAIncludePath();
-
-bool PPLCudaComputeCapabilityRequired(int major, int minor, int device);
-bool PPLCudaComputeCapabilityEqual(int major, int minor, int device);
-
-}} // namespace ppl::nn
-
-#endif
+}}} // namespace ppl::nn::cuda

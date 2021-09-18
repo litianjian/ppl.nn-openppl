@@ -21,6 +21,7 @@
 #include "ppl/nn/runtime/opt_kernel.h"
 #include "ppl/nn/runtime/runtime_constant_info.h"
 #include <map>
+#include <set>
 #include <memory>
 
 namespace ppl { namespace nn {
@@ -28,6 +29,7 @@ namespace ppl { namespace nn {
 struct RuntimePartitionInfo {
     std::map<edgeid_t, RuntimeConstantInfo> constants;
     std::map<nodeid_t, std::unique_ptr<OptKernel>> kernels;
+    std::set<nodeid_t> compile_set;
 };
 
 }} // namespace ppl::nn

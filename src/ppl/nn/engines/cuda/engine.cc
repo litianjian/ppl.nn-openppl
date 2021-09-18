@@ -27,6 +27,7 @@
 #include "ppl/nn/quantization/quant_param_parser.cc"
 #include "rapidjson/document.h"
 #include "rapidjson/error/error.h"
+#include "ppl/nn/engines/cuda/module/op_compile_manager.h"
 
 using namespace std;
 using namespace ppl::common;
@@ -61,6 +62,33 @@ RetCode CudaEngine::DoOptimize(ir::Graph* graph, utils::SharedResource* resource
         LOG(ERROR) << "OptGraph DoOptimeize failed: " << GetRetCodeStr(status);
         return status;
     }
+
+#ifdef PPLNN_ENABLE_CUDA_JIT
+    status = CompileCudaModule(graph, resource, info);
+#endif
+
+    return RC_SUCCESS;
+}
+
+ppl::common::RetCode CudaEngine::CompileCudaModule(ir::Graph* graph, utils::SharedResource* resource, RuntimePartitionInfo* info) {
+    auto op_compiler_manager = OpCompilerManager::Instance();
+    for (auto it = info->compile_set.begin(); it != info->compile_set.end(); it++) {
+        auto node_id = *it;
+        ir::Node* op = graph->topo.get()->GetNodeById(node_id);
+        auto op_compiler = op_compiler_manager->FindCompiler(op->GetType().name);
+        if (op_compiler == nullptr) continue;
+
+        OptKernelOptions options(graph, info, resource, &device_, &cuda_manager_);
+        op_compiler->Compile(op, options);
+    }
+    // ir::Node* op = graph->topo.get()->GetNodeById(0);
+    
+    // auto op_compiler = op_compiler_manager->FindCompiler(op->GetType().name);
+
+    // const OptKernelOptions options(graph, info, resource, &device_);
+    // op_compiler->Compile(op, options);
+
+    
 
     return RC_SUCCESS;
 }
@@ -273,16 +301,16 @@ RetCode CudaEngine::SetAlgorithm(CudaEngine* engine, va_list args) {
                 } else if (str_name == "splitf") {
                     algo_info.splitf = iter->value.GetInt();
                 } else if (str_name == "kname") {
-                    
+                    algo_info.kname.assign(iter->value.GetString(), iter->value.GetStringLength());
                 } else {
                     LOG(ERROR) << "name of object[" << str_name << "] is not meaningful.";
                     return RC_INVALID_VALUE;
                 }
             }
             engine->cuda_flags_.alog_selects.insert(make_pair(shape_name, algo_info));
-            LOG(INFO) << shape_name;
         }
     }
+    LOG(INFO) << "Algo info size is " << engine->cuda_flags_.alog_selects.size();
     return RC_SUCCESS;
 }
 

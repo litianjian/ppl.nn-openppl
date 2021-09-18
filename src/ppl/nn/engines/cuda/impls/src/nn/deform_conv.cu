@@ -356,6 +356,7 @@ int64_t PPLCUDADeformConvGetBufSize(
 
 ppl::common::RetCode PPLCUDADeformConvForward(
     const cudaStream_t &stream,
+    ppl::nn::cuda::CUDAModule* module,
     const ppl::nn::TensorShape *output_shape,
     const ppl::nn::TensorShape *input_shape,
     void *output,
@@ -423,8 +424,7 @@ ppl::common::RetCode PPLCUDADeformConvForward(
             gemm_param.bias_term = 0; \
             gemm_param.transA = 0;   gemm_param.transB = 1; \
             gemm_param.alpha  = 1.f; gemm_param.beta   = 1.f; \
-            gemm_param.N      = N; \
-            int kid = 0;
+            gemm_param.N      = N;
     FAKE_GEMM_PARAM
 #undef FAKE_GEMM_PARAM
 
@@ -464,9 +464,11 @@ ppl::common::RetCode PPLCUDADeformConvForward(
             __half *tmp_b = (__half*)trans_columns + g * col_trans_out_h * col_trans_out_w;
             __half *tmp_output = (__half*)output_buf + b * out_c * col_trans_out_h + g * oc_per_grp * col_trans_out_h;
 
-            __half *tmp_bias = bias? (__half*)bias + g*oc_per_grp : NULL;
+            __half *tmp_bias = (__half*)bias + g*oc_per_grp;
+            algo_param_t algo_param;
+            algo_param.UseDefaultF1Kernel();
             PPLCUDAGemmForwardImp(
-                stream, &shape_a, tmp_a, &shape_b, tmp_b,
+                stream, module, &shape_a, tmp_a, &shape_b, tmp_b,
                 tmp_bias, &shape_c, tmp_output,
                 gemm_param, temp_buffer, fuse_param, kid);
 

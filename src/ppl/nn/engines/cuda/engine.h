@@ -27,6 +27,7 @@
 #include "ppl/nn/engines/cuda/cuda_common_param.h"
 #include "ppl/nn/engines/cuda/buffered_cuda_device.h"
 #include "ppl/nn/quantization/quant_param_parser.h"
+#include "ppl/nn/engines/cuda/module/cuda_module.h"
 
 using namespace std;
 
@@ -39,6 +40,7 @@ struct CudaArgs {
     }
 
     struct AlgoInfo {
+        std::string kname = "";
         int kid = 0;
         int splitk = 1;
         int splitf = 1;
@@ -63,6 +65,7 @@ public:
     EngineContext* CreateEngineContext(const std::string& graph_name) override;
     bool Supports(const ir::Node*) const override;
     ppl::common::RetCode ProcessGraph(utils::SharedResource*, ir::Graph*, RuntimePartitionInfo*) override;
+    ppl::common::RetCode CompileCudaModule(ir::Graph*, utils::SharedResource*, RuntimePartitionInfo*);
 
 private:
     ppl::common::RetCode DoOptimize(ir::Graph*, utils::SharedResource*, RuntimePartitionInfo*);
@@ -86,6 +89,7 @@ private:
     BufferedCudaDevice device_;
     CudaArgs cuda_flags_;
     CudaEngineOptions options_;
+    CUDAModuleManager cuda_manager_;
 };
 
 }}} // namespace ppl::nn::cuda

@@ -15,28 +15,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
-#define _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
+#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_CUDA_THREAD_CONFIG_H_
+#define _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_CUDA_THREAD_CONFIG_H_
 
-#if defined(__linux__)
-#include <sys/stat.h>
-#endif
+namespace ppl { namespace nn { namespace cuda {
 
-#include <map>
-#include <cuda_runtime.h>
-
-namespace ppl { namespace nn {
-
-struct CudaCtxParam {
-    int device_id;
-    cudaStream_t stream = nullptr;
+struct CUDAThreadConfig
+{
+    // config array, first three are Grid dimension config
+    // last three are Block dimension config
+    size_t thread_config[6];
+    // Dynamic shared memory size in bytes
+    size_t dyn_shmem_size{0};
+    /*
+     *  param i The Block dimension
+     *  return i-th block dim
+    */
+    size_t BlockDim(int i) { return thread_config[i + 3]; }
+    /*
+     *  param i The Grid dimension
+     *  return i-th grid dim
+    */
+    size_t GridDim(int i ) { return thread_config[i]; }
 };
-std::pair<int, int> PPLCudaGetDeviceArch(int device);
-std::string CUDAIncludePath();
 
-bool PPLCudaComputeCapabilityRequired(int major, int minor, int device);
-bool PPLCudaComputeCapabilityEqual(int major, int minor, int device);
 
-}} // namespace ppl::nn
+}}} // namespace ppl::nn::cuda
 
 #endif

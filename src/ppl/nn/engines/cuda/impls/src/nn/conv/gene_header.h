@@ -15,28 +15,28 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
-#define _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
+#ifndef __PPLCUDA_CONV_GENE_HEADER_H_
+#define __PPLCUDA_CONV_GENE_HEADER_H_
 
-#if defined(__linux__)
-#include <sys/stat.h>
-#endif
-
+#include <string>
 #include <map>
-#include <cuda_runtime.h>
+#include "ppl/common/retcode.h"
 
-namespace ppl { namespace nn {
+class GeneHeader {
+public:
+    static GeneHeader* Instance() {
+        static GeneHeader mgr;
+        return &mgr;
+    }
 
-struct CudaCtxParam {
-    int device_id;
-    cudaStream_t stream = nullptr;
+    std::string Find(const std::string& path);
+
+private:
+    std::map<std::string, std::string> header_code_;
+
+private:
+    GeneHeader();
+	void InitIncludeFile(std::string path);
 };
-std::pair<int, int> PPLCudaGetDeviceArch(int device);
-std::string CUDAIncludePath();
-
-bool PPLCudaComputeCapabilityRequired(int major, int minor, int device);
-bool PPLCudaComputeCapabilityEqual(int major, int minor, int device);
-
-}} // namespace ppl::nn
 
 #endif

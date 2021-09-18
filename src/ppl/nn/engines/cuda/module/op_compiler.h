@@ -15,28 +15,25 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
-#define _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
+#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_OP_COMPILER_H_
+#define _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_OP_COMPILER_H_
 
-#if defined(__linux__)
-#include <sys/stat.h>
-#endif
-
+#include <set>
 #include <map>
-#include <cuda_runtime.h>
+#include <vector>
+#include <string>
 
-namespace ppl { namespace nn {
+#include "ppl/common/types.h"
+#include "ppl/nn/ir/graph.h"
+#include "ppl/nn/engines/cuda/optimizer/opt_kernel.h"
 
-struct CudaCtxParam {
-    int device_id;
-    cudaStream_t stream = nullptr;
+namespace ppl { namespace nn { namespace cuda {
+
+class OpCompiler {
+public:
+    virtual const ppl::common::RetCode Compile(ir::Node*, const OptKernelOptions&) = 0;
 };
-std::pair<int, int> PPLCudaGetDeviceArch(int device);
-std::string CUDAIncludePath();
 
-bool PPLCudaComputeCapabilityRequired(int major, int minor, int device);
-bool PPLCudaComputeCapabilityEqual(int major, int minor, int device);
-
-}} // namespace ppl::nn
+}}} // namespace ppl::nn::cuda
 
 #endif

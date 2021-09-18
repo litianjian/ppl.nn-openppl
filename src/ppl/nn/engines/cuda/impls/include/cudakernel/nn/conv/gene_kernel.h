@@ -15,28 +15,18 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
-#define _ST_HPC_PPL_NN_ENGINES_CUDA__CUDA_COMMON_H_
+#ifndef __PPLCUDA_CONV_GENE_KERNEL_H_
+#define __PPLCUDA_CONV_GENE_KERNEL_H_
 
-#if defined(__linux__)
-#include <sys/stat.h>
-#endif
+#include <string>
 
-#include <map>
-#include <cuda_runtime.h>
+#include "ppl/common/types.h"
+#include "ppl/common/retcode.h"
+#include "cudakernel/nn/conv/conv_fp16.h"
 
-namespace ppl { namespace nn {
-
-struct CudaCtxParam {
-    int device_id;
-    cudaStream_t stream = nullptr;
-};
-std::pair<int, int> PPLCudaGetDeviceArch(int device);
-std::string CUDAIncludePath();
-
-bool PPLCudaComputeCapabilityRequired(int major, int minor, int device);
-bool PPLCudaComputeCapabilityEqual(int major, int minor, int device);
-
-}} // namespace ppl::nn
+ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int splitk, int splitf, int buf_size, int declare_times);
+ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int declare_times);
+ppl::common::RetCode ReplaceFusionFor2spk(std::string& file_res, fuse_info_t fuse_info);
+ppl::common::RetCode ReplaceFusionForIdxn(std::string& file_res, fuse_info_t fuse_info);
 
 #endif

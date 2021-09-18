@@ -93,10 +93,11 @@ ppl::common::RetCode GemmKernel::DoExecute(KernelExecContext* ctx) {
     temp_fuse_param.clip_max = param_->extra_param.clip.max_val;
 
     auto stream = GetStream();
-    status = PPLCUDAGemmForwardImp(stream, &input->GetShape(), input->GetBufferPtr(), &newshape,
-                                   param_->extra_param.is_initializer_weight ? weight->GetBufferPtr() : weight_buffer.addr,
-                                   bias, &output->GetShape(), output->GetBufferPtr(),
-                                   param_->param, tmp_buffer, temp_fuse_param, param_->extra_param.kernel_index);
+    CUDAModule* module = static_cast<CUDAModule*>(this->GetCommonParam()->module);
+
+    status = PPLCUDAGemmForwardImp(stream, module, &input->GetShape(), input->GetBufferPtr(), &weight->GetShape(),
+                                   weight->GetBufferPtr(), bias, &output->GetShape(), output->GetBufferPtr(),
+                                   param_->param, tmp_buffer, temp_fuse_param, param_->extra_param.algo_info.kid);
 
     return status;
 }

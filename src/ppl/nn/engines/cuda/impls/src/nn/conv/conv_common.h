@@ -129,6 +129,15 @@ struct kernel_info_t
         parse_kname();
     }
 
+    kernel_info_t(int kid_, conv_ktype_t ktype_, const char kname_[])
+    {
+        kid      = kid_;
+        ktype    = ktype_;
+        kname    = std::string(kname_);
+        
+        parse_kname();
+    }
+
     void parse_kname()
     {
         std::stringstream kname_str(kname);
@@ -169,6 +178,37 @@ struct kernel_info_t
                               (tile_n_per_cta / tile_n_per_warp) * \
                               (tile_k_per_cta / tile_k_per_set)  * \
                               WARP_SIZE;
+        }
+    }
+
+    bool CheckKernelTilesFeasible() {
+        if (ktype == CONV_IDXN_C2 || ktype == CONV_IDXN_C4 || ktype == CONV_IDXN_C32) {
+            return tile_m_per_warp >= 16 && tile_m_per_warp <= 64 &&
+                   tile_n_per_warp >= 8  && tile_n_per_warp <= 32 &&
+                   tile_k_per_step >= 8  && tile_k_per_step <= 32 &&
+                   tile_m_per_cta >= tile_m_per_warp && tile_m_per_cta / tile_m_per_warp <= 4 &&
+                   tile_n_per_cta >= tile_n_per_warp && tile_n_per_cta / tile_n_per_warp <= 4 &&
+                   tile_k_per_cta >= tile_k_per_step && tile_k_per_cta / tile_k_per_step <= 2 &&
+                   (tile_m_per_cta / tile_m_per_warp != 4 || tile_n_per_cta / tile_n_per_warp != 4);
+        } else {
+            int MAX_SMEM_V4_PER_CTA = 3072;
+            int INT4_TO_4HALF2 = 8;
+            int BUF_SIZE = 1;
+
+            int sm_a_v4 = tile_m_per_cta * tile_k_per_cta * BUF_SIZE / INT4_TO_4HALF2;
+            int sm_b_v4 = tile_n_per_cta * tile_k_per_cta * BUF_SIZE / INT4_TO_4HALF2;
+            int sm_c_v4 = tile_m_per_cta * tile_n_per_cta / INT4_TO_4HALF2;
+
+            return tile_m_per_warp >= 16 && tile_m_per_warp <= 128 &&  // tiles limit
+                   tile_n_per_warp >= 8  && tile_n_per_warp <= 64 &&
+                   tile_k_per_set  >= 8  && tile_k_per_set  <= 32 &&
+                   tile_m_per_cta >= tile_m_per_warp && tile_m_per_cta / tile_m_per_warp <= 4 &&
+                   tile_n_per_cta >= tile_n_per_warp && tile_n_per_cta / tile_n_per_warp <= 4 &&
+                   tile_k_per_cta >= tile_k_per_set  && tile_k_per_cta / tile_k_per_set  <= 2 &&
+                   sm_a_v4 + sm_b_v4 <= MAX_SMEM_V4_PER_CTA &&          // share memeory limit
+                   sm_c_v4 * tile_k_per_cta / tile_k_per_set <= MAX_SMEM_V4_PER_CTA &&
+                   (tile_m_per_cta / tile_m_per_warp != 4 || tile_n_per_cta / tile_n_per_warp != 4) &&
+                   (tile_m_per_warp != 128 || tile_n_per_warp != 64);
         }
     }
 
@@ -235,6 +275,20 @@ struct kernel_info_t
                 return true;
         } else
             return true;
+    }
+
+    __inline__ bool CheckQuickSelectFeasible(algo_param_t algo_param, int k, int flt_hw, int splitk, int splitf)
+    {
+        if (kname.at(kname.length()-1) == '2')  // Delete Buf2
+            return false;
+        
+        if (ktype == CONV_2SPK_FN && (flt_hw == 1 || flt_hw == 9)) // Delete FN for f1 and f3 case
+            return false;
+
+        if (splitk != 1 && k / splitk <= 128) // Filt splitk for small k size
+            return false;
+        
+        return true;
     }
 };
 
