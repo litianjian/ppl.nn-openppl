@@ -30,7 +30,9 @@ CUfunction CUDAModule::GetKernelFunc() {
     cuModuleGetFunction(&func, module_, this->source_code_.first.c_str());
     return func;
 }
-
+void CUDAModule::SetSourceCode(std::string name, std::string code) {
+    source_code_ = std::make_pair<std::string, std::string>(std::move(name), std::move(code));
+}
 CUfunction CUDAModuleWrapper::GetKernelFunc() {
     return module_->GetKernelFunc();
 }

@@ -26,6 +26,7 @@
 #include "ppl/common/types.h"
 #include "ppl/nn/ir/graph.h"
 #include "ppl/nn/engines/cuda/module/op_compiler.h"
+#include "ppl/nn/engines/cuda/module/cuda_module.h"
 
 
 namespace ppl { namespace nn { namespace cuda {

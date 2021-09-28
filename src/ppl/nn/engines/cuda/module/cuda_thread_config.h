@@ -15,6 +15,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_CUDA_THREAD_CONFIG_H_
+#define _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_CUDA_THREAD_CONFIG_H_
+
 namespace ppl { namespace nn { namespace cuda {
 
 struct CUDAThreadConfig
@@ -38,3 +41,5 @@ struct CUDAThreadConfig
 
 
 }}} // namespace ppl::nn::cuda
+
+#endif

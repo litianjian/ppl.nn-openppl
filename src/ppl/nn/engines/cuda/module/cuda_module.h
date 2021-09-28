@@ -45,6 +45,10 @@ public:
 
     void SaveToFile();
 
+    void SetSourceCode(std::string, std::string);
+
+    std::pair<std::string, std::string> GetSourceCode() { return source_code_; }
+
 private:
     // source code, <name, code>
     std::unordered_map<std::string, std::string> code_list_;
@@ -59,6 +63,9 @@ private:
 
 class CUDAModuleWrapper {
 public:
+    CUDAModuleWrapper() {
+
+    }
     // Initilize the cuda func wrapper
     void Init(CUDAModule* module, std::string func_name, CudaDevice* device) {
         module_ = module;
@@ -81,7 +88,7 @@ public:
     CUfunction GetKernelFunc();
 private:
     // module
-    CUDAModule *module_;
+    CUDAModule *module_ = nullptr;
     // Name of function 
     std::string func_name_;
     // Kernel Luanch Parameters

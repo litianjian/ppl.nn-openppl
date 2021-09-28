@@ -16,8 +16,9 @@
 // under the License.
 
 #include "ppl/nn/engines/cuda/module/conv_compiler.h"
+#include "ppl/nn/engines/cuda/module/cuda_compiler.h"
 
-
+using namespace std;
 namespace ppl { namespace nn { namespace cuda {
 
 const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernelOptions& options) {
@@ -28,7 +29,17 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     CudaOptKernel* cuda_kernel = static_cast<CudaOptKernel*>(opt_kerenl);
     
     auto param = cuda_kernel->GetCommparam();
+    CudaCommonParam *cuda_param = static_cast<CudaCommonParam*>(param);
+    // cuda_param->module = (void*)
     
+    CUDAModuleWrapper *wrapper = new CUDAModuleWrapper();
+    CUDAModule *module = new CUDAModule();
+    std::string func_name = "nv2spk";
+    std::string code;
+    std::vector<const char*> params;
+    auto ptx = CUDANVRTCCompile(source, params);
+    module->SetSourceCode(make_pair<string, string>(move(func_name), move(ptx));
+    wrapper->Init(module, func_name, options.device);
     return ppl::common::RC_SUCCESS;
 }
 
