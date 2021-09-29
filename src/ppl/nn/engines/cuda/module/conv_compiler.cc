@@ -37,8 +37,9 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     std::string func_name = "nv2spk";
     std::string code;
     std::vector<const char*> params;
+    auto source = module->GetSourceCode();
     auto ptx = CUDANVRTCCompile(source, params);
-    module->SetSourceCode(make_pair<string, string>(move(func_name), move(ptx));
+    module->SetSourceCode(func_name, ptx);
     wrapper->Init(module, func_name, options.device);
     return ppl::common::RC_SUCCESS;
 }
