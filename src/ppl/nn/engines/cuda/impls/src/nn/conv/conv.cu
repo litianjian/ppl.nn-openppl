@@ -241,6 +241,110 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
     return total_size <= workspace ? total_size : workspace;
 }
 
+#include <sstream>
+std::string ToString(int v) {
+    std::stringstream ss;
+    ss << v;
+    return ss.str();
+}
+
+ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
+        std::string &algo_name,
+        select_param_t &tiles,
+        conv_param_t &conv_param) {
+    int in_hw = conv_param.in_num * conv_param.in_height * conv_param.in_width;
+    int out_hw = conv_param.in_num * conv_param.out_height * conv_param.out_width;
+    int flt_hw = conv_param.flt_height * conv_param.flt_width;
+    int chl_per_group = conv_param.num_chl / conv_param.num_grp;
+
+    if (chl_per_group < 64) { // Use non-shared memory algo for small channel
+        if (flt_hw > 9) {
+            tiles.m_cta = 128;
+            tiles.m_warp = 64;
+        } else {
+            tiles.m_cta = 32;
+            tiles.m_warp = 16;
+        }
+
+        if (in_hw == out_hw) {
+            tiles.n_cta = 64;
+            tiles.n_warp = 32;
+        } else {
+            tiles.n_cta = 32;
+            tiles.n_warp = 16;
+        }
+
+        if (conv_param.num_chl >= 16) {
+            tiles.k_cta = 32;
+            tiles.k_warp = 32;
+        } else {
+            tiles.k_cta = 16;
+            tiles.k_warp = 16;
+        }
+        std::string pwd = "src/ppl/nn/engines/cuda/impls/conv/idxn/kernels/";
+        algo_name = pwd + "idxn_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.m_warp)+
+                                            "_w"+ToString(tiles.n_cta)+"x"+ToString(tiles.n_warp)+
+                                            "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_warp)+".cu";
+    } else { // Use 3spk algo for large channel
+        float min_pad = 1.0;
+        tiles.m_cta = 16;
+        for (int32_t i = 128; i >= 16; i = i / 2) {
+            if (out_hw < i) continue;
+            float pad = 1.0 * (DivUp(out_hw, i) * i - out_hw) / out_hw;
+            if (pad < min_pad)  {
+                min_pad = pad;
+                tiles.m_cta = i;
+            }
+            if (min_pad < 0.1)  break;
+        }
+
+        tiles.n_cta = 16;
+        for (int32_t i = 128; i >= 16; i = i / 2) {
+            int cout = conv_param.num_flt;
+            if ((cout < 64 && i / cout == 1) || (cout >= 64 && cout % i == 0)) {
+                tiles.n_cta = i;
+                break;
+            }
+        }
+
+        if (conv_param.num_chl >= 128) {
+            tiles.k_cta = 64;
+        } else {
+            tiles.k_cta = 32;
+        }
+
+        if (tiles.m_cta == 128 && tiles.n_cta == 128) {
+            tiles.m_cta = 64;
+        }
+
+        if (tiles.m_cta * 4 < tiles.n_cta) {
+            tiles.m_cta *= 2;
+            tiles.n_cta /= 2;
+        }
+        if (tiles.n_cta *4 < tiles.m_cta) {
+            tiles.m_cta /= 2;
+            tiles.n_cta *= 2;
+        }
+
+        tiles.m_warp = tiles.m_cta / 2;
+        tiles.n_warp = tiles.n_cta / 2;
+        tiles.k_warp = tiles.k_cta / 2;
+        if (tiles.k_warp < 8) {
+            tiles.k_warp = 16;
+        }
+        std::string f_size = "1";
+        if (conv_param.flt_height == 3) f_size = "3";
+        if (conv_param.flt_height > 3)  f_size = "n";
+        std::string pwd = "src/ppl/nn/engines/cuda/impls/conv/2spk/f" + f_size + "/";
+        algo_name = pwd + "2spk_f"+f_size+"_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.m_warp)+
+                                                        "_w"+ToString(tiles.n_cta)+"x"+ToString(tiles.n_warp)+
+                                                        "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_warp)+"_buf1.cu";
+    }
+    tiles.quick_select = true;
+    return ppl::common::RC_SUCCESS;
+}
+
+
 ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
