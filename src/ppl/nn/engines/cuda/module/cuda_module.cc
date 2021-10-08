@@ -16,7 +16,6 @@
 // under the License.
 
 #include <ppl/nn/engines/cuda/module/cuda_module.h>
-
 namespace ppl { namespace nn { namespace cuda {
 
 void CUDAModule::SaveToFile() {
@@ -24,11 +23,17 @@ void CUDAModule::SaveToFile() {
 
 CUfunction CUDAModule::GetKernelFunc() {
     if (module_ == nullptr) {
+        LOG(INFO) << "cuModuleLoadDataEx";
         cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0);
     }
-    CUfunction func;
-    cuModuleGetFunction(&func, module_, this->source_code_.first.c_str());
-    return func;
+    if (func_ == nullptr) {
+        LOG(INFO) << "GetFunction";
+        cuModuleGetFunction(&func_, module_, this->source_code_.first.c_str());
+
+    }
+    // CUfunction func;
+    // cuModuleGetFunction(&func, module_, this->source_code_.first.c_str());
+    return func_;
 }
 void CUDAModule::SetSourceCode(std::string name, std::string code) {
     source_code_ = std::make_pair<std::string, std::string>(std::move(name), std::move(code));

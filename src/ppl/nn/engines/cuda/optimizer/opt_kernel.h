@@ -51,8 +51,8 @@ struct OptKernelOptions {
                      std::map<edgeid_t, std::unique_ptr<TensorImpl>>* tensors)
         : graph(graph), info(info), resource(resource), tensors(tensors) {}
     OptKernelOptions(ir::Graph* graph, RuntimePartitionInfo* info, utils::SharedResource* resource,
-                     CudaDevice* device)
-        : graph(graph), info(info), resource(resource), device(device) {}
+                     CudaDevice* device, CUDAModuleManager* manager)
+        : graph(graph), info(info), resource(resource), device(device), cuda_module_manager(manager) {}
     OptKernelOptions(ir::Graph* graph, utils::SharedResource* resource) : graph(graph), resource(resource) {}
 
     ir::Graph* graph;
@@ -63,6 +63,7 @@ struct OptKernelOptions {
     std::map<edgeid_t, std::unique_ptr<TensorImpl>>* tensors;
     std::vector<CudaTensorQuant>* quants;
     void* param;
+    CUDAModuleManager *cuda_module_manager;
 };
 
 class CudaOptKernel : public OptKernel {

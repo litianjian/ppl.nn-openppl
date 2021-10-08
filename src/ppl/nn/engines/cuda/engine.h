@@ -81,7 +81,7 @@ private:
     BufferedCudaDevice device_;
     CudaArgs cuda_flags_;
     CudaEngineOptions options_;
-    CUDAModuleManager cuda_module_;
+    CUDAModuleManager cuda_manager_;
 };
 
 }}} // namespace ppl::nn::cuda

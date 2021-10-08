@@ -610,7 +610,7 @@ void PPLCUDAConvolutionForwardImp(
 #define CUDA_RUNTIME_CALL(x)                                    \
   do {                                                            \
     cudaError_t result = x;                                       \
-    if (result != CUDA_SUCCESS) {                                 \
+    if (result != cudaSuccess) {                                 \
       const char *msg = cudaGetErrorName(result);                   \
       std::cerr << "\nerror: " #x " failed with error "           \
                 << msg << '\n';                                   \
@@ -803,4 +803,147 @@ void PPLCUDAConvolutionForwardJITImp(
     CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
     std::cout<<"Conv Success"<<std::endl;
     delete[] ptx;
+}
+
+
+void PPLCUDAConvolutionForwardJITImp(
+    cudaStream_t &stream,
+    CUfunction function,
+    ppl::common::datatype_t type,
+    int4* d_input,
+    int4* d_flt,
+    int4* d_output,
+    int4* bias,
+    int4* d_temp_buf,
+    algo_param_t &algo_param,
+    conv_param_t &conv_param,
+    fuse_param_t &fuse_param)
+{
+    // if(!is_g_kernel_container_initialized)
+    //     InitializeKernelContainer(g_kernel_container, type);
+    // CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
+
+    unsigned int kid = algo_param.kid;
+    unsigned int splitk = 1;//algo_param.splitk;
+    unsigned int splitf = 1;//algo_param.splitf;
+
+    int pad_size = GetPadSize(type);
+
+    int num_chl_per_grp = conv_param.num_chl / conv_param.num_grp;
+    int num_flt_per_grp = conv_param.num_flt / conv_param.num_grp;
+
+    int num_chl_per_grp_pad = Align(num_chl_per_grp, pad_size);
+    int num_flt_per_grp_pad = Align(num_flt_per_grp, pad_size);
+
+    int in_hw  = conv_param.in_height * conv_param.in_width;
+    int flt_hw = conv_param.flt_height * conv_param.flt_width;
+    int out_hw = conv_param.out_height * conv_param.out_width;
+
+    int concat_offset_v8 = fuse_param.concat_offset / pad_size;
+    int concat_stride_v8 = fuse_param.concat_stride / pad_size;
+
+    bool  is_in_grp_pad = num_chl_per_grp_pad != num_chl_per_grp && conv_param.num_grp != 1;
+    bool is_out_grp_pad = num_flt_per_grp_pad != num_chl_per_grp && conv_param.num_grp != 1;
+
+    uint64_t buf_off_v4 = 0;
+
+    int4 *pad_input = d_input;
+    int4 *pad_output = d_output;
+
+    if(is_in_grp_pad) {
+	    pad_input = d_temp_buf; 
+	    buf_off_v4 += GetCvtInputSize(type, conv_param, num_chl_per_grp_pad) / (_4INT_TO_INT4_ * _INT_TO_4BYTE_);
+
+        PPLCUDAConvolutionCvtInput(stream, pad_input, d_input, type, conv_param);
+    }
+
+    if(is_out_grp_pad) {
+	    pad_output = d_temp_buf + buf_off_v4;
+	    buf_off_v4 += getCvtOutputSize(type, conv_param, num_flt_per_grp_pad) / (_4INT_TO_INT4_ * _INT_TO_4BYTE_);
+    } 
+
+    int4 *final_out  = fuse_param.has_concat ? (int4 *) fuse_param.post_concat : pad_output;
+
+    int4 *splitk_buf = d_temp_buf + buf_off_v4;
+    int4 *conv_out   = (splitk > 1 || splitf > 1) ? splitk_buf : final_out;
+
+    __half2 clip_min     = __float2half2_rn(fuse_param.clip_min);
+    __half2 clip_max     = __float2half2_rn(fuse_param.clip_max);
+    __half2 elt_clip_min = __float2half2_rn(fuse_param.elt_clip_min);
+    __half2 elt_clip_max = __float2half2_rn(fuse_param.elt_clip_max);
+    __half  leaky        = __float2half(fuse_param.leaky);
+    __half  elt_leaky    = __float2half(fuse_param.elt_leaky);
+    
+    int jit_test_tile_n = 128;
+    int jit_test_tile_m = 128;
+    int jit_test_cta_k = 32;
+
+    int jit_test_cta_size = 128;
+
+    dim3 block_size, grid_size;
+    block_size.x = jit_test_cta_size;//g_kernel_container[kid].cta_size_in_thd;
+    block_size.y = 1;
+    block_size.z = 1;
+
+    grid_size.x  = DivUp(conv_param.in_num * conv_param.out_height * conv_param.out_width, jit_test_tile_m);//g_kernel_container[kid].tile_m_per_cta);
+    grid_size.y  = DivUp(num_flt_per_grp_pad, jit_test_tile_n);//g_kernel_container[kid].tile_n_per_cta);
+    grid_size.z  = conv_param.num_grp * splitk * splitf;
+    // std::cout << "block size " << block_size.x << std::endl;
+    // std::cout << "grid_size " << grid_size.x << " " << grid_size.y << " " << grid_size.z << std::endl;
+    int kloop_num = (flt_hw / splitf) * DivUp(num_chl_per_grp_pad, jit_test_cta_k);//g_kernel_container[kid].tile_k_per_cta);
+
+    lut_t in_lut, flt_lut;
+    int in_lut_size, flt_lut_size;
+
+    InitializeInputLut(in_lut_size, in_lut.idx, conv_param.flt_height, conv_param.flt_width, conv_param.in_height,
+            conv_param.in_width, conv_param.pad_height, conv_param.pad_width, conv_param.hole_height, conv_param.hole_width,
+            num_chl_per_grp_pad, conv_param.num_grp, jit_test_cta_k, pad_size);
+
+    InitializeFilterLut(flt_lut_size, flt_lut.idx, conv_param.flt_height, conv_param.flt_width, num_chl_per_grp_pad,
+        jit_test_cta_k, pad_size);
+    // CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
+    
+    const int4* pre_data = (const int4*)fuse_param.pre_data;
+    const void* prelu = (const void*)fuse_param.prelu;
+    const void* elt_prelu = (const void*)fuse_param.elt_prelu;
+    int has_relu = fuse_param.has_activation == 1? 1:0;
+    int has_elt_relu = fuse_param.has_elt_activation == 1 ? 1 : 0;
+    void *args[] = {&pad_input, &d_flt, &conv_out, &kloop_num,
+                    &in_lut, &in_lut_size, &flt_lut, &flt_lut_size, &in_hw, &out_hw,
+                    &flt_hw, &splitk, &conv_param.in_height, &conv_param.in_width,
+                    &conv_param.in_num, &conv_param.num_grp, &num_chl_per_grp, &num_chl_per_grp_pad,
+                    &conv_param.flt_height, &conv_param.flt_width, &num_flt_per_grp, &num_flt_per_grp_pad,
+                    &conv_param.out_height, &conv_param.out_width, &conv_param.stride_height, &conv_param.stride_width,
+                    &conv_param.pad_height, &conv_param.pad_width, &conv_param.hole_height, &conv_param.hole_width,
+                    &conv_param.has_bias, &bias, &has_relu, &clip_min,
+                    &fuse_param.has_clip, &clip_max, 
+                    &fuse_param.has_elt, &(pre_data),
+                    &has_elt_relu, &elt_clip_min, &fuse_param.has_elt_clip, &elt_clip_max,
+                    &fuse_param.has_elt_prelu, &(elt_prelu), &leaky, &elt_leaky,
+                    &fuse_param.has_concat, &concat_offset_v8, &concat_stride_v8};
+    CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 
+                    block_size.x, block_size.y, block_size.z,
+                    0, stream, args, 0));
+    // CUDA_SAFE_CALL(cuCtxSynchronize());
+    // CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
+    // std::cout<< fuse_param.has_elt_activation << " " <<"Conv Success1"<<std::endl;
+    if(splitk > 1 || splitf > 1) {
+        int spk_width_v8   = num_flt_per_grp_pad * conv_param.num_grp / pad_size;
+        int spk_height_v1  = out_hw * conv_param.in_num;
+
+        dim3 merge_grid_size, merge_block_size;
+        merge_block_size.x = 64;
+        merge_block_size.y = 1;
+        merge_block_size.z = 1;
+
+        merge_grid_size.x  = spk_height_v1;
+        merge_grid_size.y  = DivUp(spk_width_v8, merge_block_size.x);
+        merge_grid_size.z  = 1;
+
+        MergeConvSplitResults<<<merge_grid_size, merge_block_size, 0, stream>>>(MERGE_KPARAM_LIST);
+    }
+    if(is_out_grp_pad) {
+        PPLCUDAConvolutionCvtOutput(stream, d_output, final_out, type, conv_param);
+    }
+    // std::cout<<"Conv Success"<<std::endl;
 }
