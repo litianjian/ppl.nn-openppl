@@ -18,6 +18,7 @@
 #ifndef __PPLCUDA_IMPLICITGEMM_CONV_H_
 #define __PPLCUDA_IMPLICITGEMM_CONV_H_
 
+#include <string>
 #include <cuda_runtime.h>
 #include "ppl/common/types.h"
 #include "ppl/common/retcode.h"
@@ -52,6 +53,16 @@ struct algo_param_t{
     unsigned int splitk = 1;
     unsigned int splitf = 1;
 };
+
+struct select_param_t{
+    bool quick_select = false;
+    int m_cta = -1;
+    int n_cta = -1;
+    int k_cta = -1;
+    int m_warp = -1;
+    int n_warp = -1;
+    int k_warp = -1;
+};
  
 int PPLCUDAConvoutionFuseSupport(conv_param_t &conv_param);
 
@@ -68,9 +79,8 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
         uint64_t workspace = ((uint64_t)8)*1024*1024*1024);
 
 ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
-        ppl::common::datatype_t type,
-        float cash_miss,
-        algo_param_t &algo_param,
+        std::string &algo_name,
+        select_param_t &tiles,
         conv_param_t &conv_param);
 
 ppl::common::RetCode PPLCUDAConvolutionSelectKernel(

@@ -79,14 +79,13 @@ RetCode CudaEngine::DoOptimize(ir::Graph* graph, utils::SharedResource* resource
 ppl::common::RetCode CudaEngine::CompileCudaModule(ir::Graph* graph, utils::SharedResource* resource, RuntimePartitionInfo* info) {
     auto op_compiler_manager = OpCompilerManager::Instance();
     
-    ir::Node* op = graph->topo.get()->GetNodeById(0);
-    
-    auto op_compiler = op_compiler_manager->FindCompiler(op->GetType().name);
-
-    const OptKernelOptions options(graph, info, resource, &device_);
-    op_compiler->Compile(op, options);
-
-    
+    for (auto it = info->compile_set.begin(); it != info->compile_set.end(); it++) {
+        auto node_id = *it;
+        ir::Node* op = graph->topo.get()->GetNodeById(node_id);
+        auto op_compiler = op_compiler_manager->FindCompiler(op->GetType().name);
+        const OptKernelOptions options(graph, info, resource, &device_);
+        op_compiler->Compile(op, options);
+    }
 
     return RC_SUCCESS;
 }

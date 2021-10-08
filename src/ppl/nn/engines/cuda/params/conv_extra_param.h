@@ -45,10 +45,12 @@ struct ConvFusionInfo {
 
 struct ConvAlgoInfo {
     std::string algo_type = "";
-    unsigned int kernel_index;
+    std::string algo_name = "";
+    select_param_t tiles;
+    unsigned int kernel_index = 0;
     unsigned int splitk = 1;
     unsigned int splitf = 1;
-    bool is_initializer_weight = 1;
+    bool is_initializer_weight = true;
 };
 
 struct ConvExtraParam {
