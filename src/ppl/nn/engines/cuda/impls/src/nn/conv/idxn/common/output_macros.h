@@ -138,7 +138,7 @@
 	        } \
             else if(_has_relu == 2) \
             { \
-			    __half2 h2ONE = { (__half) 1.f, (__half) 1.f}; \
+			    __half2 h2ONE((__half) 1.f, (__half) 1.f); \
                 \
                 if(dCv1_y_valid[0] && dCv1_x_valid[0]) h2C[Cv1_off + 0] = __h2div(h2exp(h2C[Cv1_off + 0]), __hadd2(h2ONE, h2exp(h2C[Cv1_off + 0]))); \
                 if(dCv1_y_valid[1] && dCv1_x_valid[0]) h2C[Cv1_off + 1] = __h2div(h2exp(h2C[Cv1_off + 1]), __hadd2(h2ONE, h2exp(h2C[Cv1_off + 1]))); \
@@ -157,7 +157,7 @@
 	        } \
             else if(_has_relu == 2) \
             { \
-			    __half2 h2ONE = { (__half) 1.f, (__half) 1.f}; \
+			    __half2 h2ONE((__half) 1.f, (__half) 1.f); \
                 \
                 if(dCv1_y_valid[0] && dCv1_x_valid[0]) h2C[Cv1_off + 0] = __h2div(h2exp(h2C[Cv1_off + 0]), __hadd2(h2ONE, h2exp(h2C[Cv1_off + 0]))); \
                 if(dCv1_y_valid[0] && dCv1_x_valid[1]) h2C[Cv1_off + 1] = __h2div(h2exp(h2C[Cv1_off + 1]), __hadd2(h2ONE, h2exp(h2C[Cv1_off + 1]))); \
@@ -183,7 +183,7 @@
 	        } \
             else if(_has_relu == 2) \
             { \
-			    __half2 h2ONE = { (__half) 1.f, (__half) 1.f}; \
+			    __half2 h2ONE((__half) 1.f, (__half) 1.f); \
                 \
                 if(dCv1_y_valid[0] && dCv1_x_valid[0]) h2C[Cv1_off + 0] = __h2div(h2exp(h2C[Cv1_off + 0]), __hadd2(h2ONE, h2exp(h2C[Cv1_off + 0]))); \
                 if(dCv1_y_valid[0] && dCv1_x_valid[1]) h2C[Cv1_off + 1] = __h2div(h2exp(h2C[Cv1_off + 1]), __hadd2(h2ONE, h2exp(h2C[Cv1_off + 1]))); \

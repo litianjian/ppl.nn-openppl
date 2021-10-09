@@ -29,9 +29,9 @@
 #include "ppl/nn/engines/cuda/module/cuda_thread_config.h"
 #include "ppl/nn/engines/cuda/cuda_device.h"
 #include "ppl/nn/common/types.h"
+#include "ppl/nn/common/logger.h"
 
 namespace ppl { namespace nn { namespace cuda {
-
 
 class CUDAModule {
 public:
@@ -42,6 +42,11 @@ public:
     }
     // Get the kernel function from the CUmodule
     CUfunction GetKernelFunc();
+
+    void SetCuModule(CUmodule module) { this->module_ = module; }
+
+    void SetCuModule(CUfunction func) { this->func_ = func; }
+
 
     void SaveToFile();
 
@@ -59,12 +64,16 @@ private:
 
     CUmodule module_ = nullptr;
 
+    CUfunction func_ = nullptr;
+
 };
 
 class CUDAModuleWrapper {
 public:
-    CUDAModuleWrapper() {
-
+    ~CUDAModuleWrapper() {
+        if (module_ != nullptr) {
+            delete module_;
+        }
     }
     // Initilize the cuda func wrapper
     void Init(CUDAModule* module, std::string func_name, CudaDevice* device) {
@@ -101,7 +110,13 @@ using ModuleMap = std::map<nodeid_t, CUDAModuleWrapper*>;
 
 class CUDAModuleManager {
 public:
-
+    ~CUDAModuleManager() {
+        for (auto iter : module_) {
+            if (iter.second != nullptr) {
+                delete iter.second;
+            }
+        }
+    }
     CUDAModuleWrapper* FindModuleByNodeId(nodeid_t id);
     
     void InsertModule(std::pair<nodeid_t, CUDAModuleWrapper*> mod);

@@ -33,11 +33,23 @@
       exit(1);                                                    \
     }                                                             \
   } while(0)
+  
+#define PPL_CUDA_SAFE_CALL(x)                                         \
+  do {                                                            \
+    CUresult result = x;                                          \
+    if (result != CUDA_SUCCESS) {                                 \
+      const char *msg;                                            \
+      cuGetErrorName(result, &msg);                               \
+      std::cerr << "\nerror: " #x " failed with error "           \
+                << msg << '\n';                                   \
+      exit(1);                                                    \
+    }                                                             \
+  } while(0)
 
 #define PPL_RUNTIME_SAFE_CALL(x)                                  \
   do {                                                            \
     cudaError_t result = x;                                       \
-    if (result != CUDA_SUCCESS) {                                 \
+    if (result != cudaSuccess) {                                 \
       const char *msg = cudaGetErrorName(result);                 \
       std::cerr << "\nerror: " #x " failed with error "           \
                 << msg << '\n';                                   \
