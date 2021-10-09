@@ -184,5 +184,71 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
 
 
 ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size) {
+    std::string kernel_config = "_b" + IntToString(cta_y) + "x" + IntToString(cta_x) + \
+                                "_w" + IntToString(warp_y) + "x" + IntToString(warp_x) + \
+                                "_k" + IntToString(k_size) + "_s" + IntToString(s_size);
+    std::string kname = "nvIdxnConv_hmma1688_nhwc" + kernel_config + "_nosmem";
+
+    int WARP_SIZE = 32;
+    int MMA_Y = 16;
+    int MMA_X = 8;
+    int MMA_Y_HALF = MMA_Y / 2;
+
+    int cta_num = cta_y * cta_x / warp_y / warp_x;
+
+    int dAvn_size = warp_y / MMA_Y_HALF;
+    int dBvn_size = warp_x / MMA_X;
+
+
+    std::stringstream file_str;
+
+    file_str << "#define TILE_N_PER_CTA       " << cta_x << "\n";
+    file_str << "#define TILE_M_PER_CTA       " << cta_y << "\n\n";
+
+    file_str << "#define TILE_N_PER_WARP      " << warp_x << "\n";
+    file_str << "#define TILE_M_PER_WARP      " << warp_y << "\n\n";
+
+    file_str << "#define TILE_K_PER_CTA       " << k_size << "\n";
+    file_str << "#define TILE_K_PER_STEP      " << s_size << "\n\n";
+
+    file_str << "#define KERNEL_NAME " << kname << "\n\n";
+
+    file_str << "#include <cuda_fp16.h>\n\n";
+
+    WriteIncludeFile(file_str, "idxn/common/const_macros.h");
+
+    if (s_size == 8) {
+        WriteIncludeFile(file_str, "idxn/common/dmem_i1_macros.h");
+        WriteIncludeFile(file_str, "idxn/common/hmma_i1_macros.h");
+
+        file_str << "#define LOAD_dAv1(_regA, _dAv1, _in_id, _in_off)    LOAD_dAv1_SIZE" << dAvn_size << "(_regA, _dAv1, _in_id, _in_off)\n";
+        file_str << "#define LOAD_dBv1(_regB, _dBv1, _dBv1_off)          LOAD_dBv1_SIZE" << dBvn_size << "(_regB, _dBv1, _dBv1_off)\n\n";
+
+        file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_1INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
+    } else if (s_size == 16) {
+        WriteIncludeFile(file_str, "idxn/common/dmem_i2_macros.h");
+        WriteIncludeFile(file_str, "idxn/common/hmma_i2_macros.h");
+
+        file_str << "#define LOAD_dAv2(_regA, _dAv2, _in_id, _in_off)    LOAD_dAv2_SIZE" << dAvn_size << "(_regA, _dAv2, _in_id, _in_off)\n";
+        file_str << "#define LOAD_dBv2(_regB, _dBv2, _dBv2_off)          LOAD_dBv2_SIZE" << dBvn_size << "(_regB, _dBv2, _dBv2_off)\n\n";
+
+        file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_2INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
+    } else if (s_size == 32) {
+        WriteIncludeFile(file_str, "idxn/common/dmem_i4_macros.h");
+        WriteIncludeFile(file_str, "idxn/common/hmma_i4_macros.h");
+
+        file_str << "#define LOAD_dAv4(_regA, _dAv4, _in_id, _in_off)    LOAD_dAv4_SIZE" << dAvn_size << "(_regA, _dAv4, _in_id, _in_off)\n";
+        file_str << "#define LOAD_dBv4(_regB, _dBv4, _dBv4_off)          LOAD_dBv4_SIZE" << dBvn_size << "(_regB, _dBv4, _dBv4_off)\n\n";
+
+        file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_4INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
+    }
+    
+    WriteIncludeFile(file_str, "idxn/common/output_macros.h");
+
+    WriteIncludeFile(file_str, "idxn/common/main_body.h");
+
+    WriteIncludeFile(file_str, "idxn/common/uni_undefs.h");
+        
+    file_res = file_str.str();
     return ppl::common::RC_SUCCESS;
 }
