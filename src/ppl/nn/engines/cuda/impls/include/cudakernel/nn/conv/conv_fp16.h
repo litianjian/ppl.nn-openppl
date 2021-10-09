@@ -80,6 +80,7 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
 
 ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
         std::string &algo_name,
+        std::string &kernel_code,
         select_param_t &tiles,
         conv_param_t &conv_param);
 

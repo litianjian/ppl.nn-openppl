@@ -67,8 +67,9 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
     auto shape_out = options.tensors->find(node->GetOutput(0))->second->GetShape();
     ConvertToForwardConvParam(shape_in0, shape_in1, shape_out, attr_param_.param, temp_conv_param);
     auto& name = attr_param_.extra_param.algo_info.algo_name;
+    auto& code = attr_param_.extra_param.algo_info.kernel_code;
     auto& tiles = attr_param_.extra_param.algo_info.tiles;
-    PPLCUDAConvolutionQuickSelectKernel(name, tiles, temp_conv_param);
+    PPLCUDAConvolutionQuickSelectKernel(name, code, tiles, temp_conv_param);
     options.info->compile_set.emplace(node->GetId());
     return 0.0f;
 }

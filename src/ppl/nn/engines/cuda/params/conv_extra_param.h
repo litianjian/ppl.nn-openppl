@@ -46,6 +46,7 @@ struct ConvFusionInfo {
 struct ConvAlgoInfo {
     std::string algo_type = "";
     std::string algo_name = "";
+    std::string kernel_code = "";
     select_param_t tiles;
     unsigned int kernel_index = 0;
     unsigned int splitk = 1;

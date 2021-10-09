@@ -33,6 +33,7 @@ file(GLOB_RECURSE CUDA_SRC ${CUDA_SRC} src/arithmetic/*.cu
                                        src/nn/conv/conv.cu
                                        src/nn/conv/common/*.cu
                                        src/nn/conv/common/init_lut.cc
+                                       src/nn/conv/gene_kernel.cc
 				                       src/unary/*.cu)
 file(GLOB CUDA_SRC ${CUDA_SRC} src/nn/*.cu)
 file(GLOB CUDA_SRC ${CUDA_SRC} src/nn/depthwise/*.cu)
