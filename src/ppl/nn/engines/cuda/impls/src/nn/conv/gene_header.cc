@@ -30,9 +30,9 @@ std::string GeneHeader::Find(const std::string& path) {
 
 void GeneHeader::InitIncludeFile(std::string path) {
     std::ifstream os_read;
-    path = "/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/" + path;
-	// path = "/home/litianjian/workspace/github/ppl.nn-openppl/src/ppl/nn/engines/cuda/impls/src/nn/conv/" + path;
-    os_read.open(path);
+    // path = "/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/" + path;
+	std::string path1 = "/home/litianjian/workspace/github/ppl.nn-openppl/src/ppl/nn/engines/cuda/impls/src/nn/conv/" + path;
+    os_read.open(path1);
     std::stringstream file_str;
 	file_str << os_read.rdbuf();
 	header_code_.emplace(path, file_str.str());
@@ -56,8 +56,8 @@ GeneHeader::GeneHeader() {
     InitIncludeFile("2spk/common/output_macros.h");
     InitIncludeFile("2spk/common/main_body.h");
     InitIncludeFile("2spk/common/uni_undefs.h");
-
-	InitIncludeFile("idxn/common/const_macros.h");
+    
+    InitIncludeFile("idxn/common/const_macros.h");
 	InitIncludeFile("idxn/common/dmem_i1_macros.h");
 	InitIncludeFile("idxn/common/hmma_i1_macros.h");
 	InitIncludeFile("idxn/common/dmem_i2_macros.h");
