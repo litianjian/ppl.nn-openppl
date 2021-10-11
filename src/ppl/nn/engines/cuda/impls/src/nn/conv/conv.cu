@@ -288,14 +288,14 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
                     (tiles.n_cta / tiles.n_warp) * \
                     WARP_SIZE;
 
-        if(tile.k_per_step == 8)  tiles.flt_pad_size = 2;
-        else if(tile.k_per_step == 16) tiles.flt_pad_size = 4;
-        else if(tile.k_per_step == 32) tiles.flt_pad_size = 8;
+        if(tiles.k_per_step == 8)  tiles.flt_pad_size = 2;
+        else if(tiles.k_per_step == 16) tiles.flt_pad_size = 4;
+        else if(tiles.k_per_step == 32) tiles.flt_pad_size = 8;
 
         algo_name = "nvIdxnConv_hmma1688_nhwc_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.n_cta)+
                                             "_w"+ToString(tiles.m_warp)+"x"+ToString(tiles.n_warp)+
                                             "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_per_step)+"_nosmem";
-        Gene2spkKernel(kernel_code, tiles.m_cta, tiles.n_cta, tiles.m_warp, tiles.n_warp, tiles.k_cta, tiles.k_per_step);
+        GeneIdxnKernel(kernel_code, tiles.m_cta, tiles.n_cta, tiles.m_warp, tiles.n_warp, tiles.k_cta, tiles.k_per_step);
     } else { // Use 3spk algo for large channel
         float min_pad = 1.0;
         tiles.m_cta = 16;
@@ -1010,7 +1010,7 @@ void PPLCUDAConvolutionForwardJITImp(
     int jit_test_tile_m = algo_param.tiles.m_cta;
     int jit_test_cta_k = algo_param.tiles.k_cta;
     int jit_test_cta_size = jit_test_tile_n * jit_test_tile_m * jit_test_cta_k / 
-            (algo_param.tiles.n_warp * algo_param.tiles.m_warp * algo_param.tiles.k_warp) * WARP_SIZE;
+            (algo_param.tiles.n_warp * algo_param.tiles.m_warp * algo_param.tiles.k_per_set) * WARP_SIZE;
 
     dim3 block_size, grid_size;
     block_size.x = jit_test_cta_size;//g_kernel_container[kid].cta_size_in_thd;
