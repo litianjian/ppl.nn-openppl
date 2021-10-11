@@ -1016,14 +1016,14 @@ void PPLCUDAConvolutionForwardJITImp(
     block_size.x = jit_test_cta_size;//g_kernel_container[kid].cta_size_in_thd;
     block_size.y = 1;
     block_size.z = 1;
-    std::cout << "jit_test_tile_n " << jit_test_tile_n << std::endl;
-    std::cout << "jit_test_tile_m " << jit_test_tile_m << std::endl;
+    // std::cout << "jit_test_tile_n " << jit_test_tile_n << std::endl;
+    // std::cout << "jit_test_tile_m " << jit_test_tile_m << std::endl;
 
     grid_size.x  = DivUp(conv_param.in_num * conv_param.out_height * conv_param.out_width, jit_test_tile_m);//g_kernel_container[kid].tile_m_per_cta);
     grid_size.y  = DivUp(num_flt_per_grp_pad, jit_test_tile_n);//g_kernel_container[kid].tile_n_per_cta);
     grid_size.z  = conv_param.num_grp * splitk * splitf;
-    std::cout << "block size " << block_size.x << std::endl;
-    std::cout << "grid_size " << grid_size.x << " " << grid_size.y << " " << grid_size.z << std::endl;
+    // std::cout << "block size " << block_size.x << std::endl;
+    // std::cout << "grid_size " << grid_size.x << " " << grid_size.y << " " << grid_size.z << std::endl;
     int kloop_num = (flt_hw / splitf) * DivUp(num_chl_per_grp_pad, jit_test_cta_k);//g_kernel_container[kid].tile_k_per_cta);
 
     lut_t in_lut, flt_lut;
@@ -1043,7 +1043,7 @@ void PPLCUDAConvolutionForwardJITImp(
     int has_relu = fuse_param.has_activation == 1? 1:0;
     int has_elt_relu = fuse_param.has_elt_activation == 1 ? 1 : 0;
     // void *args[] = {};
-    CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
+    // CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
 
     void *args[] = {&pad_input, &d_flt, &conv_out, &kloop_num,
                     &in_lut, &in_lut_size, &flt_lut, &flt_lut_size, &in_hw, &out_hw,
@@ -1062,7 +1062,7 @@ void PPLCUDAConvolutionForwardJITImp(
     CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 
                     block_size.x, block_size.y, block_size.z,
                     0, stream, args, 0));
-    CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
+    // CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
 
     // CUDA_SAFE_CALL(cuCtxSynchronize());
     // CUDA_RUNTIME_CALL(cudaDeviceSynchronize());
