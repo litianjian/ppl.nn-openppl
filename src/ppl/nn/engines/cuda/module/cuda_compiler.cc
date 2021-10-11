@@ -19,16 +19,27 @@
 
 namespace ppl { namespace nn { namespace cuda {
 
-std::string CUDANVRTCCompile(std::pair<std::string, std::string> code, std::vector<const char*> compile_params) {
+std::string CUDANVRTCCompile(std::pair<string, string> code, std::vector<const char*> compile_params, int device, bool include) {
+    
+    std::vector<const char*> cuda_compile_params{};
+    std::vector<std::string> params;
+    auto arch = PPLCudaGetDeviceArch(device);
+    std::string compile_arch = "-arch=compute_" + std::to_string(arch.first) + std::to_string(arch.second);
+    params.push_back(compile_arch);
+    if (include) {
+        std::string cuda_include = "--include-path=" + CUDAIncludePath();
+        params.push_back(cuda_include);
+    }
+    for (auto &iter : params) {
+        cuda_compile_params.push_back(iter.c_str());
+    }
+    for (auto &iter : compile_params) {
+        cuda_compile_params.push_back(iter);
+    }
     nvrtcProgram program;
     PPL_NVRTC_SAFE_CALL(nvrtcCreateProgram(&program, code.second.c_str(), code.first.c_str(), 0, nullptr, nullptr));
-    (nvrtcCompileProgram(program, compile_params.size(), compile_params.data()));
-    // size_t log_size;
-    // (nvrtcGetProgramLogSize(program, &log_size));
-    // char* log = new char[log_size];
-    // (nvrtcGetProgramLog(program, log));
-    // std::cout<< log << std::endl;
-    // delete[] log;    
+    (nvrtcCompileProgram(program, cuda_compile_params.size(), cuda_compile_params.data()));
+
     std::string ptx_code;
     size_t ptx_size = 0;
     PPL_NVRTC_SAFE_CALL(nvrtcGetPTXSize(program, &ptx_size));
