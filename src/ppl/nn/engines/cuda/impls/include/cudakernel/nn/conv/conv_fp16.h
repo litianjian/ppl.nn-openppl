@@ -59,6 +59,7 @@ struct select_param_t{
     int m_warp = -1;
     int n_warp = -1;
     int k_warp = -1;
+    int cta_size_in_thd = -1;
 };
 struct algo_param_t{
     int kid;

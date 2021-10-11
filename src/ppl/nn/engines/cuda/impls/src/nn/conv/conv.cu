@@ -259,35 +259,39 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
     int chl_per_group = conv_param.num_chl / conv_param.num_grp;
     tiles.quick_select = true;
 
-    // if (chl_per_group < 64) { // Use non-shared memory algo for small channel
-    //     if (flt_hw > 9) {
-    //         tiles.m_cta = 128;
-    //         tiles.m_warp = 64;
-    //     } else {
-    //         tiles.m_cta = 32;
-    //         tiles.m_warp = 16;
-    //     }
+    if (chl_per_group < 64) { // Use non-shared memory algo for small channel
+        if (flt_hw > 9) {
+            tiles.m_cta = 128;
+            tiles.m_warp = 64;
+        } else {
+            tiles.m_cta = 32;
+            tiles.m_warp = 16;
+        }
 
-    //     if (in_hw == out_hw) {
-    //         tiles.n_cta = 64;
-    //         tiles.n_warp = 32;
-    //     } else {
-    //         tiles.n_cta = 32;
-    //         tiles.n_warp = 16;
-    //     }
+        if (in_hw == out_hw) {
+            tiles.n_cta = 64;
+            tiles.n_warp = 32;
+        } else {
+            tiles.n_cta = 32;
+            tiles.n_warp = 16;
+        }
 
-    //     if (conv_param.num_chl >= 16) {
-    //         tiles.k_cta = 32;
-    //         tiles.k_warp = 32;
-    //     } else {
-    //         tiles.k_cta = 16;
-    //         tiles.k_warp = 16;
-    //     }
-    //     algo_name = "nvIdxnConv_hmma1688_nhwc_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.n_cta)+
-    //                                         "_w"+ToString(tiles.m_warp)+"x"+ToString(tiles.n_warp)+
-    //                                         "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_warp)+"_nosmem";
-    // } else 
-    { // Use 3spk algo for large channel
+        if (conv_param.num_chl >= 16) {
+            tiles.k_cta = 32;
+            tiles.k_warp = 32;
+        } else {
+            tiles.k_cta = 16;
+            tiles.k_warp = 16;
+        }
+
+        tiles.cta_size_in_thd = (tiles.m_cta / tiles.m_warp) * \
+                    (tiles.n_cta / tiles.n_warp) * \
+                    WARP_SIZE;
+
+        algo_name = "nvIdxnConv_hmma1688_nhwc_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.n_cta)+
+                                            "_w"+ToString(tiles.m_warp)+"x"+ToString(tiles.n_warp)+
+                                            "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_warp)+"_nosmem";
+    } else { // Use 3spk algo for large channel
         float min_pad = 1.0;
         tiles.m_cta = 16;
         for (int32_t i = 128; i >= 16; i = i / 2) {
@@ -340,6 +344,12 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
         if (tiles.n_warp <= 8) {
             tiles.n_warp = 16;
         }
+
+        tiles.cta_size_in_thd = (tiles.m_cta / tiles.m_warp) *  \
+                               (tiles.n_cta / tiles.n_warp) *  \
+                               (tiles.k_cta / tiles.k_warp)  * \
+                               WARP_SIZE;
+    
         std::string f_size = "f1";
         if (conv_param.flt_height == 3) f_size = "f3";
         if (conv_param.flt_height > 3)  f_size = "fn";
