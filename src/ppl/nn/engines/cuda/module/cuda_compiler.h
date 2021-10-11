@@ -24,6 +24,10 @@
 #include <unordered_map>
 #include <nvrtc.h>
 
+#include "ppl/nn/engines/cuda/cuda_common.h"
+
+using namespace std;
+
 #define PPL_NVRTC_SAFE_CALL(x)                                    \
   do {                                                            \
     nvrtcResult result = x;                                       \
@@ -58,7 +62,7 @@
   } while(0)
 
 namespace ppl { namespace nn { namespace cuda {
-    std::string CUDANVRTCCompile(std::pair<std::string, std::string> code, std::vector<const char*> compile_params);
+  std::string CUDANVRTCCompile(std::pair<string, string> code, std::vector<const char*> compile_params, int device, bool include);
 }}} // namespace ppl::nn::cuda
 
 #endif
