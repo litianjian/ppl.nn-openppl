@@ -57,6 +57,7 @@ GeneHeader::GeneHeader() {
     InitIncludeFile("2spk/common/main_body.h");
     InitIncludeFile("2spk/common/uni_undefs.h");
 
+	InitIncludeFile("idxn/common/const_macros.h");
 	InitIncludeFile("idxn/common/dmem_i1_macros.h");
 	InitIncludeFile("idxn/common/hmma_i1_macros.h");
 	InitIncludeFile("idxn/common/dmem_i2_macros.h");

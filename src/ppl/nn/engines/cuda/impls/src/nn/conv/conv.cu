@@ -278,19 +278,24 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
 
         if (conv_param.num_chl >= 16) {
             tiles.k_cta = 32;
-            tiles.k_warp = 32;
+            tiles.k_per_step = 32;
         } else {
             tiles.k_cta = 16;
-            tiles.k_warp = 16;
+            tiles.k_per_step = 16;
         }
 
         tiles.cta_size_in_thd = (tiles.m_cta / tiles.m_warp) * \
                     (tiles.n_cta / tiles.n_warp) * \
                     WARP_SIZE;
 
+        if(tile.k_per_step == 8)  tiles.flt_pad_size = 2;
+        else if(tile.k_per_step == 16) tiles.flt_pad_size = 4;
+        else if(tile.k_per_step == 32) tiles.flt_pad_size = 8;
+
         algo_name = "nvIdxnConv_hmma1688_nhwc_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.n_cta)+
                                             "_w"+ToString(tiles.m_warp)+"x"+ToString(tiles.n_warp)+
-                                            "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_warp)+"_nosmem";
+                                            "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_per_step)+"_nosmem";
+        Gene2spkKernel(kernel_code, tiles.m_cta, tiles.n_cta, tiles.m_warp, tiles.n_warp, tiles.k_cta, tiles.k_per_step);
     } else { // Use 3spk algo for large channel
         float min_pad = 1.0;
         tiles.m_cta = 16;
@@ -334,9 +339,9 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
 
         tiles.m_warp = tiles.m_cta / 2;
         tiles.n_warp = tiles.n_cta / 2;
-        tiles.k_warp = tiles.k_cta / 2;
-        if (tiles.k_warp <= 8) {
-            tiles.k_warp = 16;
+        tiles.k_per_set = tiles.k_cta / 2;
+        if (tiles.k_per_set <= 8) {
+            tiles.k_per_set = 16;
         }
         if (tiles.m_warp <= 8) {
             tiles.m_warp = 16;
@@ -347,16 +352,22 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
 
         tiles.cta_size_in_thd = (tiles.m_cta / tiles.m_warp) *  \
                                (tiles.n_cta / tiles.n_warp) *  \
-                               (tiles.k_cta / tiles.k_warp)  * \
+                               (tiles.k_cta / tiles.k_per_set)  * \
                                WARP_SIZE;
-    
+
         std::string f_size = "f1";
-        if (conv_param.flt_height == 3) f_size = "f3";
-        if (conv_param.flt_height > 3)  f_size = "fn";
+        tiles.flt_size = 1;
+        if (conv_param.flt_height == 3) {
+            f_size = "f3";
+            tiles.flt_size = 3;
+        } else if (conv_param.flt_height > 3) {
+            f_size = "fn";
+            tiles.flt_size = 0;
+        }
         algo_name = "nv2spkConv_hmma1688_nhwc_"+f_size+"_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.n_cta)+
                                                        "_w"+ToString(tiles.m_warp)+"x"+ToString(tiles.n_warp)+
-                                                       "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_warp)+"_buf1";
-        Gene2spkKernel(kernel_code, f_size, tiles.m_cta, tiles.n_cta, tiles.m_warp, tiles.n_warp, tiles.k_cta, tiles.k_warp, 1);
+                                                       "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_per_set)+"_buf1";
+        Gene2spkKernel(kernel_code, f_size, tiles.m_cta, tiles.n_cta, tiles.m_warp, tiles.n_warp, tiles.k_cta, tiles.k_per_set, 1);
     }
     return ppl::common::RC_SUCCESS;
 }

@@ -58,7 +58,12 @@ struct select_param_t{
     int k_cta = -1;
     int m_warp = -1;
     int n_warp = -1;
-    int k_warp = -1;
+
+    int k_per_step = -1; // for idxn conv
+    int k_per_set = -1;  // for 2spk conv
+    int flt_size = -1; // for 2spk conv 
+    int flt_pad_size = -1; // for idxn conv 
+    
     int cta_size_in_thd = -1;
 };
 struct algo_param_t{
