@@ -22,8 +22,13 @@ namespace ppl { namespace nn { namespace cuda {
 std::string CUDANVRTCCompile(std::pair<std::string, std::string> code, std::vector<const char*> compile_params) {
     nvrtcProgram program;
     PPL_NVRTC_SAFE_CALL(nvrtcCreateProgram(&program, code.second.c_str(), code.first.c_str(), 0, nullptr, nullptr));
-    PPL_NVRTC_SAFE_CALL(nvrtcCompileProgram(program, compile_params.size(), compile_params.data()));
-    
+    (nvrtcCompileProgram(program, compile_params.size(), compile_params.data()));
+    // size_t log_size;
+    // (nvrtcGetProgramLogSize(program, &log_size));
+    // char* log = new char[log_size];
+    // (nvrtcGetProgramLog(program, log));
+    // std::cout<< log << std::endl;
+    // delete[] log;    
     std::string ptx_code;
     size_t ptx_size = 0;
     PPL_NVRTC_SAFE_CALL(nvrtcGetPTXSize(program, &ptx_size));

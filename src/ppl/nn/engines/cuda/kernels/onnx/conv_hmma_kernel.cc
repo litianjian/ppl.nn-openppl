@@ -75,6 +75,7 @@ ppl::common::RetCode ConvHmmaKernel::DoExecute(KernelExecContext* ctx) {
     algo_param.kid = param_->extra_param.algo_info.kernel_index;
     algo_param.splitk = param_->extra_param.algo_info.splitk;
     algo_param.splitf = param_->extra_param.algo_info.splitf;
+    algo_param.tiles = param_->extra_param.algo_info.tiles;
 
     uint64_t size = PPLCUDAConvolutionGetRuntimeBufSize(shape_in0.GetDataType(), temp_conv_param, algo_param.splitk,
                                                         algo_param.splitf, ((uint64_t)8) * 1024 * 1024 * 1024);
@@ -102,6 +103,7 @@ ppl::common::RetCode ConvHmmaKernel::DoExecute(KernelExecContext* ctx) {
     //     (int4*)ctx->GetInput<TensorImpl>(1)->GetBufferPtr(), (int4*)ctx->GetOutput<TensorImpl>(0)->GetBufferPtr(),
     //     param_->param.bias_term ? (int4*)ctx->GetInput<TensorImpl>(2)->GetBufferPtr() : nullptr, (int4*)tmp_buffer,
     //     algo_param, temp_conv_param, temp_fuse_param);
+    LOG(INFO) <<  module->GetKernelFunc();
     PPLCUDAConvolutionForwardJITImp(
         stream, module->GetKernelFunc(), shape_in0.GetDataType(), (int4*)ctx->GetInput<TensorImpl>(0)->GetBufferPtr(),
         (int4*)ctx->GetInput<TensorImpl>(1)->GetBufferPtr(), (int4*)ctx->GetOutput<TensorImpl>(0)->GetBufferPtr(),

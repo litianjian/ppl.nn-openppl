@@ -49,11 +49,7 @@ struct fuse_param_t{
         int concat_stride;            void* post_concat;
 };
 
-struct algo_param_t{
-    int kid;
-    unsigned int splitk = 1;
-    unsigned int splitf = 1;
-};
+
 
 struct select_param_t{
     bool quick_select = false;
@@ -64,7 +60,12 @@ struct select_param_t{
     int n_warp = -1;
     int k_warp = -1;
 };
- 
+struct algo_param_t{
+    int kid;
+    unsigned int splitk = 1;
+    unsigned int splitf = 1;
+    struct select_param_t tiles;
+};
 int PPLCUDAConvoutionFuseSupport(conv_param_t &conv_param);
 
 uint64_t PPLCUDAConvolutionGetCompilationBufSize(

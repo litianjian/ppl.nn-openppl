@@ -40,20 +40,22 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     
 
     std::string name = conv_param->extra_param.algo_info.algo_name;
+    std::string source = conv_param->extra_param.algo_info.kernel_code;
     struct select_param_t tiles = conv_param->extra_param.algo_info.tiles;
+
     
     
     // cuda_param->module = (void*)
     std::cout << name << std::endl;
-    std::ifstream file;
-    file.open(name);
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    std::string code(buffer.str());
-    size_t begin = code.find("#define KERNEL_NAME");
-    size_t end = code.find("#include <cuda_fp16.h>");
-    auto kernel_name = code.substr(begin + 20, end - begin - 22);
-    std::cout << kernel_name << std::endl;
+    // std::cout << source << std::endl;
+    // file.open(name);
+    // std::stringstream buffer;
+    // buffer << file.rdbuf();
+    // std::string code(buffer.str());
+    // size_t begin = code.find("#define KERNEL_NAME");
+    // size_t end = code.find("#include <cuda_fp16.h>");
+    // auto kernel_name = code.substr(begin + 20, end - begin - 22);
+    // std::cout << kernel_name << std::endl;
 
     std::vector<std::string> compile_params;
     std::vector<const char*> param_cstring{};
@@ -65,25 +67,25 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     for (auto &string : compile_params) {
        param_cstring.push_back(string.c_str());
     }
-   std::cout << code << std::endl;
+//    std::cout << code << std::endl;
     //Create an instance of nvrtcProgram with the conv code string.
-    nvrtcProgram conv1;
-    PPL_NVRTC_SAFE_CALL(nvrtcCreateProgram(&conv1, code.c_str(), "idxn_b32x16_w32x16_k16_s16.cu", 0, NULL, NULL));
-    (nvrtcCompileProgram(conv1, param_cstring.size(), param_cstring.data()));
-    size_t log_size;
-    (nvrtcGetProgramLogSize(conv1, &log_size));
-    char* log = new char[log_size];
-    (nvrtcGetProgramLog(conv1, log));
-    std::cout<< log << std::endl;
-    delete[] log;
+    // nvrtcProgram conv1;
+    // PPL_NVRTC_SAFE_CALL(nvrtcCreateProgram(&conv1, code.c_str(), "idxn_b32x16_w32x16_k16_s16.cu", 0, NULL, NULL));
+    // (nvrtcCompileProgram(conv1, param_cstring.size(), param_cstring.data()));
+    // size_t log_size;
+    // (nvrtcGetProgramLogSize(conv1, &log_size));
+    // char* log = new char[log_size];
+    // (nvrtcGetProgramLog(conv1, log));
+    // std::cout<< log << std::endl;
+    // delete[] log;
      
-    size_t ptx_size;
-    PPL_NVRTC_SAFE_CALL(nvrtcGetPTXSize(conv1, &ptx_size));
-    char* ptx = new char[ptx_size];
-    std::cout << ptx_size << std::endl;
-    PPL_NVRTC_SAFE_CALL(nvrtcGetPTX(conv1, ptx));
-    // std::cout<<ptx<<std::endl;
-    PPL_NVRTC_SAFE_CALL(nvrtcDestroyProgram(&conv1));
+    // size_t ptx_size;
+    // PPL_NVRTC_SAFE_CALL(nvrtcGetPTXSize(conv1, &ptx_size));
+    // char* ptx = new char[ptx_size];
+    // std::cout << ptx_size << std::endl;
+    // PPL_NVRTC_SAFE_CALL(nvrtcGetPTX(conv1, ptx));
+    // // std::cout<<ptx<<std::endl;
+    // PPL_NVRTC_SAFE_CALL(nvrtcDestroyProgram(&conv1));
     //Load the generated PTX and get a handle to the conv kernel.
     // CUdevice cu_device;
     // CUcontext context;
@@ -97,17 +99,18 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     // PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&function, module, "nv2spkConv_hmma1688_nhwc_fn_b128x128_w64x64_k32_s32_buf2"));
 
 
-    std::string ptx_code(ptx);
+    // std::string ptx_code(ptx);
     CUDAModuleWrapper* wrapper = new CUDAModuleWrapper();
     CUDAModule* cuda_module = new CUDAModule();
-    std::string func_name = "nv2spkConv_hmma1688_nhwc_fn_b128x128_w64x64_k32_s32_buf2";
+    std::string func_name = name;//"nv2spkConv_hmma1688_nhwc_fn_b128x128_w64x64_k32_s32_buf2";
     // cuda_module->SetCuModule(module);
     cuda_param->module = (void*)cuda_module;
 
 
     // std::vector<const char*> params;
     // auto source = module->GetSourceCode();
-    // auto ptx = CUDANVRTCCompile(source, params);
+    auto ptx_code = CUDANVRTCCompile(make_pair<string, string>(std::move(name), std::move(source)), param_cstring);
+    // std::cout << ptx_code << std::endl;
     cuda_module->SetSourceCode(func_name, ptx_code);
     wrapper->Init(cuda_module, func_name, options.device);
 

@@ -80,7 +80,7 @@ __global__ void MergeConvSplitResults(
             for(int i = 0; i < _4HALF2_; i++)
                 merge_v1[i] = __vmaxs2(merge_v1[i], 0);
 	    } else {
-	        __half2 h2ONE = {(__half) 1.f, (__half) 1.f};
+	        __half2 h2ONE((__half) 1.f, (__half) 1.f);
 
             for(int i = 0; i < _4HALF2_; i++)
 	            h2_merge[i]  = __h2div(h2exp(h2_merge[i]), __hadd2(h2ONE, h2exp(h2_merge[i])));
@@ -139,7 +139,7 @@ __global__ void MergeConvSplitResults(
             for(int i = 0; i < _4HALF2_; i++)
                 merge_v1[i] = __vmaxs2(merge_v1[i], 0);
 	    } else{
-	        __half2 h2ONE = {(__half) 1.f, (__half) 1.f};
+	        __half2 h2ONE((__half) 1.f, (__half) 1.f);
 
             for(int i = 0; i < _4HALF2_; i++)
 	            h2_merge[i]  = __h2div(h2exp(h2_merge[i]), __hadd2(h2ONE, h2exp(h2_merge[i])));

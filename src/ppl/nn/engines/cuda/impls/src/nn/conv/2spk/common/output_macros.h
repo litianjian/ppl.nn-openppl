@@ -68,7 +68,7 @@
                 else if(_has_relu == 2) \
                 { \
 	                __half2 * h2R = (__half2 *) Rv4; \
-			        __half2 h2ONE = { (__half) 1.f, (__half) 1.f}; \
+			        __half2 h2ONE((__half) 1.f, (__half) 1.f); \
                     \
                     _Pragma("unroll") \
 	                for(int i = 0; i < _INT4_TO_4HALF2_; i++) \

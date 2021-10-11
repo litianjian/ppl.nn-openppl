@@ -53,6 +53,7 @@ std::string GetSizeString(float size) {
 
 void WriteIncludeFile(std::stringstream& file_str, std::string path) {
     std::ifstream os_read;
+    path = "/home/litianjian/workspace/github/ppl.nn-openppl/src/ppl/nn/engines/cuda/impls/src/nn/conv/" + path;
     os_read.open(path);
     file_str << os_read.rdbuf() << "\n\n";
     // file_str << "include path " << path << "\n\n";
@@ -120,6 +121,11 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
     file_str << "#define USE_" << buf_size << "BUF\n\n";
 
     file_str << "#include <cuda_fp16.h>\n\n";
+    file_str << "#define ENABLE_FUSE 1\n\n";
+    file_str << "#define uint int\n\n";
+    file_str << "#define uint32_t int\n\n";
+    file_str << "#define MAX_LUT_SIZE 128\n\n";
+    file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
 
     WriteIncludeFile(file_str, "2spk/common/const_macros.h");
     WriteIncludeFile(file_str, "2spk/" + flt_size + "/bound_macros.h");
@@ -175,7 +181,9 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
     }
 
     WriteIncludeFile(file_str, "2spk/common/output_macros.h");
+    file_str << "extern \"C\" {\n\n";
     WriteIncludeFile(file_str, "2spk/common/main_body.h");
+    file_str << "}\n\n";
     WriteIncludeFile(file_str, "2spk/common/uni_undefs.h");
 
     file_res = file_str.str();
