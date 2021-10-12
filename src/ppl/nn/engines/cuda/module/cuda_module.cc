@@ -30,7 +30,7 @@ CUfunction CUDAModule::GetKernelFunc() {
     }
     if (func_ == nullptr) {
         // LOG(INFO) << "GetFunction";
-        // LOG(INFO) << this->source_code_.first;
+        LOG(INFO) << this->source_code_.first;
         PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&func_, module_, this->source_code_.first.c_str()));
     }
     // CUfunction func;

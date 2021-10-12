@@ -88,7 +88,7 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     cuda_param->module = (void*)cuda_module;
 
     auto ptx_code = CUDANVRTCCompile(pair<string,string>(name, source), param_cstring,  options.device->GetDeviceId(), true);
-    // std::cout << ptx_code << std::endl;
+    // std::cout << source << std::endl;
     cuda_module->SetSourceCode(name, ptx_code);
     wrapper->Init(cuda_module, name, options.device);
 
