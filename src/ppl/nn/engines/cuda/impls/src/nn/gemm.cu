@@ -37,7 +37,7 @@ static bool is_g_kvec_set = false;
     const int batch = M;           const int num_grp = 1;                   \
     const int num_chl_per_grp = 0; const int num_chl_per_grp_pad = K_pad;   \
     const int flt_height = 1;      const int flt_width = 1;                 \
-    const int num_flt_per_grp = 0; const int num_flt_per_grp_pad = N_pad;   \
+    const int num_flt_per_grp = N; const int num_flt_per_grp_pad = N_pad;   \
     const int out_height = 1;      const int out_width = 1;                 \
     const int stride_height = 1;   const int stride_width = 1;              \
     const int pad_height = 0;      const int pad_width = 0;                 \
@@ -75,17 +75,10 @@ static bool is_g_kvec_set = false;
 
 void init_f1_kvec(std::vector<kernel_info_t> &g_kvec, ppl::common::datatype_t type)
 {
-    if ( type == ppl::common::DATATYPE_FLOAT32 )
-    {
-        printf("fp32 unsupported in %s\n", __FUNCTION__);
-    }
-    else if ( type == ppl::common::DATATYPE_FLOAT16 )
+    if ( type == ppl::common::DATATYPE_FLOAT16 )
     {
         Initialize2spkConvF1KernelContainer(g_kvec);
     }
-    else 
-    { printf("type unsupported\n"); }
-
     is_g_kvec_set = true;
 }
 
@@ -262,6 +255,8 @@ int PPLCUDAGemmSelectKernel(
     int transA = param.transA;
     int transB = param.transB;
 
+    //FIXME use non-paded N in conv1x1 for input
+    int N = transB ? weight_shape->GetDim(0) : weight_shape->GetDim(1);
     int N_pad = transB ? weight_shape->GetDim(0) : weight_shape->GetDim(1);
     int K_pad = transB ? weight_shape->GetDim(1) : weight_shape->GetDim(0);
     int M = transA ? input_shape->GetDim(1) : input_shape->GetDim(0);
@@ -324,9 +319,6 @@ int PPLCUDAGemmSelectKernel(
 	        int kLoopNum = DivUp(K_pad, tile_k_per_cta);
                 lut_t in_lut, flt_lut;
                 (g_kvec[kid].lut_kptr)<<<grid_size, block_size, 0, stream>>>(GEMM_FUNC_PARAM);
-            }
-            else { 
-                printf("Error: kernel type error in %s\n", __FUNCTION__); 
             }
         }
 	    cudaEventRecord(end, stream);
