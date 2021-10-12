@@ -70,7 +70,7 @@ struct algo_param_t{
     std::string algo_name = "";
     std::string kernel_code = "";
     tiles_param_t tiles;
-    unsigned int kid = 0;
+    unsigned int kid = -1;
     unsigned int splitk = 1;
     unsigned int splitf = 1;
     bool is_initializer_weight = true;
@@ -90,9 +90,7 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
         uint64_t workspace = ((uint64_t)8)*1024*1024*1024);
 
 ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
-        std::string &algo_name,
-        std::string &kernel_code,
-        tiles_param_t &tiles,
+        algo_param_t &algo_param,
         conv_param_t &conv_param);
 
 ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
