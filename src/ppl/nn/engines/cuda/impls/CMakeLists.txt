@@ -16,7 +16,7 @@ endif()
 execute_process(
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv/2spk/gen_2spk_kernel.py ${CMAKE_CURRENT_BINARY_DIR}/conv/2spk
     COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv/idxn/gen_idxn_kernel.py ${CMAKE_CURRENT_BINARY_DIR}/conv/idxn
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv/gene_header.py ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv/gene_header.py ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv ${CMAKE_CURRENT_BINARY_DIR}/conv
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 file(GLOB_RECURSE CUDA_SRC tools/*.cu)
@@ -24,7 +24,8 @@ file(GLOB_RECURSE CUDA_SRC tools/*.cu)
 file(GLOB_RECURSE CUDA_SRC ${CUDA_SRC} ${CMAKE_CURRENT_BINARY_DIR}/conv/2spk/f*_kernels.cu
                                        ${CMAKE_CURRENT_BINARY_DIR}/conv/2spk/init*.cu
                                        ${CMAKE_CURRENT_BINARY_DIR}/conv/idxn/idxn_kernels*.cu
-                                       ${CMAKE_CURRENT_BINARY_DIR}/conv/idxn/init*.cu)
+                                       ${CMAKE_CURRENT_BINARY_DIR}/conv/idxn/init*.cu
+                                       ${CMAKE_CURRENT_BINARY_DIR}/conv/gene_header.cc)
 
 file(GLOB_RECURSE CUDA_SRC ${CUDA_SRC} src/arithmetic/*.cu
                                        src/memory/*.cu
@@ -33,7 +34,6 @@ file(GLOB_RECURSE CUDA_SRC ${CUDA_SRC} src/arithmetic/*.cu
                                        src/nn/conv/conv.cu
                                        src/nn/conv/common/*.cu
                                        src/nn/conv/common/init_lut.cc
-                                       src/nn/conv/gene_header.cc
                                        src/nn/conv/gene_kernel.cc
 				                       src/unary/*.cu)
 file(GLOB CUDA_SRC ${CUDA_SRC} src/nn/*.cu)

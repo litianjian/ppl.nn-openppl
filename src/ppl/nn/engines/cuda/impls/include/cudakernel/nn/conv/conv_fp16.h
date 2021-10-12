@@ -50,9 +50,7 @@ struct fuse_param_t{
 };
 
 
-
-struct select_param_t{
-    bool quick_select = false;
+struct tiles_param_t{
     int m_cta = -1;
     int n_cta = -1;
     int k_cta = -1;
@@ -66,11 +64,16 @@ struct select_param_t{
     
     int cta_size_in_thd = -1;
 };
+
 struct algo_param_t{
-    int kid;
+    std::string algo_type = "";
+    std::string algo_name = "";
+    std::string kernel_code = "";
+    tiles_param_t tiles;
+    unsigned int kid = 0;
     unsigned int splitk = 1;
     unsigned int splitf = 1;
-    struct select_param_t tiles;
+    bool is_initializer_weight = true;
 };
 int PPLCUDAConvoutionFuseSupport(conv_param_t &conv_param);
 
@@ -89,7 +92,7 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
 ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
         std::string &algo_name,
         std::string &kernel_code,
-        select_param_t &tiles,
+        tiles_param_t &tiles,
         conv_param_t &conv_param);
 
 ppl::common::RetCode PPLCUDAConvolutionSelectKernel(

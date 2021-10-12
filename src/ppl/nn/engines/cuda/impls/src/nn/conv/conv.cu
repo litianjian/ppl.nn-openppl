@@ -251,13 +251,12 @@ std::string ToString(int v) {
 ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
         std::string &algo_name,
         std::string &kernel_code,
-        select_param_t &tiles,
+        tiles_param_t &tiles,
         conv_param_t &conv_param) {
     int in_hw = conv_param.in_num * conv_param.in_height * conv_param.in_width;
     int out_hw = conv_param.in_num * conv_param.out_height * conv_param.out_width;
     int flt_hw = conv_param.flt_height * conv_param.flt_width;
     int chl_per_group = conv_param.num_chl / conv_param.num_grp;
-    tiles.quick_select = true;
 
     if (chl_per_group < 64) { // Use non-shared memory algo for small channel
         if (flt_hw > 9) {
@@ -1024,7 +1023,7 @@ void PPLCUDAConvolutionForwardJITImp(
     const void* elt_prelu = (const void*)fuse_param.elt_prelu;
 
 
-    if (num_chl_per_grp < 64) {
+    if (algo_param.algo_name.find("Idxn") != std::string::npos) {
         int img_pad_size = pad_size;
         int flt_pad_size = algo_param.tiles.flt_pad_size;
 
@@ -1056,7 +1055,7 @@ void PPLCUDAConvolutionForwardJITImp(
         CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 
                         block_size.x, block_size.y, block_size.z,
                         0, stream, args, 0));    
-    } else if (num_chl_per_grp >= 64) {
+    } else if (algo_param.algo_name.find("2spk") != std::string::npos) {
         // std::cout << "block size " << block_size.x << std::endl;
         // std::cout << "grid_size " << grid_size.x << " " << grid_size.y << " " << grid_size.z << std::endl;
         int kloop_num = (flt_hw / splitf) * DivUp(num_chl_per_grp_pad, jit_test_cta_k);//g_kernel_container[kid].tile_k_per_cta);

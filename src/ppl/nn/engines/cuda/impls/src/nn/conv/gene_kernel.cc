@@ -126,13 +126,13 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
     file_str << "#define MAX_LUT_SIZE 128\n\n";
     file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
 
-    WriteIncludeFile(file_str, "2spk/common/const_macros.h");
-    WriteIncludeFile(file_str, "2spk/" + flt_size + "/bound_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/ldsm_macros.h");
-    WriteIncludeFile(file_str, "2spk/" + flt_size + "/dmem_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/hmma_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/reduce_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/smem_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/const_macros.h");
+    WriteIncludeFile(file_str, "/2spk/" + flt_size + "/bound_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/ldsm_macros.h");
+    WriteIncludeFile(file_str, "/2spk/" + flt_size + "/dmem_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/hmma_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/reduce_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/smem_macros.h");
 
     file_str << "#define MMA_INSTS(_C, _A, _B)           MMA_INST_" << warp_y / MMA_Y << "x" << warp_x / MMA_X << "(_C, _A, _B)\n\n";
 
@@ -179,11 +179,11 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
         file_str << "#define FLT_SIZEN\n\n";
     }
 
-    WriteIncludeFile(file_str, "2spk/common/output_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/output_macros.h");
     file_str << "extern \"C\" {\n\n";
-    WriteIncludeFile(file_str, "2spk/common/main_body.h");
+    WriteIncludeFile(file_str, "/2spk/common/main_body.h");
     file_str << "}\n\n";
-    WriteIncludeFile(file_str, "2spk/common/uni_undefs.h");
+    WriteIncludeFile(file_str, "/2spk/common/uni_undefs.h");
 
     file_res = file_str.str();
     return ppl::common::RC_SUCCESS;
@@ -228,27 +228,27 @@ ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x,
     file_str << "#define MAX_LUT_SIZE 128\n\n";
     file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
 
-    WriteIncludeFile(file_str, "idxn/common/const_macros.h");
+    WriteIncludeFile(file_str, "/idxn/common/const_macros.h");
 
     if (s_size == 8) {
-        WriteIncludeFile(file_str, "idxn/common/dmem_i1_macros.h");
-        WriteIncludeFile(file_str, "idxn/common/hmma_i1_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/dmem_i1_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/hmma_i1_macros.h");
 
         file_str << "#define LOAD_dAv1(_regA, _dAv1, _in_id, _in_off)    LOAD_dAv1_SIZE" << dAvn_size << "(_regA, _dAv1, _in_id, _in_off)\n";
         file_str << "#define LOAD_dBv1(_regB, _dBv1, _dBv1_off)          LOAD_dBv1_SIZE" << dBvn_size << "(_regB, _dBv1, _dBv1_off)\n\n";
 
         file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_1INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
     } else if (s_size == 16) {
-        WriteIncludeFile(file_str, "idxn/common/dmem_i2_macros.h");
-        WriteIncludeFile(file_str, "idxn/common/hmma_i2_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/dmem_i2_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/hmma_i2_macros.h");
 
         file_str << "#define LOAD_dAv2(_regA, _dAv2, _in_id, _in_off)    LOAD_dAv2_SIZE" << dAvn_size << "(_regA, _dAv2, _in_id, _in_off)\n";
         file_str << "#define LOAD_dBv2(_regB, _dBv2, _dBv2_off)          LOAD_dBv2_SIZE" << dBvn_size << "(_regB, _dBv2, _dBv2_off)\n\n";
 
         file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_2INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
     } else if (s_size == 32) {
-        WriteIncludeFile(file_str, "idxn/common/dmem_i4_macros.h");
-        WriteIncludeFile(file_str, "idxn/common/hmma_i4_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/dmem_i4_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/hmma_i4_macros.h");
 
         file_str << "#define LOAD_dAv4(_regA, _dAv4, _in_id, _in_off)    LOAD_dAv4_SIZE" << dAvn_size << "(_regA, _dAv4, _in_id, _in_off)\n";
         file_str << "#define LOAD_dBv4(_regB, _dBv4, _dBv4_off)          LOAD_dBv4_SIZE" << dBvn_size << "(_regB, _dBv4, _dBv4_off)\n\n";
@@ -256,11 +256,11 @@ ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x,
         file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_4INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
     }
     
-    WriteIncludeFile(file_str, "idxn/common/output_macros.h");
+    WriteIncludeFile(file_str, "/idxn/common/output_macros.h");
     file_str << "extern \"C\" {\n\n";
-    WriteIncludeFile(file_str, "idxn/common/main_body.h");
+    WriteIncludeFile(file_str, "/idxn/common/main_body.h");
     file_str << "}\n\n";
-    WriteIncludeFile(file_str, "idxn/common/uni_undefs.h");
+    WriteIncludeFile(file_str, "/idxn/common/uni_undefs.h");
         
     file_res = file_str.str();
     return ppl::common::RC_SUCCESS;

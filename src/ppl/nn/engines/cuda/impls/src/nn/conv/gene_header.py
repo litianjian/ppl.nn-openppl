@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-
 Init all include file into gene_header.cc
-
 """
 
 import os
@@ -50,54 +48,55 @@ def write_tail(file):
 """
     file.write(template)
 
-def init_include_file(file, path):
-    with open(path, "r") as header_file:
+def init_include_file(file, path, name):
+    with open(path + name, "r") as header_file:
         code = header_file.read()
         code = code.replace('\\', '\\\\')
         code = code.replace('\"', '\\\"')
         code = code.replace('\n', '\\n\\\n')
-        template = """    header_code_.emplace("{path}", "{code}");
+        template = """    header_code_.emplace("{name}", "{code}");
 """
-        file.write(template.format(path = path,
+        file.write(template.format(name = name,
                                    code = code))
 
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 3:
         print(__doc__)
         sys.exit(1)
 
-    pwd = sys.argv[1]
+    sourse_pwd = sys.argv[1]
+    tail_pwd = sys.argv[2]
 
-    with open(pwd + "/gene_header.cc", "w+") as f:
+    with open(tail_pwd + "/gene_header.cc", "w+") as f:
         write_head(f)
         
-        init_include_file(f, pwd + "/2spk/common/const_macros.h")
-        init_include_file(f, pwd + "/2spk/f1/bound_macros.h")
-        init_include_file(f, pwd + "/2spk/f3/bound_macros.h")
-        init_include_file(f, pwd + "/2spk/fn/bound_macros.h")
-        init_include_file(f, pwd + "/2spk/fs/bound_macros.h")
-        init_include_file(f, pwd + "/2spk/common/ldsm_macros.h")
-        init_include_file(f, pwd + "/2spk/f1/dmem_macros.h")
-        init_include_file(f, pwd + "/2spk/f3/dmem_macros.h")
-        init_include_file(f, pwd + "/2spk/fn/dmem_macros.h")
-        init_include_file(f, pwd + "/2spk/fs/dmem_macros.h")
-        init_include_file(f, pwd + "/2spk/common/hmma_macros.h")
-        init_include_file(f, pwd + "/2spk/common/reduce_macros.h")
-        init_include_file(f, pwd + "/2spk/common/smem_macros.h")
-        init_include_file(f, pwd + "/2spk/common/output_macros.h")
-        init_include_file(f, pwd + "/2spk/common/main_body.h")
-        init_include_file(f, pwd + "/2spk/common/uni_undefs.h")
-        init_include_file(f, pwd + "/idxn/common/const_macros.h")
-        init_include_file(f, pwd + "/idxn/common/dmem_i1_macros.h")
-        init_include_file(f, pwd + "/idxn/common/hmma_i1_macros.h")
-        init_include_file(f, pwd + "/idxn/common/dmem_i2_macros.h")
-        init_include_file(f, pwd + "/idxn/common/hmma_i2_macros.h")
-        init_include_file(f, pwd + "/idxn/common/dmem_i4_macros.h")
-        init_include_file(f, pwd + "/idxn/common/hmma_i4_macros.h")
-        init_include_file(f, pwd + "/idxn/common/output_macros.h")
-        init_include_file(f, pwd + "/idxn/common/main_body.h")
-        init_include_file(f, pwd + "/idxn/common/uni_undefs.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/const_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/f1/bound_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/f3/bound_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/fn/bound_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/fs/bound_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/ldsm_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/f1/dmem_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/f3/dmem_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/fn/dmem_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/fs/dmem_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/hmma_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/reduce_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/smem_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/output_macros.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/main_body.h")
+        init_include_file(f, sourse_pwd, "/2spk/common/uni_undefs.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/const_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/dmem_i1_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/hmma_i1_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/dmem_i2_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/hmma_i2_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/dmem_i4_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/hmma_i4_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/output_macros.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/main_body.h")
+        init_include_file(f, sourse_pwd, "/idxn/common/uni_undefs.h")
          
         write_tail(f)
         
