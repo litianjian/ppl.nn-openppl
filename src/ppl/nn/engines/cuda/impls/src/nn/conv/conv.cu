@@ -1001,20 +1001,17 @@ void PPLCUDAConvolutionForwardJITImp(
     __half  leaky        = __float2half(fuse_param.leaky);
     __half  elt_leaky    = __float2half(fuse_param.elt_leaky);
     
-    int jit_test_tile_n = algo_param.tiles.n_cta;
-    int jit_test_tile_m = algo_param.tiles.m_cta;
-    int jit_test_cta_k = algo_param.tiles.k_cta;
-    int jit_test_cta_size = algo_param.tiles.cta_size_in_thd;
+    int tile_n = algo_param.tiles.n_cta;
+    int tile_m = algo_param.tiles.m_cta;
+    int cta_k = algo_param.tiles.k_cta;
 
     dim3 block_size, grid_size;
-    block_size.x = jit_test_cta_size;
+    block_size.x = algo_param.tiles.cta_size_in_thd;;
     block_size.y = 1;
     block_size.z = 1;
-    // std::cout << "jit_test_tile_n " << jit_test_tile_n << std::endl;
-    // std::cout << "jit_test_tile_m " << jit_test_tile_m << std::endl;
 
-    grid_size.x  = DivUp(conv_param.in_num * conv_param.out_height * conv_param.out_width, jit_test_tile_m);
-    grid_size.y  = DivUp(num_flt_per_grp_pad, jit_test_tile_n);
+    grid_size.x  = DivUp(conv_param.in_num * conv_param.out_height * conv_param.out_width, tile_m);
+    grid_size.y  = DivUp(num_flt_per_grp_pad, tile_n);
     grid_size.z  = conv_param.num_grp * splitk * splitf;
 
     int has_relu = fuse_param.has_activation == 1? 1:0;
@@ -1034,8 +1031,8 @@ void PPLCUDAConvolutionForwardJITImp(
         int flt_chl_per_grp_pad = Align(num_chl_per_grp, flt_pad_size);
         int num_flt_per_grp_pad = Align(num_flt_per_grp, img_pad_size);
 
-	    int kloop_num = DivUp(flt_hw * flt_chl_per_grp_pad, jit_test_cta_k);
-        int koff_num_pad = Align(kloop_num * (jit_test_cta_k / flt_pad_size), WARP_SIZE);
+	    int kloop_num = DivUp(flt_hw * flt_chl_per_grp_pad, cta_k);
+        int koff_num_pad = Align(kloop_num * (cta_k / flt_pad_size), WARP_SIZE);
         
         void *args[] = {&pad_input, &d_flt, &conv_out, 
                         &kloop_num, &koff_num_pad, &in_hw, &out_hw,
@@ -1059,17 +1056,17 @@ void PPLCUDAConvolutionForwardJITImp(
     } else if (num_chl_per_grp >= 64) {
         // std::cout << "block size " << block_size.x << std::endl;
         // std::cout << "grid_size " << grid_size.x << " " << grid_size.y << " " << grid_size.z << std::endl;
-        int kloop_num = (flt_hw / splitf) * DivUp(num_chl_per_grp_pad, jit_test_cta_k);//g_kernel_container[kid].tile_k_per_cta);
+        int kloop_num = (flt_hw / splitf) * DivUp(num_chl_per_grp_pad, cta_k);//g_kernel_container[kid].tile_k_per_cta);
 
         lut_t in_lut, flt_lut;
         int in_lut_size, flt_lut_size;
 
         InitializeInputLut(in_lut_size, in_lut.idx, conv_param.flt_height, conv_param.flt_width, conv_param.in_height,
                 conv_param.in_width, conv_param.pad_height, conv_param.pad_width, conv_param.hole_height, conv_param.hole_width,
-                num_chl_per_grp_pad, conv_param.num_grp, jit_test_cta_k, pad_size);
+                num_chl_per_grp_pad, conv_param.num_grp, cta_k, pad_size);
 
         InitializeFilterLut(flt_lut_size, flt_lut.idx, conv_param.flt_height, conv_param.flt_width, num_chl_per_grp_pad,
-            jit_test_cta_k, pad_size);
+            cta_k, pad_size);
 
         void *args[] = {&pad_input, &d_flt, &conv_out, &kloop_num,
                         &in_lut, &in_lut_size, &flt_lut, &flt_lut_size, &in_hw, &out_hw,

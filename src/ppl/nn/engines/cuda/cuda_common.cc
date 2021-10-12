@@ -37,7 +37,7 @@ std::pair<int, int> PPLCudaGetDeviceArch(int device) {
 
 std::string CUDAIncludePath() {
 
-#if defined(_WIN32)
+#if defined(_WIN32) || defined(_WIN64)
   const std::string delimiter = "\\";
 #else
   const std::string delimiter = "/";
