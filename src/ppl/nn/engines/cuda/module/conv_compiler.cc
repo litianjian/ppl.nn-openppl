@@ -53,7 +53,7 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     std::vector<const char*> param_cstring{};
     // compile_params.push_back("-arch=compute_75");
     // compile_params.push_back("--include-path=/usr/local/cuda/include");
-    compile_params.push_back("--include-path=/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/include");
+    // compile_params.push_back("--include-path=/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/include");
 
     // compile_params.push_back("--include-path=/usr/include");
     for (auto &string : compile_params) {
