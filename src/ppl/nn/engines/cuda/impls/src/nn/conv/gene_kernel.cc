@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "gene_kernel.h"
+#include "cudakernel/nn/conv/gene_kernel.h"
 #include "gene_header.h"
 #include "ppl/nn/common/logger.h"
 
@@ -58,12 +58,7 @@ void WriteIncludeFile(std::stringstream& file_str, std::string path) {
     return;
 }
 
-ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int buf_size) {
-    std::string kernel_config = "_b" + IntToString(cta_y) + "x" + IntToString(cta_x) + \
-                                "_w" + IntToString(warp_y) + "x" + IntToString(warp_x) + \
-                                "_k" + IntToString(k_size) + "_s" + IntToString(s_size) + "_buf" + IntToString(buf_size);
-    std::string kname = "nv2spkConv_hmma1688_nhwc_" + flt_size + kernel_config;
-
+ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int buf_size) {
     int WARP_SIZE = 32;
     int INT4_TO_4HALF2 = 8;
     int MMA_Y = 16;
@@ -79,7 +74,7 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
     float dAv4_size = (cta_y * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
     float dBv4_size = (cta_x * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
 
-
+    auto flt_size = kname.substr(25, 2);
     std::stringstream file_str;
 
     file_str << "#define TILE_N_PER_CTA       " << cta_x << "\n";
@@ -126,13 +121,13 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
     file_str << "#define MAX_LUT_SIZE 128\n\n";
     file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
 
-    WriteIncludeFile(file_str, "2spk/common/const_macros.h");
-    WriteIncludeFile(file_str, "2spk/" + flt_size + "/bound_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/ldsm_macros.h");
-    WriteIncludeFile(file_str, "2spk/" + flt_size + "/dmem_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/hmma_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/reduce_macros.h");
-    WriteIncludeFile(file_str, "2spk/common/smem_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/const_macros.h");
+    WriteIncludeFile(file_str, "/2spk/" + flt_size + "/bound_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/ldsm_macros.h");
+    WriteIncludeFile(file_str, "/2spk/" + flt_size + "/dmem_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/hmma_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/reduce_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/smem_macros.h");
 
     file_str << "#define MMA_INSTS(_C, _A, _B)           MMA_INST_" << warp_y / MMA_Y << "x" << warp_x / MMA_X << "(_C, _A, _B)\n\n";
 
@@ -179,23 +174,18 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
         file_str << "#define FLT_SIZEN\n\n";
     }
 
-    WriteIncludeFile(file_str, "2spk/common/output_macros.h");
+    WriteIncludeFile(file_str, "/2spk/common/output_macros.h");
     file_str << "extern \"C\" {\n\n";
-    WriteIncludeFile(file_str, "2spk/common/main_body.h");
+    WriteIncludeFile(file_str, "/2spk/common/main_body.h");
     file_str << "}\n\n";
-    WriteIncludeFile(file_str, "2spk/common/uni_undefs.h");
+    WriteIncludeFile(file_str, "/2spk/common/uni_undefs.h");
 
     file_res = file_str.str();
     return ppl::common::RC_SUCCESS;
 }
 
 
-ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size) {
-    std::string kernel_config = "_b" + IntToString(cta_y) + "x" + IntToString(cta_x) + \
-                                "_w" + IntToString(warp_y) + "x" + IntToString(warp_x) + \
-                                "_k" + IntToString(k_size) + "_s" + IntToString(s_size);
-    std::string kname = "nvIdxnConv_hmma1688_nhwc" + kernel_config + "_nosmem";
-
+ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size) {
     int WARP_SIZE = 32;
     int MMA_Y = 16;
     int MMA_X = 8;
@@ -228,27 +218,27 @@ ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x,
     file_str << "#define MAX_LUT_SIZE 128\n\n";
     file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
 
-    WriteIncludeFile(file_str, "idxn/common/const_macros.h");
+    WriteIncludeFile(file_str, "/idxn/common/const_macros.h");
 
     if (s_size == 8) {
-        WriteIncludeFile(file_str, "idxn/common/dmem_i1_macros.h");
-        WriteIncludeFile(file_str, "idxn/common/hmma_i1_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/dmem_i1_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/hmma_i1_macros.h");
 
         file_str << "#define LOAD_dAv1(_regA, _dAv1, _in_id, _in_off)    LOAD_dAv1_SIZE" << dAvn_size << "(_regA, _dAv1, _in_id, _in_off)\n";
         file_str << "#define LOAD_dBv1(_regB, _dBv1, _dBv1_off)          LOAD_dBv1_SIZE" << dBvn_size << "(_regB, _dBv1, _dBv1_off)\n\n";
 
         file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_1INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
     } else if (s_size == 16) {
-        WriteIncludeFile(file_str, "idxn/common/dmem_i2_macros.h");
-        WriteIncludeFile(file_str, "idxn/common/hmma_i2_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/dmem_i2_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/hmma_i2_macros.h");
 
         file_str << "#define LOAD_dAv2(_regA, _dAv2, _in_id, _in_off)    LOAD_dAv2_SIZE" << dAvn_size << "(_regA, _dAv2, _in_id, _in_off)\n";
         file_str << "#define LOAD_dBv2(_regB, _dBv2, _dBv2_off)          LOAD_dBv2_SIZE" << dBvn_size << "(_regB, _dBv2, _dBv2_off)\n\n";
 
         file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_2INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
     } else if (s_size == 32) {
-        WriteIncludeFile(file_str, "idxn/common/dmem_i4_macros.h");
-        WriteIncludeFile(file_str, "idxn/common/hmma_i4_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/dmem_i4_macros.h");
+        WriteIncludeFile(file_str, "/idxn/common/hmma_i4_macros.h");
 
         file_str << "#define LOAD_dAv4(_regA, _dAv4, _in_id, _in_off)    LOAD_dAv4_SIZE" << dAvn_size << "(_regA, _dAv4, _in_id, _in_off)\n";
         file_str << "#define LOAD_dBv4(_regB, _dBv4, _dBv4_off)          LOAD_dBv4_SIZE" << dBvn_size << "(_regB, _dBv4, _dBv4_off)\n\n";
@@ -256,11 +246,11 @@ ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x,
         file_str << "#define MMA_INSTS(_C, _A, _B)                       MMA_INST_4INT_" << dAvn_size / 2 << "x" << dBvn_size << "(_C, _A, _B)\n\n";
     }
     
-    WriteIncludeFile(file_str, "idxn/common/output_macros.h");
+    WriteIncludeFile(file_str, "/idxn/common/output_macros.h");
     file_str << "extern \"C\" {\n\n";
-    WriteIncludeFile(file_str, "idxn/common/main_body.h");
+    WriteIncludeFile(file_str, "/idxn/common/main_body.h");
     file_str << "}\n\n";
-    WriteIncludeFile(file_str, "idxn/common/uni_undefs.h");
+    WriteIncludeFile(file_str, "/idxn/common/uni_undefs.h");
         
     file_res = file_str.str();
     return ppl::common::RC_SUCCESS;

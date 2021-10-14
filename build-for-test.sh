@@ -2,17 +2,17 @@
 
 workdir=`pwd`
 x86_64_build_dir="${workdir}/x86-64-build"
-cuda_build_dir="${workdir}/cuda-build"
+cuda_build_dir="${workdir}/cuda-release"
 processor_num=`cat /proc/cpuinfo | grep processor | grep -v grep | wc -l`
 
-options='-DCMAKE_BUILD_TYPE=Debug -DPPLNN_ENABLE_PYTHON_API=ON'
+options='-DCMAKE_BUILD_TYPE=Release -DPPLNN_ENABLE_PYTHON_API=ON'
 
 # --------------------------------------------------------------------------- #
 # preparing lua
 
 lua_package='/tmp/lua-5.4.3.tar.gz'
 if ! [ -f "${lua_package}" ]; then
-    wget -c 'https://www.lua.org/ftp/lua-5.4.3.tar.gz' -O ${lua_package}
+    wget --no-check-certificate -c 'https://www.lua.org/ftp/lua-5.4.3.tar.gz' -O ${lua_package}
 fi
 
 lua_source_dir='/tmp/lua-5.4.3'

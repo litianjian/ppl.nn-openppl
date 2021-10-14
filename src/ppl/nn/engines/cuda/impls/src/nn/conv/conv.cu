@@ -29,7 +29,6 @@
 #include "cudakernel/nn/conv/conv_fp16.h"
 #include "kernel_type.h"
 #include "conv_common.h"
-#include "gene_kernel.h"
 #include "common/init_lut.h"
 #include "common/merge_split.h"
 
@@ -250,125 +249,136 @@ std::string ToString(int v) {
 }
 
 ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
-        std::string &algo_name,
-        std::string &kernel_code,
-        select_param_t &tiles,
+        algo_param_t &algo_param,
         conv_param_t &conv_param) {
     int in_hw = conv_param.in_num * conv_param.in_height * conv_param.in_width;
     int out_hw = conv_param.in_num * conv_param.out_height * conv_param.out_width;
     int flt_hw = conv_param.flt_height * conv_param.flt_width;
     int chl_per_group = conv_param.num_chl / conv_param.num_grp;
-    tiles.quick_select = true;
 
-    if (chl_per_group < 64) { // Use non-shared memory algo for small channel
+    if (algo_param.kid >= 0) {
+        if(!is_g_kernel_container_initialized) 
+            InitializeKernelContainer(g_kernel_container, ppl::common::DATATYPE_FLOAT16);
+        
+        auto kid = algo_param.kid;
+        algo_param.algo_name = g_kernel_container[kid].kname;
+        algo_param.tiles.m_cta = g_kernel_container[kid].tile_m_per_cta;
+        algo_param.tiles.m_warp = g_kernel_container[kid].tile_m_per_warp;
+        algo_param.tiles.n_cta = g_kernel_container[kid].tile_n_per_cta;
+        algo_param.tiles.n_warp = g_kernel_container[kid].tile_n_per_warp;
+        algo_param.tiles.k_cta = g_kernel_container[kid].tile_k_per_cta;
+        algo_param.tiles.k_per_step = g_kernel_container[kid].tile_k_per_step;
+        algo_param.tiles.k_per_set = g_kernel_container[kid].tile_k_per_set;
+        algo_param.tiles.flt_size = g_kernel_container[kid].flt_size;
+        algo_param.tiles.flt_pad_size = g_kernel_container[kid].flt_pad_size;
+        algo_param.tiles.cta_size_in_thd = g_kernel_container[kid].cta_size_in_thd;
+    } else if (chl_per_group < 64) { // Use non-shared memory algo for small channel
         if (flt_hw > 9) {
-            tiles.m_cta = 128;
-            tiles.m_warp = 64;
+            algo_param.tiles.m_cta = 128;
+            algo_param.tiles.m_warp = 64;
         } else {
-            tiles.m_cta = 32;
-            tiles.m_warp = 16;
+            algo_param.tiles.m_cta = 32;
+            algo_param.tiles.m_warp = 16;
         }
 
         if (in_hw == out_hw) {
-            tiles.n_cta = 64;
-            tiles.n_warp = 32;
+            algo_param.tiles.n_cta = 64;
+            algo_param.tiles.n_warp = 32;
         } else {
-            tiles.n_cta = 32;
-            tiles.n_warp = 16;
+            algo_param.tiles.n_cta = 32;
+            algo_param.tiles.n_warp = 16;
         }
 
         if (conv_param.num_chl >= 16) {
-            tiles.k_cta = 32;
-            tiles.k_per_step = 32;
+            algo_param.tiles.k_cta = 32;
+            algo_param.tiles.k_per_step = 32;
         } else {
-            tiles.k_cta = 16;
-            tiles.k_per_step = 16;
+            algo_param.tiles.k_cta = 16;
+            algo_param.tiles.k_per_step = 16;
         }
 
-        tiles.cta_size_in_thd = (tiles.m_cta / tiles.m_warp) * \
-                    (tiles.n_cta / tiles.n_warp) * \
+        algo_param.tiles.cta_size_in_thd = (algo_param.tiles.m_cta / algo_param.tiles.m_warp) * \
+                    (algo_param.tiles.n_cta / algo_param.tiles.n_warp) * \
                     WARP_SIZE;
 
-        if(tiles.k_per_step == 8)  tiles.flt_pad_size = 2;
-        else if(tiles.k_per_step == 16) tiles.flt_pad_size = 4;
-        else if(tiles.k_per_step == 32) tiles.flt_pad_size = 8;
+        if(algo_param.tiles.k_per_step == 8)  algo_param.tiles.flt_pad_size = 2;
+        else if(algo_param.tiles.k_per_step == 16) algo_param.tiles.flt_pad_size = 4;
+        else if(algo_param.tiles.k_per_step == 32) algo_param.tiles.flt_pad_size = 8;
 
-        algo_name = "nvIdxnConv_hmma1688_nhwc_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.n_cta)+
-                                            "_w"+ToString(tiles.m_warp)+"x"+ToString(tiles.n_warp)+
-                                            "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_per_step)+"_nosmem";
-        GeneIdxnKernel(kernel_code, tiles.m_cta, tiles.n_cta, tiles.m_warp, tiles.n_warp, tiles.k_cta, tiles.k_per_step);
+        algo_param.algo_name = "nvIdxnConv_hmma1688_nhwc_b"+ToString(algo_param.tiles.m_cta)+"x"+ToString(algo_param.tiles.n_cta)+
+                                            "_w"+ToString(algo_param.tiles.m_warp)+"x"+ToString(algo_param.tiles.n_warp)+
+                                            "_k"+ToString(algo_param.tiles.k_cta)+"_s"+ToString(algo_param.tiles.k_per_step)+"_nosmem";
     } else { // Use 3spk algo for large channel
         float min_pad = 1.0;
-        tiles.m_cta = 16;
+        algo_param.tiles.m_cta = 16;
         for (int32_t i = 128; i >= 16; i = i / 2) {
             if (out_hw < i) continue;
             float pad = 1.0 * (DivUp(out_hw, i) * i - out_hw) / out_hw;
             if (pad < min_pad)  {
                 min_pad = pad;
-                tiles.m_cta = i;
+                algo_param.tiles.m_cta = i;
             }
             if (min_pad < 0.1)  break;
         }
 
-        tiles.n_cta = 16;
+        algo_param.tiles.n_cta = 16;
         for (int32_t i = 128; i >= 16; i = i / 2) {
             int cout = conv_param.num_flt;
             if ((cout < 64 && i / cout == 1) || (cout >= 64 && cout % i == 0)) {
-                tiles.n_cta = i;
+                algo_param.tiles.n_cta = i;
                 break;
             }
         }
 
         if (conv_param.num_chl >= 128) {
-            tiles.k_cta = 64;
+            algo_param.tiles.k_cta = 64;
         } else {
-            tiles.k_cta = 32;
+            algo_param.tiles.k_cta = 32;
         }
 
-        if (tiles.m_cta == 128 && tiles.n_cta == 128) {
-            tiles.m_cta = 64;
+        if (algo_param.tiles.m_cta == 128 && algo_param.tiles.n_cta == 128) {
+            algo_param.tiles.m_cta = 64;
         }
 
-        if (tiles.m_cta * 4 < tiles.n_cta) {
-            tiles.m_cta *= 2;
-            tiles.n_cta /= 2;
+        if (algo_param.tiles.m_cta * 4 < algo_param.tiles.n_cta) {
+            algo_param.tiles.m_cta *= 2;
+            algo_param.tiles.n_cta /= 2;
         }
-        if (tiles.n_cta *4 < tiles.m_cta) {
-            tiles.m_cta /= 2;
-            tiles.n_cta *= 2;
-        }
-
-        tiles.m_warp = tiles.m_cta / 2;
-        tiles.n_warp = tiles.n_cta / 2;
-        tiles.k_per_set = tiles.k_cta / 2;
-        if (tiles.k_per_set <= 8) {
-            tiles.k_per_set = 16;
-        }
-        if (tiles.m_warp <= 8) {
-            tiles.m_warp = 16;
-        }
-        if (tiles.n_warp <= 8) {
-            tiles.n_warp = 16;
+        if (algo_param.tiles.n_cta *4 < algo_param.tiles.m_cta) {
+            algo_param.tiles.m_cta /= 2;
+            algo_param.tiles.n_cta *= 2;
         }
 
-        tiles.cta_size_in_thd = (tiles.m_cta / tiles.m_warp) *  \
-                               (tiles.n_cta / tiles.n_warp) *  \
-                               (tiles.k_cta / tiles.k_per_set)  * \
+        algo_param.tiles.m_warp = algo_param.tiles.m_cta / 2;
+        algo_param.tiles.n_warp = algo_param.tiles.n_cta / 2;
+        algo_param.tiles.k_per_set = algo_param.tiles.k_cta / 2;
+        if (algo_param.tiles.k_per_set <= 8) {
+            algo_param.tiles.k_per_set = 16;
+        }
+        if (algo_param.tiles.m_warp <= 8) {
+            algo_param.tiles.m_warp = 16;
+        }
+        if (algo_param.tiles.n_warp <= 8) {
+            algo_param.tiles.n_warp = 16;
+        }
+
+        algo_param.tiles.cta_size_in_thd = (algo_param.tiles.m_cta / algo_param.tiles.m_warp) *  \
+                               (algo_param.tiles.n_cta / algo_param.tiles.n_warp) *  \
+                               (algo_param.tiles.k_cta / algo_param.tiles.k_per_set)  * \
                                WARP_SIZE;
 
         std::string f_size = "f1";
-        tiles.flt_size = 1;
+        algo_param.tiles.flt_size = 1;
         if (conv_param.flt_height == 3) {
             f_size = "f3";
-            tiles.flt_size = 3;
+            algo_param.tiles.flt_size = 3;
         } else if (conv_param.flt_height > 3) {
             f_size = "fn";
-            tiles.flt_size = 0;
+            algo_param.tiles.flt_size = 0;
         }
-        algo_name = "nv2spkConv_hmma1688_nhwc_"+f_size+"_b"+ToString(tiles.m_cta)+"x"+ToString(tiles.n_cta)+
-                                                       "_w"+ToString(tiles.m_warp)+"x"+ToString(tiles.n_warp)+
-                                                       "_k"+ToString(tiles.k_cta)+"_s"+ToString(tiles.k_per_set)+"_buf1";
-        Gene2spkKernel(kernel_code, f_size, tiles.m_cta, tiles.n_cta, tiles.m_warp, tiles.n_warp, tiles.k_cta, tiles.k_per_set, 1);
+        algo_param.algo_name = "nv2spkConv_hmma1688_nhwc_"+f_size+"_b"+ToString(algo_param.tiles.m_cta)+"x"+ToString(algo_param.tiles.n_cta)+
+                                                       "_w"+ToString(algo_param.tiles.m_warp)+"x"+ToString(algo_param.tiles.n_warp)+
+                                                       "_k"+ToString(algo_param.tiles.k_cta)+"_s"+ToString(algo_param.tiles.k_per_set)+"_buf1";
     }
     return ppl::common::RC_SUCCESS;
 }
@@ -1045,7 +1055,7 @@ void PPLCUDAConvolutionForwardJITImp(
     const void* elt_prelu = (const void*)fuse_param.elt_prelu;
 
 
-    if (num_chl_per_grp < 64) {
+    if (algo_param.algo_name.find("Idxn") != std::string::npos) {
         int img_pad_size = pad_size;
         int flt_pad_size = algo_param.tiles.flt_pad_size;
 
@@ -1077,7 +1087,7 @@ void PPLCUDAConvolutionForwardJITImp(
         CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 
                         block_size.x, block_size.y, block_size.z,
                         0, stream, args, 0));    
-    } else if (num_chl_per_grp >= 64) {
+    } else if (algo_param.algo_name.find("2spk") != std::string::npos) {
         // std::cout << "block size " << block_size.x << std::endl;
         // std::cout << "grid_size " << grid_size.x << " " << grid_size.y << " " << grid_size.z << std::endl;
         int kloop_num = (flt_hw / splitf) * DivUp(num_chl_per_grp_pad, cta_k);//g_kernel_container[kid].tile_k_per_cta);

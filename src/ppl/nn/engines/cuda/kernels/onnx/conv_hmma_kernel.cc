@@ -72,10 +72,7 @@ ppl::common::RetCode ConvHmmaKernel::DoExecute(KernelExecContext* ctx) {
     ConvertToForwardFuseParam(ctx, GetCudaDevice(), param_->extra_param.fuse_info, temp_fuse_param);
 
     struct algo_param_t algo_param;
-    algo_param.kid = param_->extra_param.algo_info.kernel_index;
-    algo_param.splitk = param_->extra_param.algo_info.splitk;
-    algo_param.splitf = param_->extra_param.algo_info.splitf;
-    algo_param.tiles = param_->extra_param.algo_info.tiles;
+    algo_param = param_->extra_param.algo_info;
 
     uint64_t size = PPLCUDAConvolutionGetRuntimeBufSize(shape_in0.GetDataType(), temp_conv_param, algo_param.splitk,
                                                         algo_param.splitf, ((uint64_t)8) * 1024 * 1024 * 1024);
@@ -109,7 +106,7 @@ ppl::common::RetCode ConvHmmaKernel::DoExecute(KernelExecContext* ctx) {
         param_->param.bias_term ? (int4*)ctx->GetInput<TensorImpl>(2)->GetBufferPtr() : nullptr, (int4*)tmp_buffer,
         algo_param, temp_conv_param, temp_fuse_param);
     
-    LOG(DEBUG) << "Excute HMMA conv with kernel id:" << param_->extra_param.algo_info.kernel_index
+    LOG(DEBUG) << "Excute HMMA conv with kernel id:" << param_->extra_param.algo_info.kid
                << " and temp buffer size: " << size;
     return ppl::common::RC_SUCCESS;
 }
