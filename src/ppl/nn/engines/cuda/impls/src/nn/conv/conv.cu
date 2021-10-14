@@ -29,7 +29,6 @@
 #include "cudakernel/nn/conv/conv_fp16.h"
 #include "kernel_type.h"
 #include "conv_common.h"
-#include "gene_kernel.h"
 #include "common/init_lut.h"
 #include "common/merge_split.h"
 
@@ -261,10 +260,12 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
             InitializeKernelContainer(g_kernel_container, ppl::common::DATATYPE_FLOAT16);
         
         auto kid = algo_param.kid;
+        algo_param.algo_name = g_kernel_container[kid].kname;
         algo_param.tiles.m_cta = g_kernel_container[kid].tile_m_per_cta;
         algo_param.tiles.m_warp = g_kernel_container[kid].tile_m_per_warp;
-        algo_param.tiles.m_cta = g_kernel_container[kid].tile_n_per_cta;
-        algo_param.tiles.m_warp = g_kernel_container[kid].tile_m_per_warp;
+        algo_param.tiles.n_cta = g_kernel_container[kid].tile_n_per_cta;
+        algo_param.tiles.n_warp = g_kernel_container[kid].tile_n_per_warp;
+        algo_param.tiles.k_cta = g_kernel_container[kid].tile_k_per_cta;
         algo_param.tiles.k_per_step = g_kernel_container[kid].tile_k_per_step;
         algo_param.tiles.k_per_set = g_kernel_container[kid].tile_k_per_set;
         algo_param.tiles.flt_size = g_kernel_container[kid].flt_size;
@@ -306,7 +307,6 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
         algo_param.algo_name = "nvIdxnConv_hmma1688_nhwc_b"+ToString(algo_param.tiles.m_cta)+"x"+ToString(algo_param.tiles.n_cta)+
                                             "_w"+ToString(algo_param.tiles.m_warp)+"x"+ToString(algo_param.tiles.n_warp)+
                                             "_k"+ToString(algo_param.tiles.k_cta)+"_s"+ToString(algo_param.tiles.k_per_step)+"_nosmem";
-        GeneIdxnKernel(algo_param.kernel_code, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_step);
     } else { // Use 3spk algo for large channel
         float min_pad = 1.0;
         algo_param.tiles.m_cta = 16;
@@ -378,7 +378,6 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
         algo_param.algo_name = "nv2spkConv_hmma1688_nhwc_"+f_size+"_b"+ToString(algo_param.tiles.m_cta)+"x"+ToString(algo_param.tiles.n_cta)+
                                                        "_w"+ToString(algo_param.tiles.m_warp)+"x"+ToString(algo_param.tiles.n_warp)+
                                                        "_k"+ToString(algo_param.tiles.k_cta)+"_s"+ToString(algo_param.tiles.k_per_set)+"_buf1";
-        Gene2spkKernel(algo_param.kernel_code, f_size, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_set, 1);
     }
     return ppl::common::RC_SUCCESS;
 }

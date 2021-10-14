@@ -70,7 +70,7 @@ struct algo_param_t{
     std::string algo_name = "";
     std::string kernel_code = "";
     tiles_param_t tiles;
-    unsigned int kid = -1;
+    int kid = -1;
     unsigned int splitk = 1;
     unsigned int splitf = 1;
     bool is_initializer_weight = true;

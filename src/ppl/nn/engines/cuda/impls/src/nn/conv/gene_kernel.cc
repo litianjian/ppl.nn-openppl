@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "gene_kernel.h"
+#include "cudakernel/nn/conv/gene_kernel.h"
 #include "gene_header.h"
 #include "ppl/nn/common/logger.h"
 
@@ -58,12 +58,7 @@ void WriteIncludeFile(std::stringstream& file_str, std::string path) {
     return;
 }
 
-ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int buf_size) {
-    std::string kernel_config = "_b" + IntToString(cta_y) + "x" + IntToString(cta_x) + \
-                                "_w" + IntToString(warp_y) + "x" + IntToString(warp_x) + \
-                                "_k" + IntToString(k_size) + "_s" + IntToString(s_size) + "_buf" + IntToString(buf_size);
-    std::string kname = "nv2spkConv_hmma1688_nhwc_" + flt_size + kernel_config;
-
+ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int buf_size) {
     int WARP_SIZE = 32;
     int INT4_TO_4HALF2 = 8;
     int MMA_Y = 16;
@@ -79,7 +74,7 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
     float dAv4_size = (cta_y * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
     float dBv4_size = (cta_x * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
 
-
+    auto flt_size = kname.substr(25, 2);
     std::stringstream file_str;
 
     file_str << "#define TILE_N_PER_CTA       " << cta_x << "\n";
@@ -190,12 +185,7 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size,
 }
 
 
-ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size) {
-    std::string kernel_config = "_b" + IntToString(cta_y) + "x" + IntToString(cta_x) + \
-                                "_w" + IntToString(warp_y) + "x" + IntToString(warp_x) + \
-                                "_k" + IntToString(k_size) + "_s" + IntToString(s_size);
-    std::string kname = "nvIdxnConv_hmma1688_nhwc" + kernel_config + "_nosmem";
-
+ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size) {
     int WARP_SIZE = 32;
     int MMA_Y = 16;
     int MMA_X = 8;

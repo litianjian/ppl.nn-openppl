@@ -22,6 +22,7 @@
 #include "ppl/nn/engines/cuda/module/cuda_compiler.h"
 #include "ppl/nn/engines/cuda/params/conv_extra_param.h"
 
+#include "cudakernel/nn/conv/gene_kernel.h"
 
 using namespace std;
 namespace ppl { namespace nn { namespace cuda {
@@ -35,22 +36,29 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     CudaCommonParam* cuda_param = static_cast<CudaCommonParam*>(param);
     CudaConvParam* conv_param = static_cast<CudaConvParam*>(cuda_kernel->GetParam());
     
-    std::string name = conv_param->extra_param.algo_info.algo_name;
-    std::string source = conv_param->extra_param.algo_info.kernel_code;
+    auto algo_param = conv_param->extra_param.algo_info;
+    std::string name = algo_param.algo_name;
+    if (algo_param.algo_name.find("Idxn") != std::string::npos) {
+        GeneIdxnKernel(algo_param.kernel_code, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_step);
+    } else {
+        Gene2spkKernel(algo_param.kernel_code, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_set, 1);
+    }
+    std::string source = algo_param.kernel_code;
     // struct select_param_t tiles = conv_param->extra_param.algo_info.tiles;
 
-    std::cout << name << std::endl;
+    // std::cout << name << std::endl;
+    // std::cout << source << std::endl;
 
-    // std::vector<std::string> compile_params;
+    std::vector<std::string> compile_params;
     std::vector<const char*> param_cstring{};
     // compile_params.push_back("-arch=compute_75");
     // compile_params.push_back("--include-path=/usr/local/cuda/include");
-    // compile_params.push_back("--include-path=/home/litianjian/workspace/github/ppl.nn-openppl/src/ppl/nn/engines/cuda/impls/src/nn/conv");
+    compile_params.push_back("--include-path=/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/include");
 
     // compile_params.push_back("--include-path=/usr/include");
-    // for (auto &string : compile_params) {
-    //    param_cstring.push_back(string.c_str());
-    // }
+    for (auto &string : compile_params) {
+       param_cstring.push_back(string.c_str());
+    }
 //    std::cout << code << std::endl;
     //Create an instance of nvrtcProgram with the conv code string.
     // nvrtcProgram conv1;

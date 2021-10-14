@@ -1,0 +1,824 @@
+mkdir: cannot create directory ‘/mnt/hpc/xusi/ppl.jit/cuda-build’: File exists
+cmd -> cmake -DCMAKE_BUILD_TYPE=Debug -DPPLNN_ENABLE_PYTHON_API=ON -DPPLNN_ENABLE_LUA_API=ON -DLUA_INCLUDE_DIR=/tmp/lua-5.4.3/src -DLUA_LIBRARIES=/tmp/lua-5.4.3/src/liblua.a  -DHPCC_USE_CUDA=ON -DCMAKE_INSTALL_PREFIX=/mnt/hpc/xusi/ppl.jit/cuda-build/install .. && make -j48 && make install
+-- Populating hpcc
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/deps/hpcc-subbuild
+[100%] Built target hpcc-populate
+-- Populating protobuf
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/deps/protobuf-subbuild
+[100%] Built target protobuf-populate
+-- 
+-- 3.12.4.0
+-- Populating rapidjson
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/deps/rapidjson-subbuild
+[100%] Built target rapidjson-populate
+CMake Deprecation Warning at deps/rapidjson/CMakeLists.txt:1 (CMAKE_MINIMUM_REQUIRED):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- Populating ppl.common
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/deps/ppl.common-subbuild
+[100%] Built target ppl.common-populate
+-- Populating pybind11
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/deps/pybind11-subbuild
+[100%] Built target pybind11-populate
+-- pybind11 v2.7.0 
+-- Populating luacpp
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/deps/luacpp-subbuild
+[100%] Built target luacpp-populate
+-- Populating googletest
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/deps/googletest-subbuild
+[100%] Built target googletest-populate
+CMake Deprecation Warning at deps/googletest/CMakeLists.txt:4 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at deps/googletest/googlemock/CMakeLists.txt:45 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+CMake Deprecation Warning at deps/googletest/googletest/CMakeLists.txt:56 (cmake_minimum_required):
+  Compatibility with CMake < 2.8.12 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value or use a ...<max> suffix to tell
+  CMake that the project does not need compatibility with older versions.
+
+
+-- Configuring done
+CMake Warning (dev) in src/ppl/nn/engines/cuda/impls/CMakeLists.txt:
+  Policy CMP0104 is not set: CMAKE_CUDA_ARCHITECTURES now detected for NVCC,
+  empty CUDA_ARCHITECTURES not allowed.  Run "cmake --help-policy CMP0104"
+  for policy details.  Use the cmake_policy command to set the policy and
+  suppress this warning.
+
+  CUDA_ARCHITECTURES is empty for target "PPLCUDAKernel".
+This warning is for project developers.  Use -Wno-dev to suppress it.
+
+-- Generating done
+-- Build files have been written to: /mnt/hpc/xusi/ppl.jit/cuda-build
+[  1%] Built target luacpp_static
+[  2%] Built target gtest
+[  2%] Built target pplcommon_static
+[  6%] Built target libprotobuf-lite
+[  6%] Built target gtest_main
+[  7%] Built target luapplcommon_shared
+[  7%] Built target gmock
+[ 17%] Built target pypplcommon_shared
+[ 20%] Built target libprotobuf
+[ 21%] Built target gmock_main
+[ 21%] Built target add_all_tensors_to_output
+[ 33%] Built target libprotoc
+[ 33%] Built target protoc
+Scanning dependencies of target PPLCUDAKernel
+[ 33%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/f1_lut_kernels.cu.o
+[ 33%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/f1_spk_kernels.cu.o
+[ 33%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/f3_lut_kernels.cu.o
+[ 33%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/f3_spk_kernels.cu.o
+[ 33%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/fn_lut_kernels.cu.o
+[ 33%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/fn_spk_kernels.cu.o
+[ 34%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/fs_lut_kernels.cu.o
+[ 34%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/2spk/fs_spk_kernels.cu.o
+[ 34%] Building CXX object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/gene_header.cc.o
+[ 35%] Building CUDA object src/ppl/nn/engines/cuda/impls/CMakeFiles/PPLCUDAKernel.dir/conv/idxn/idxn_kernels.cu.o
+[ 35%] Linking CXX static library libPPLCUDAKernel.a
+[ 44%] Built target PPLCUDAKernel
+Scanning dependencies of target pplnn_static
+[ 44%] Building CXX object CMakeFiles/pplnn_static.dir/generated/version.cc.o
+[ 44%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/common/tensor_buffer_info.cc.o
+[ 45%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/if_op.cc.o
+[ 45%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/if_kernel.cc.o
+[ 45%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/loop_kernel.cc.o
+[ 45%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/sequence_at_op.cc.o
+[ 45%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/loop_op.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/ir/graph_topo.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/graph_parser.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/ppl/converter_kernel.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/split_to_sequence_kernel.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/ppl/shape_operation_kernel.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/utils.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/ir/full_graph_topo.cc.o
+[ 46%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/ppl/shape_operation_op.cc.o
+[ 45%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/sequence_at_kernel.cc.o
+[ 47%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/common/onnx/split_to_sequence_op.cc.o
+[ 47%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_convtranspose_param.cc.o
+[ 47%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/generated/onnx.pb.cc.o
+[ 47%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/ir/partial_graph_topo.cc.o
+[ 47%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/model_parser.cc.o
+[ 47%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/onnx_runtime_builder_factory.cc.o
+[ 47%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_cast_param.cc.o
+[ 48%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/ir/node.cc.o
+[ 48%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_argmax_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_batchnormalization_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_constant_of_shape_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_concat_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_constant_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_depth_to_space_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/param_parser_manager.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_flatten_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_gather_nd_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_gather_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_convolution_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_gemm_param.cc.o
+[ 50%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_loop_param.cc.o
+[ 49%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_leaky_relu_param.cc.o
+[ 50%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_lrn_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_lstm_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_maxunpool_param.cc.o
+[ 50%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_if_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_mmcv_modulated_deform_conv2d_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_mmcv_roialign_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_mmcv_nonmaxsupression_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_mmcv_gridsample_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_pad_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_non_max_suppression_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_pooling_param.cc.o
+[ 51%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_ppl_channel_shuffle_param.cc.o
+[ 52%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_reduce_param.cc.o
+[ 52%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_resize_param.cc.o
+[ 52%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_roialign_param.cc.o
+[ 52%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_scatter_elements_param.cc.o
+[ 52%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_softmax_param.cc.o
+[ 52%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_split_param.cc.o
+[ 53%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_squeeze_param.cc.o
+[ 53%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_split_to_sequence_param.cc.o
+[ 53%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_topk_param.cc.o
+[ 53%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_transpose_param.cc.o
+[ 53%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/parsers/parse_unsqueeze_param.cc.o
+[ 53%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/runtime_builder_impl.cc.o
+[ 53%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/onnx/utils.cc.o
+[ 54%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/models/op_info_manager.cc.o
+[ 54%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/constant_node_optimizer.cc.o
+[ 54%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/fuse_bn_optimizer.cc.o
+[ 54%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/fuse_parallel_node_optimizer.cc.o
+[ 54%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/fuse_shape_optimizer.cc.o
+[ 54%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/simple_graph_partitioner.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/utils.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/skip_dropout_optimizer.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/optimizers/graph_optimizer_manager.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/broadcast.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/mmcv/reshape_mmcv_gridsample.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/mmcv/reshape_mmcv_modulated_deform_conv2d.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/mmcv/reshape_mmcv_non_max_suppression.cc.o
+[ 55%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/mmcv/reshape_mmcv_roialign.cc.o
+[ 56%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_add.cc.o
+[ 56%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_and.cc.o
+[ 56%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_argmax.cc.o
+[ 56%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_batch_normalization.cc.o
+[ 56%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_cast.cc.o
+[ 56%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_ceil.cc.o
+[ 56%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_concat.cc.o
+[ 57%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_constant_of_shape.cc.o
+[ 57%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_convolution.cc.o
+[ 57%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_convtranspose.cc.o
+[ 57%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_depth_to_space.cc.o
+[ 57%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_expand.cc.o
+[ 57%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_equal.cc.o
+[ 58%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_flatten.cc.o
+[ 58%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_floor.cc.o
+[ 58%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_gather.cc.o
+[ 58%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_gather_nd.cc.o
+[ 58%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_gemm.cc.o
+[ 58%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_greater.cc.o
+[ 58%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_leaky_relu.cc.o
+[ 59%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_less.cc.o
+[ 59%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_lstm.cc.o
+[ 59%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_matmul.cc.o
+[ 59%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_max.cc.o
+[ 59%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_maxunpool.cc.o
+[ 59%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_min.cc.o
+[ 59%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_non_max_suppression.cc.o
+[ 60%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_non_zero.cc.o
+[ 60%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_pad.cc.o
+[ 60%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_pooling.cc.o
+[ 60%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_range.cc.o
+[ 60%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_reduce.cc.o
+[ 60%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_reshape.cc.o
+[ 60%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_resize.cc.o
+[ 61%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_roialign.cc.o
+[ 61%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_scatter_elements.cc.o
+[ 61%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_scatter_nd.cc.o
+[ 61%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_slice.cc.o
+[ 61%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_split.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_squeeze.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_sum.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_tile.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_topk.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_transpose.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_unsqueeze.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/oputils/onnx/reshape_where.cc.o
+[ 62%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/quantization/quant_param_parser.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/runtime/profiler.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/runtime/runtime_impl.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/runtime/runtime_aux_info.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/runtime/scheduler_common.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/runtime/sequential_scheduler.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/runtime/tensor_impl.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/utils/compact_buffer_manager.cc.o
+[ 63%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/utils/generic_cpu_device.cc.o
+[ 64%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/utils/generic_cpu_data_converter.cc.o
+[ 64%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/utils/stack_buffer_manager.cc.o
+[ 64%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/buffered_cuda_allocator.cc.o
+[ 64%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/cuda_common.cc.o
+[ 64%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/buffered_cuda_device.cc.o
+[ 64%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/cuda_device.cc.o
+[ 65%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/data_converter.cc.o
+[ 65%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/default_cuda_device.cc.o
+[ 65%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/engine.cc.o
+[ 65%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/engine_context.cc.o
+[ 65%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/engine_factory.cc.o
+[ 65%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/impls/src/nn/conv/common/init_lut.cc.o
+[ 65%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc.o
+[ 66%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernel.cc.o
+[ 66%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/mmcv/mmcv_gridsample_kernel.cc.o
+[ 66%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/mmcv/mmcv_modulated_deform_conv2d_kernel.cc.o
+[ 66%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/mmcv/mmcv_non_max_suppression_kernel.cc.o
+[ 66%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/mmcv/mmcv_roialign_kernel.cc.o
+[ 66%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/add_kernel.cc.o
+[ 67%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/and_kernel.cc.o
+[ 67%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/argmax_kernel.cc.o
+[ 67%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/avepooling_kernel.cc.o
+[ 67%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/cast_kernel.cc.o
+[ 67%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/batch_normalization_kernel.cc.o
+[ 67%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/ceil_kernel.cc.o
+[ 67%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/clip_kernel.cc.o
+[ 68%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/concat_kernel.cc.o
+[ 68%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/constant_of_shape_kernel.cc.o
+[ 68%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/conv_depthwise_kernel.cc.o
+[ 68%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/conv_hmma_kernel.cc.o
+[ 68%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/conv_imma_kernel.cc.o
+[ 68%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/convtranspose_kernel.cc.o
+[ 68%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/depth_to_space_kernel.cc.o
+[ 69%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/equal_kernel.cc.o
+[ 69%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/div_kernel.cc.o
+[ 69%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/exp_kernel.cc.o
+[ 69%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/expand_kernel.cc.o
+[ 69%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/flatten_kernel.cc.o
+[ 69%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/floor_kernel.cc.o
+[ 69%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/gather_kernel.cc.o
+[ 70%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/gather_nd_kernel.cc.o
+[ 70%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/gemm_kernel.cc.o
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc: In function ‘ppl::common::RetCode Gene2spkKernel(std::__cxx11::string&, std::__cxx11::string, int, int, int, int, int, int, int)’:
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc:76:9: warning: unused variable ‘sAv4_size’ [-Wunused-variable]
+     int sAv4_size = warp_y / INT4_TO_4HALF2;
+         ^~~~~~~~~
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc:77:9: warning: unused variable ‘sBv4_size’ [-Wunused-variable]
+     int sBv4_size = warp_x / INT4_TO_4HALF2;
+         ^~~~~~~~~
+[ 70%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/greater_kernel.cc.o
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc: In function ‘ppl::common::RetCode GeneIdxnKernel(std::__cxx11::string&, int, int, int, int, int, int)’:
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc:199:9: warning: unused variable ‘WARP_SIZE’ [-Wunused-variable]
+     int WARP_SIZE = 32;
+         ^~~~~~~~~
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc:204:9: warning: unused variable ‘cta_num’ [-Wunused-variable]
+     int cta_num = cta_y * cta_x / warp_y / warp_x;
+         ^~~~~~~
+[ 70%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/identity_kernel.cc.o
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc: In function ‘std::__cxx11::string GetSizeString(float)’:
+/mnt/hpc/xusi/ppl.jit/src/ppl/nn/engines/cuda/impls/src/nn/conv/gene_kernel.cc:53:1: warning: control reaches end of non-void function [-Wreturn-type]
+ }
+ ^
+[ 70%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/leaky_relu_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/less_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/log_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/max_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/max_unpool_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/min_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/mul_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/non_max_suppression_kernel.cc.o
+[ 71%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/non_zero_kernel.cc.o
+[ 72%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/not_kernel.cc.o
+[ 72%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/pad_kernel.cc.o
+[ 72%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/pooling_max_normal_kernel.cc.o
+[ 72%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/pow_kernel.cc.o
+[ 72%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/range_kernel.cc.o
+[ 72%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/reduce_max_kernel.cc.o
+[ 72%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/reduce_mean_kernel.cc.o
+[ 73%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/reduce_min_kernel.cc.o
+[ 73%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/reduce_prod_kernel.cc.o
+[ 73%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/relu_kernel.cc.o
+[ 73%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/reduce_sum_kernel.cc.o
+[ 73%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/reshape_kernel.cc.o
+[ 73%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/resize_kernel.cc.o
+[ 73%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/roialign_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/scatter_nd_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/scatter_elements_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/shape_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/sigmoid_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/slice_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/softmax_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/split_kernel.cc.o
+[ 74%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/squeeze_kernel.cc.o
+[ 75%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/sqrt_kernel.cc.o
+[ 75%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/sub_kernel.cc.o
+[ 75%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/tanh_kernel.cc.o
+[ 75%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/tile_kernel.cc.o
+[ 75%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/topk_kernel.cc.o
+[ 76%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/transpose_kernel.cc.o
+[ 76%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/unsqueeze_kernel.cc.o
+[ 76%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/onnx/where_kernel.cc.o
+[ 76%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/ppl/bridge_kernel.cc.o
+[ 76%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/kernels/ppl/channel_shuffle_kernel.cc.o
+[ 76%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/module/conv_compiler.cc.o
+[ 76%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/module/cuda_compiler.cc.o
+[ 77%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/module/cuda_module.cc.o
+[ 77%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/module/op_compile_manager.cc.o
+[ 77%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_bridge.cc.o
+[ 77%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_concat.cc.o
+[ 77%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_conv_depthwise.cc.o
+[ 77%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_conv_hmma.cc.o
+[ 77%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_conv_imma.cc.o
+[ 78%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_deform_conv.cc.o
+[ 78%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_filter_manager.cc.o
+[ 78%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_gemm.cc.o
+[ 78%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_graph.cc.o
+[ 78%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/algos/algo_normal.cc.o
+[ 78%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/fusions/fs_averagepool.cc.o
+[ 79%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/fusions/fs_cast.cc.o
+[ 79%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/fusions/fs_channel_shuffle.cc.o
+[ 79%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/fusions/fs_concat.cc.o
+[ 79%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/fusions/fs_conv.cc.o
+[ 79%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/fusions/fs_filter_manager.cc.o
+[ 79%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/fusions/fs_gemm.cc.o
+[ 79%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/mmcv/mmcv_gridsample_op.cc.o
+[ 80%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/mmcv/mmcv_non_max_suppression_op.cc.o
+[ 80%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/mmcv/mmcv_modulated_deform_conv2d_op.cc.o
+[ 80%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/mmcv/mmcv_roialign_op.cc.o
+[ 80%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/and_op.cc.o
+[ 80%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/add_op.cc.o
+[ 80%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/argmax_op.cc.o
+[ 80%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/average_pool_op.cc.o
+[ 81%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/batch_normalization_op.cc.o
+[ 81%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/cast_op.cc.o
+[ 81%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/ceil_op.cc.o
+[ 81%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/clip_op.cc.o
+[ 81%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/constant_of_shape_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/convtranspose_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/conv_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/concat_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/depth_to_space_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/div_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/equal_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/exp_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/expand_op.cc.o
+[ 82%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/flatten_op.cc.o
+[ 83%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/floor_op.cc.o
+[ 83%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/gather_nd_op.cc.o
+[ 83%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/gather_op.cc.o
+[ 83%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/gemm_op.cc.o
+[ 83%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/greater_op.cc.o
+[ 83%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/identity_op.cc.o
+[ 83%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/if_op.cc.o
+[ 84%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/leaky_relu_op.cc.o
+[ 84%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/less_op.cc.o
+[ 84%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/log_op.cc.o
+[ 84%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/max_op.cc.o
+[ 84%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/loop_op.cc.o
+[ 84%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/max_pool_op.cc.o
+[ 85%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/max_unpool_op.cc.o
+[ 85%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/min_op.cc.o
+[ 85%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/mul_op.cc.o
+[ 85%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/non_max_suppression_op.cc.o
+[ 85%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/non_zero_op.cc.o
+[ 85%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/not_op.cc.o
+[ 85%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/pad_op.cc.o
+[ 86%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/pow_op.cc.o
+[ 86%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/range_op.cc.o
+[ 86%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/reduce_max_op.cc.o
+[ 86%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/reduce_mean_op.cc.o
+[ 86%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/reduce_prod_op.cc.o
+[ 86%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/reduce_min_op.cc.o
+[ 86%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/reduce_sum_op.cc.o
+[ 87%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/relu_op.cc.o
+[ 87%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/reshape_op.cc.o
+[ 87%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/resize_op.cc.o
+[ 87%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/roialign_op.cc.o
+[ 87%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/scatter_elements_op.cc.o
+[ 87%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/scatter_nd_op.cc.o
+[ 87%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/shape_op.cc.o
+[ 88%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/slice_op.cc.o
+[ 88%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/sigmoid_op.cc.o
+[ 88%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/softmax_op.cc.o
+[ 88%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/split_op.cc.o
+[ 88%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/split_to_sequence_op.cc.o
+[ 88%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/sqrt_op.cc.o
+[ 89%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/squeeze_op.cc.o
+[ 89%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/sub_op.cc.o
+[ 89%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/tanh_op.cc.o
+[ 89%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/tile_op.cc.o
+[ 89%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/topk_op.cc.o
+[ 89%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/transpose_op.cc.o
+[ 89%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/unsqueeze_op.cc.o
+[ 90%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/onnx/where_op.cc.o
+[ 90%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/ppl/bridge_op.cc.o
+[ 90%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/ppl/channel_shuffle_op.cc.o
+[ 90%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/ops/ppl/shape_operation_op.cc.o
+[ 90%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/opt_graph.cc.o
+[ 90%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/opt_kernel.cc.o
+[ 90%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/optimizer/opt_kernel_creator_manager.cc.o
+[ 91%] Building CXX object CMakeFiles/pplnn_static.dir/src/ppl/nn/engines/cuda/params/conv_extra_param.cc.o
+[ 91%] Linking CXX static library libpplnn_static.a
+[ 91%] Built target pplnn_static
+Scanning dependencies of target onnx_model_is_supported
+[ 91%] Building CXX object tools/CMakeFiles/onnx_model_is_supported.dir/onnx_model_is_supported.cc.o
+Scanning dependencies of target pplnn
+Scanning dependencies of target pplnn_samples_engine_demo
+[ 91%] Building CXX object tools/CMakeFiles/pplnn.dir/pplnn.cc.o
+[ 92%] Building CXX object tools/CMakeFiles/pplnn.dir/simple_flags.cc.o
+[ 92%] Building CXX object samples/cpp/engine/CMakeFiles/pplnn_samples_engine_demo.dir/demo_kernel.cc.o
+[ 92%] Building CXX object samples/cpp/engine/CMakeFiles/pplnn_samples_engine_demo.dir/demo_engine.cc.o
+Scanning dependencies of target luapplnn_shared
+[ 92%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/engines/cuda/lua_cuda_engine.cc.o
+[ 92%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/common/lua_tensor_shape.cc.o
+[ 92%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/engines/cuda/lua_cuda_engine_factory.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/engines/x86/lua_x86_engine_factory.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/engines/x86/lua_x86_engine.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/engines/cuda/lua_cuda_engine_options.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/lua_pplnn.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/runtime/lua_runtime.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/models/onnx/lua_onnx_runtime_builder_factory.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/utils/lua_version.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/runtime/lua_runtime_builder.cc.o
+[ 93%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/engines/x86/lua_x86_engine_options.cc.o
+[ 94%] Building CXX object lua/CMakeFiles/luapplnn_shared.dir/runtime/lua_tensor.cc.o
+Scanning dependencies of target pplnn_unittest
+Scanning dependencies of target pypplnn_shared
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/models/onnx_graph_parser_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/ir/node_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/common/input_output_info_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/ir/partial_graph_topo_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/engines/echo_op.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/common/tensor_buffer_info_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/common/tensor_shape_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/ir/graph_builder.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/models/onnx_model_parser_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/ir/full_graph_topo_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/models/op_info_manager_test.cc.o
+[ 95%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/optimizers/simple_graph_partitioner_test.cc.o
+[ 96%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/runtime/edge_object_test.cc.o
+[ 96%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/runtime/kernel_exec_context_test.cc.o
+[ 96%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/common/py_ndarray.cc.o
+[ 96%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/utils/compact_buffer_manager_test.cc.o
+[ 97%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/engines/cuda/py_cuda_engine_factory.cc.o
+[ 97%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/engines/cuda/py_cuda_engine_options.cc.o
+[ 97%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/utils/utils_test.cc.o
+[ 98%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/engines/py_engine.cc.o
+[ 98%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/engines/x86/py_x86_engine.cc.o
+[ 98%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/utils/stack_buffer_manager_test.cc.o
+[ 98%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/quantization/quant_param_parser_test.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/common/py_tensor_shape.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/engines/x86/py_x86_engine_factory.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/engines/x86/py_x86_engine_options.cc.o
+[ 99%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/runtime/kernel_impl_test.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/py_pplnn.cc.o
+[ 99%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/optimizers/utils_test.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/engines/cuda/py_cuda_engine.cc.o
+[ 98%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/runtime/sequence_test.cc.o
+[ 99%] Building CXX object tests/CMakeFiles/pplnn_unittest.dir/runtime/tensor_impl_test.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/models/onnx/py_onnx_runtime_builder_factory.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/runtime/py_runtime.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/runtime/py_runtime_builder.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/runtime/py_tensor.cc.o
+[ 99%] Building CXX object python/CMakeFiles/pypplnn_shared.dir/utils/py_version.cc.o
+[ 99%] Linking CXX executable onnx_model_is_supported
+[ 99%] Linking CXX static library libpplnn_samples_engine_demo.a
+[ 99%] Built target pplnn_samples_engine_demo
+[ 99%] Linking CXX shared library nn.so
+[ 99%] Linking CXX executable pplnn
+[ 99%] Built target onnx_model_is_supported
+[ 99%] Linking CXX executable pplnn_unittest
+[100%] Linking CXX shared library nn.so
+[100%] Built target pplnn_unittest
+[100%] Built target luapplnn_shared
+[100%] Built target pplnn
+[100%] Built target pypplnn_shared
+[  1%] Built target pplcommon_static
+[ 12%] Built target PPLCUDAKernel
+[ 24%] Built target libprotobuf
+[ 71%] Built target pplnn_static
+[ 83%] Built target libprotoc
+[ 83%] Built target protoc
+[ 87%] Built target libprotobuf-lite
+[ 88%] Built target pypplcommon_shared
+[ 89%] Built target luacpp_static
+[ 90%] Built target luapplcommon_shared
+[ 93%] Built target pypplnn_shared
+[ 95%] Built target luapplnn_shared
+[ 95%] Built target add_all_tensors_to_output
+[ 96%] Built target pplnn
+[ 96%] Built target onnx_model_is_supported
+[ 96%] Built target gtest
+[ 96%] Built target gtest_main
+[ 99%] Built target pplnn_unittest
+[ 99%] Built target gmock
+[100%] Built target gmock_main
+[100%] Built target pplnn_samples_engine_demo
+Install the project...
+-- Install configuration: "Debug"
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/libprotobuf-lited.a
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/libprotobufd.a
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/libprotocd.a
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/bin/protoc-3.12.4.0
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/bin/protoc
+-- Set runtime path of "/mnt/hpc/xusi/ppl.jit/cuda-build/install/bin/protoc-3.12.4.0" to "$ORIGIN/../lib"
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/pkgconfig/protobuf.pc
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/pkgconfig/protobuf-lite.pc
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/any.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/any.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/api.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/arena.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/arena_impl.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/arenastring.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/code_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/command_line_interface.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/cpp/cpp_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/csharp/csharp_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/csharp/csharp_names.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/importer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/java/java_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/java/java_names.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/js/js_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/js/well_known_types_embed.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/objectivec/objectivec_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/objectivec/objectivec_helpers.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/parser.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/php/php_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/plugin.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/plugin.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/python/python_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/ruby/ruby_generator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/descriptor.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/descriptor.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/descriptor_database.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/duration.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/dynamic_message.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/empty.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/extension_set.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/extension_set_inl.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/field_mask.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/generated_enum_reflection.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/generated_enum_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/generated_message_reflection.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/generated_message_table_driven.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/generated_message_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/has_bits.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/implicit_weak_message.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/inlined_string_field.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/coded_stream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/gzip_stream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/io_win32.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/printer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/strtod.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/tokenizer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/zero_copy_stream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/zero_copy_stream_impl.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/io/zero_copy_stream_impl_lite.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/map.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/map_entry.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/map_entry_lite.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/map_field.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/map_field_inl.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/map_field_lite.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/map_type_handler.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/message.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/message_lite.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/metadata.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/metadata_lite.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/parse_context.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/port.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/port_def.inc
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/port_undef.inc
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/reflection.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/reflection_ops.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/repeated_field.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/service.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/source_context.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/struct.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/bytestream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/callback.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/casts.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/common.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/fastmem.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/hash.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/logging.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/macros.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/map_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/mutex.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/once.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/platform_macros.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/port.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/status.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/stl_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/stringpiece.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/strutil.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/stubs/template_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/text_format.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/timestamp.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/type.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/unknown_field_set.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/delimited_message_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/field_comparator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/field_mask_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/json_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/message_differencer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/time_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/type_resolver.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/util/type_resolver_util.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/wire_format.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/wire_format_lite.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/wrappers.pb.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/any.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/api.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/plugin.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/descriptor.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/duration.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/empty.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/field_mask.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/source_context.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/struct.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/timestamp.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/type.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/wrappers.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/descriptor.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/any.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/api.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/duration.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/empty.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/field_mask.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/source_context.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/struct.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/timestamp.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/type.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/wrappers.proto
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/google/protobuf/compiler/plugin.proto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/protobuf/protobuf-targets.cmake
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/protobuf/protobuf-targets-debug.cmake
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/protobuf
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/protobuf/protobuf-module.cmake
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/protobuf/protobuf-config.cmake
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/protobuf/protobuf-options.cmake
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/protobuf/protobuf-config-version.cmake
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/pkgconfig/RapidJSON.pc
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/readme.md
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/rapidjson.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/encodings.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/document.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/stream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/istreamwrapper.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/filewritestream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/pointer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/reader.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/msinttypes
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/msinttypes/inttypes.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/msinttypes/stdint.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/fwd.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/ostreamwrapper.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/allocators.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/stringbuffer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/memorybuffer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/writer.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/uri.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/schema.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/memorystream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/prettywriter.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/error
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/error/error.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/error/en.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/cursorstreamwrapper.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/clzll.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/meta.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/biginteger.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/strfunc.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/itoa.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/swap.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/stack.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/diyfp.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/pow10.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/regex.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/strtod.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/ieee754.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/internal/dtoa.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/encodedstream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/rapidjson/filereadstream.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/serialize
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/serialize/serialize.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/traverseaspointer.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simpledom
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simpledom/simpledom.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/messagereader
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/messagereader/messagereader.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/prettyauto
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/prettyauto/prettyauto.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/condense
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/condense/condense.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simplepullreader
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simplepullreader/simplepullreader.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/lookaheadparser
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/lookaheadparser/lookaheadparser.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/archiver
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/archiver/archivertest.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/archiver/archiver.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/archiver/archiver.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/schemavalidator
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/schemavalidator/schemavalidator.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/tutorial
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/tutorial/tutorial.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simplewriter
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simplewriter/simplewriter.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/filterkeydom
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/filterkeydom/filterkeydom.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simplereader
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/simplereader/simplereader.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/CMakeLists.txt
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/pretty
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/pretty/pretty.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/capitalize
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/capitalize/capitalize.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/parsebyparts
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/parsebyparts/parsebyparts.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/sortkeys
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/sortkeys/sortkeys.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/jsonx
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/jsonx/jsonx.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/filterkey
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/share/doc/RapidJSON/examples/filterkey/filterkey.cpp
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/RapidJSON/RapidJSONConfig.cmake
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/RapidJSON/RapidJSONConfig.cmake
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/cmake/RapidJSON/RapidJSONConfigVersion.cmake
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/pyppl/common.so
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/luappl/common.so
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/allocator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/common.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/compact_memory_manager.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/file_mapping.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/generic_cpu_allocator.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/half.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/lock_utils.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/log.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/object_pool.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/retcode.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/stripfilename.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/sys.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/include/ppl/common/types.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/libpplcommon_static.a
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/pyppl/nn.so
+-- Set runtime path of "/mnt/hpc/xusi/ppl.jit/cuda-build/install/pyppl/nn.so" to ""
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/luappl/nn.so
+-- Set runtime path of "/mnt/hpc/xusi/ppl.jit/cuda-build/install/luappl/nn.so" to ""
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/libPPLCUDAKernel.a
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include
+-- Up-to-date: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/runtime
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/runtime/runtime_builder.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/runtime/profiling_statistics.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/runtime/runtime.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/runtime/tensor.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/models
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/models/onnx
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/models/onnx/onnx_runtime_builder_factory.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/engine.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/x86
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/x86/x86_engine_options.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/x86/x86_options.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/x86/engine_factory.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/cuda
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/cuda/cuda_options.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/cuda/engine_factory.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/engines/cuda/cuda_engine_options.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/common
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/common/common.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/common/tensor_shape.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/common/logger.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/utils
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/./include/ppl/nn/utils/version.h
+-- Installing: /mnt/hpc/xusi/ppl.jit/cuda-build/install/lib/libpplnn_static.a

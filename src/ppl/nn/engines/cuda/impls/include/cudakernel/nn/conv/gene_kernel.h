@@ -23,7 +23,7 @@
 #include "ppl/common/types.h"
 #include "ppl/common/retcode.h"
 
-ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string flt_size, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int buf_size);
-ppl::common::RetCode GeneIdxnKernel(std::string& file_res, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size);
+ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int buf_size);
+ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size);
 
 #endif

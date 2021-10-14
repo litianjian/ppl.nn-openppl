@@ -79,7 +79,7 @@ bool TuringHMMAImpgemm::IsSupported(const ir::Node* node, const OptKernelOptions
 double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& options) {
     this->attr_param_ = *(reinterpret_cast<CudaConvParam*>(options.param));
     attr_param_.extra_param.algo_info.algo_type = "TuringHMMAImpgemm";
-    attr_param_.extra_param.algo_info.kid = 5100;
+    // attr_param_.extra_param.algo_info.kid = 5100;
     conv_param_t temp_conv_param;
     auto shape_in0 = options.tensors->find(node->GetInput(0))->second->GetShape();
     auto shape_in1 = options.tensors->find(node->GetInput(1))->second->GetShape();
