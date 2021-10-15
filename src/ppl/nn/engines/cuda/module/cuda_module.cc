@@ -27,11 +27,21 @@ CUfunction CUDAModule::GetKernelFunc() {
     if (module_ == nullptr) {
         // LOG(INFO) << "cuModuleLoadDataEx";
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
+        // CUcontext context;
+        // CUdevice device;
+        // PPL_CUDA_SAFE_CALL(cuInit(0));
+        // PPL_CUDA_SAFE_CALL(cuDeviceGet(&device, 0));
+        // // PPL_CUDA_SAFE_CALL(cuCtxCreate(&context, 0, device));
+        // PPL_CUDA_SAFE_CALL(cuDevicePrimaryCtxRetain(&context, device));
+
+        // PPL_CUDA_SAFE_CALL(cuModuleLoad(&module_, "/home/litianjian/idxn_kernels.cubin"));
     }
     if (func_ == nullptr) {
         // LOG(INFO) << "GetFunction";
         LOG(INFO) << this->source_code_.first;
         PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&func_, module_, this->source_code_.first.c_str()));
+        // PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&func_, module_, "_Z54nvIdxnConv_hmma1688_nhwc_b128x64_w64x32_k16_s16_nosmemP4int4S0_S0_iiiiiiiiiiiiiiiiiiiiiiiiiiiPKS_i7__half2bS3_iPKvbS2_iS3_bS3_iS5_6__halfS6_bii"));
+
     }
     // CUfunction func;
     // cuModuleGetFunction(&func, module_, this->source_code_.first.c_str());
