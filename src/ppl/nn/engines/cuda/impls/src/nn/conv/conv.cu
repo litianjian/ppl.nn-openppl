@@ -748,7 +748,7 @@ void PPLCUDAConvolutionForwardImp(
     if(is_out_grp_pad) {
         PPLCUDAConvolutionCvtOutput(stream, d_output, final_out, type, conv_param);
     }
-    
+
 }
 
 #define NVRTC_SAFE_CALL(x)                                        \
@@ -1088,6 +1088,7 @@ void PPLCUDAConvolutionForwardJITImp(
                         block_size.x, block_size.y, block_size.z,
                         0, stream, args, 0));    
     } else if (algo_param.algo_name.find("2spk") != std::string::npos) {
+
         // std::cout << "block size " << block_size.x << std::endl;
         // std::cout << "grid_size " << grid_size.x << " " << grid_size.y << " " << grid_size.z << std::endl;
         int kloop_num = (flt_hw / splitf) * DivUp(num_chl_per_grp_pad, cta_k);//g_kernel_container[kid].tile_k_per_cta);
@@ -1101,8 +1102,8 @@ void PPLCUDAConvolutionForwardJITImp(
 
         InitializeFilterLut(flt_lut_size, flt_lut.idx, conv_param.flt_height, conv_param.flt_width, num_chl_per_grp_pad,
             cta_k, pad_size);
-
-        void *args[] = {&pad_input, &d_flt, &conv_out, &kloop_num,
+        if (splitk == 1) {
+            void *args[] = {&pad_input, &d_flt, &conv_out, &kloop_num,
                         &in_lut, &in_lut_size, &flt_lut, &flt_lut_size, &in_hw, &out_hw,
                         &flt_hw, &splitk, &conv_param.in_height, &conv_param.in_width,
                         &conv_param.in_num, &conv_param.num_grp, &num_chl_per_grp, &num_chl_per_grp_pad,
@@ -1116,9 +1117,33 @@ void PPLCUDAConvolutionForwardJITImp(
                         &fuse_param.has_elt_activation, &elt_clip_min, &fuse_param.has_elt_clip, &elt_clip_max,
                         &fuse_param.has_elt_prelu, &(elt_prelu), &leaky, &elt_leaky,
                         &fuse_param.has_concat, &concat_offset_v8, &concat_stride_v8};
-        CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 
+            CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 
                         block_size.x, block_size.y, block_size.z,
                         0, stream, args, 0));
+        } else {
+            int chl_lut_size, kloop_lut_size;
+            struct chl_lut_t chl_lut;
+            struct kloop_lut_t kloop_lut;
+
+            InitializeChlLut(chl_lut_size, chl_lut.idx, conv_param.num_chl, conv_param.num_grp, pad_size,
+                    g_kernel_container[kid].tile_k_per_cta, splitk);
+            InitializeKloopLut(kloop_lut_size, kloop_lut.idx, conv_param.num_chl, conv_param.num_grp, pad_size,
+                    g_kernel_container[kid].tile_k_per_cta, splitk, splitf, flt_hw);
+            
+            void* args[] = {&pad_input, &d_flt, &conv_out, &kloop_num,
+                &in_lut, &in_lut_size, &flt_lut, &flt_lut_size,
+                &chl_lut, &chl_lut_size, &kloop_lut, &kloop_lut_size,
+                &in_hw, &out_hw, &flt_hw, &splitk,
+                &conv_param.in_height, &conv_param.in_width,
+                &conv_param.in_num, &conv_param.num_grp, &num_chl_per_grp, &num_chl_per_grp_pad,
+                &conv_param.flt_height, &conv_param.flt_width, &num_flt_per_grp, &num_flt_per_grp_pad,
+                &conv_param.out_height, &conv_param.out_width, &conv_param.stride_height, &conv_param.stride_width,
+                &conv_param.pad_height, &conv_param.pad_width, &conv_param.hole_height, &conv_param.hole_width,
+                &conv_param.has_bias, &bias };
+            CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 
+                block_size.x, block_size.y, block_size.z,
+                0, stream, args, 0));
+        }
     } 
     else {
 
@@ -1142,4 +1167,5 @@ void PPLCUDAConvolutionForwardJITImp(
     if(is_out_grp_pad) {
         PPLCUDAConvolutionCvtOutput(stream, d_output, final_out, type, conv_param);
     }
+
 }

@@ -115,12 +115,11 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
     file_str << "#define USE_" << buf_size << "BUF\n\n";
 
     file_str << "#include <cuda_fp16.h>\n\n";
-    if (splitf == 1 && splitk == 1)
+    if (splitk == 1 && splitf == 1)
         file_str << "#define ENABLE_FUSE 1\n\n";
     if (splitk > 1)
         file_str << "#define ENABLE_SPLITK\n";
     if (splitf > 1) {
-        file_str << "#define ENABLE_SPLITK\n";
         file_str << "#define ENABLE_SPLITF\n";
     }
 
