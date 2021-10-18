@@ -115,13 +115,22 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
     file_str << "#define USE_" << buf_size << "BUF\n\n";
 
     file_str << "#include <cuda_fp16.h>\n\n";
+    if (splitf == 1 && splitk == 1)
+        file_str << "#define ENABLE_FUSE 1\n\n";
+    if (splitk > 1)
+        file_str << "#define ENABLE_SPLITK\n";
+    if (splitf > 1) {
+        file_str << "#define ENABLE_SPLITK\n";
+        file_str << "#define ENABLE_SPLITF\n";
+    }
 
-    file_str << "#define ENABLE_FUSE 1\n\n";
     file_str << "#define uint int\n\n";
     file_str << "#define uint32_t int\n\n";
     file_str << "#define MAX_LUT_SIZE 128\n\n";
+    file_str << "#define MAX_SPLITK_SIZE 8\n\n";
     file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
-
+    file_str << "struct chl_lut_t{ int idx[MAX_SPLITK_SIZE + 1]; };\n\n";
+    file_str << "struct kloop_lut_t{ int idx[MAX_SPLITK_SIZE + 1]; };\n\n";
     WriteIncludeFile(file_str, "/2spk/common/const_macros.h");
     WriteIncludeFile(file_str, "/2spk/" + flt_size + "/bound_macros.h");
     WriteIncludeFile(file_str, "/2spk/common/ldsm_macros.h");
@@ -175,10 +184,7 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
         file_str << "#define FLT_SIZEN\n\n";
     }
 
-    if (splitk > 1)
-        file_str << "#define ENABLE_SPLITF\n";
-    if (splitf > 1)
-        file_str << "#define ENABLE_SPLITK\n";
+
 
     WriteIncludeFile(file_str, "/2spk/common/output_macros.h");
     file_str << "extern \"C\" {\n\n";
