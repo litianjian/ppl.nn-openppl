@@ -44,10 +44,6 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
         Gene2spkKernel(algo_param.kernel_code, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_set, 1);
     }
     std::string source = algo_param.kernel_code;
-    // struct select_param_t tiles = conv_param->extra_param.algo_info.tiles;
-
-    // std::cout << name << std::endl;
-    // std::cout << source << std::endl;
 
     std::vector<std::string> compile_params;
     std::vector<const char*> param_cstring{};

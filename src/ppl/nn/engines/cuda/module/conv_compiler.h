@@ -31,7 +31,7 @@
 
 namespace ppl { namespace nn { namespace cuda {
 
-class ConvCompiler : public OpCompiler{
+class ConvCompiler : public OpCompiler {
 public:
     const ppl::common::RetCode Compile(ir::Node*, const OptKernelOptions&) override;
 };
