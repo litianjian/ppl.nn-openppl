@@ -1048,8 +1048,8 @@ void PPLCUDAConvolutionForwardJITImp(
     grid_size.y  = DivUp(num_flt_per_grp_pad, tile_n);
     grid_size.z  = conv_param.num_grp * splitk * splitf;
 
-    int has_relu = fuse_param.has_activation == 1? 1:0;
-    int has_elt_relu = fuse_param.has_elt_activation == 1 ? 1 : 0;
+    // int has_relu = fuse_param.has_activation == 1? 1:0;
+    // int has_elt_relu = fuse_param.has_elt_activation == 1 ? 1 : 0;
     const int4* pre_data = (const int4*)fuse_param.pre_data;
     const void* prelu = (const void*)fuse_param.prelu;
     const void* elt_prelu = (const void*)fuse_param.elt_prelu;
@@ -1076,11 +1076,11 @@ void PPLCUDAConvolutionForwardJITImp(
                         &conv_param.flt_height, &conv_param.flt_width, &num_flt_per_grp, &num_flt_per_grp_pad,
                         &conv_param.out_height, &conv_param.out_width, &conv_param.stride_height, &conv_param.stride_width,
                         &conv_param.pad_height, &conv_param.pad_width, &conv_param.hole_height, &conv_param.hole_width,
-                        &conv_param.has_bias, &bias, &has_relu, &clip_min,
+                        &conv_param.has_bias, &bias, &fuse_param.has_activation, &clip_min,
                         &fuse_param.has_clip, &clip_max, 
                         &fuse_param.has_prelu, &prelu,
                         &fuse_param.has_elt, &(pre_data),
-                        &has_elt_relu, &elt_clip_min, &fuse_param.has_elt_clip, &elt_clip_max,
+                        &fuse_param.has_elt_activation, &elt_clip_min, &fuse_param.has_elt_clip, &elt_clip_max,
                         &fuse_param.has_elt_prelu, &(elt_prelu), &leaky, &elt_leaky,
                         &fuse_param.has_concat, &concat_offset_v8, &concat_stride_v8};
 
@@ -1109,11 +1109,11 @@ void PPLCUDAConvolutionForwardJITImp(
                         &conv_param.flt_height, &conv_param.flt_width, &num_flt_per_grp, &num_flt_per_grp_pad,
                         &conv_param.out_height, &conv_param.out_width, &conv_param.stride_height, &conv_param.stride_width,
                         &conv_param.pad_height, &conv_param.pad_width, &conv_param.hole_height, &conv_param.hole_width,
-                        &conv_param.has_bias, &bias, &has_relu, &clip_min,
+                        &conv_param.has_bias, &bias, &fuse_param.has_activation, &clip_min,
                         &fuse_param.has_clip, &clip_max, 
                         &fuse_param.has_prelu, &prelu,
                         &fuse_param.has_elt, &(pre_data),
-                        &has_elt_relu, &elt_clip_min, &fuse_param.has_elt_clip, &elt_clip_max,
+                        &fuse_param.has_elt_activation, &elt_clip_min, &fuse_param.has_elt_clip, &elt_clip_max,
                         &fuse_param.has_elt_prelu, &(elt_prelu), &leaky, &elt_leaky,
                         &fuse_param.has_concat, &concat_offset_v8, &concat_stride_v8};
         CUDA_SAFE_CALL(cuLaunchKernel(function, grid_size.x, grid_size.y, grid_size.z, 

@@ -38,12 +38,19 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     
     auto algo_param = conv_param->extra_param.algo_info;
     std::string name = algo_param.algo_name;
+    std::string source = "";
     if (algo_param.algo_name.find("Idxn") != std::string::npos) {
-        GeneIdxnKernel(algo_param.kernel_code, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_step);
+        GeneIdxnKernel(source, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_step);
     } else {
-        Gene2spkKernel(algo_param.kernel_code, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_set, 1);
+        Gene2spkKernel(source, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_set, algo_param.splitk, algo_param.splitf, 1);
     }
-    std::string source = algo_param.kernel_code;
+
+    // ReplaceFusion(source, conv_param->extra_param.fuse_info);
+
+    // struct select_param_t tiles = conv_param->extra_param.algo_info.tiles;
+
+    // std::cout << name << std::endl;
+    // std::cout << source << std::endl;
 
     std::vector<std::string> compile_params;
     std::vector<const char*> param_cstring{};
