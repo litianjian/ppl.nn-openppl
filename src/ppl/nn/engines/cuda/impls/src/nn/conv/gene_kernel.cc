@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <set>
 
 std::string IntToString(int v) {
     std::stringstream ss;
@@ -58,7 +59,7 @@ void WriteIncludeFile(std::stringstream& file_str, std::string path) {
     return;
 }
 
-ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int buf_size) {
+ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int splitk, int splitf, int buf_size) {
     int WARP_SIZE = 32;
     int INT4_TO_4HALF2 = 8;
     int MMA_Y = 16;
@@ -174,6 +175,11 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
         file_str << "#define FLT_SIZEN\n\n";
     }
 
+    if (splitk > 1)
+        file_str << "#define ENABLE_SPLITF\n";
+    if (splitf > 1)
+        file_str << "#define ENABLE_SPLITK\n";
+
     WriteIncludeFile(file_str, "/2spk/common/output_macros.h");
     file_str << "extern \"C\" {\n\n";
     WriteIncludeFile(file_str, "/2spk/common/main_body.h");
@@ -253,5 +259,68 @@ ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, i
     WriteIncludeFile(file_str, "/idxn/common/uni_undefs.h");
         
     file_res = file_str.str();
+    return ppl::common::RC_SUCCESS;
+}
+
+ppl::common::RetCode ReplaceFusion(std::string& file_res, fuse_info_t fuse_info) {
+    auto begin = file_res.find("#if defined(ENABLE_FUSE)");
+    auto end = file_res.substr(begin).find("#endif");
+
+    std::stringstream file_str;
+
+    file_str << "#if defined(ENABLE_FUSE)\n\n";
+    file_str << "if(dCv4_x_valid  && dCv4_y_valid ) {\n";
+
+    const std::set<std::string> relu_set{"Relu", "Clip", "PRelu", "LeakyRelu", "Sigmoid"};
+    int fuse_index = 0;
+    int fuse_size = fuse_info.types.size();
+
+    if (fuse_index < fuse_size && relu_set.find(fuse_info.types[fuse_index]) != relu_set.end()) {
+        auto type = fuse_info.types[fuse_index];
+        if (type == "Relu") {
+
+        } else if (type == "Clip") {
+
+        } else if (type == "PRelu") {
+
+        } else if (type == "LeakyRelu") {
+
+        } else if (type == "Sigmoid") {
+
+        } else {
+            LOG(ERROR) << "Fuse conv with op[" << type << "] failed.";
+            return ppl::common::RC_UNSUPPORTED;
+        }
+        fuse_index++;
+    }
+
+    if (fuse_index < fuse_size && fuse_info.types[fuse_index] == "Add") {
+        fuse_index++;
+    }
+
+    if (fuse_index < fuse_size && relu_set.find(fuse_info.types[fuse_index]) != relu_set.end()) {
+        auto type = fuse_info.types[fuse_index];
+        if (type == "Relu") {
+
+        } else if (type == "Clip") {
+
+        } else if (type == "PRelu") {
+
+        } else if (type == "LeakyRelu") {
+
+        } else if (type == "Sigmoid") {
+
+        } else {
+            LOG(ERROR) << "Fuse conv with op[" << type << "] failed.";
+            return ppl::common::RC_UNSUPPORTED;
+        }
+        fuse_index++;
+    }
+
+    if (fuse_info.channel_offset >= 0) {
+    }
+
+    file_str << "}\n";
+    file_res.replace(begin, end-begin, file_str.str());
     return ppl::common::RC_SUCCESS;
 }

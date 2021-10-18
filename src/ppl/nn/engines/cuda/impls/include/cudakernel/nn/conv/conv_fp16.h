@@ -19,6 +19,7 @@
 #define __PPLCUDA_IMPLICITGEMM_CONV_H_
 
 #include <string>
+#include <vector>
 #include <cuda_runtime.h>
 #include <cuda.h>
 #include "ppl/common/types.h"
@@ -36,19 +37,6 @@ struct conv_param_t{
         int hole_height;        int hole_width;
         int has_bias;           //int4* bias; 
 };
-
-struct fuse_param_t{
-        int has_activation = 0;// 1: relu,  2: sigmoid
-	bool has_clip = false;        float clip_min;     float clip_max; 
-        int has_prelu = 0;            void* prelu;      float leaky = 0;       
-        bool has_elt  = false;        void* pre_data;    
-        int has_elt_activation = 0;     
-	bool has_elt_clip = false;    float elt_clip_min; float elt_clip_max; 
-        int has_elt_prelu = 0;        void* elt_prelu;  float elt_leaky = 0;    
-        bool has_concat   = false;    int concat_offset;       
-        int concat_stride;            void* post_concat;
-};
-
 
 struct tiles_param_t{
     int m_cta = -1;
@@ -68,13 +56,34 @@ struct tiles_param_t{
 struct algo_param_t{
     std::string algo_type = "";
     std::string algo_name = "";
-    std::string kernel_code = "";
     tiles_param_t tiles;
     int kid = -1;
     unsigned int splitk = 1;
     unsigned int splitf = 1;
     bool is_initializer_weight = true;
 };
+
+struct fuse_param_t{
+        int has_activation = 0;// 1: relu,  2: sigmoid
+	bool has_clip = false;        float clip_min;     float clip_max; 
+        int has_prelu = 0;            void* prelu;      float leaky = 0;       
+        bool has_elt  = false;        void* pre_data;    
+        int has_elt_activation = 0;     
+	bool has_elt_clip = false;    float elt_clip_min; float elt_clip_max; 
+        int has_elt_prelu = 0;        void* elt_prelu;  float elt_leaky = 0;    
+        bool has_concat   = false;    int concat_offset;       
+        int concat_stride;            void* post_concat;
+};
+
+struct fuse_info_t {
+    std::vector<std::string> types; // support fuse relu + add + relu right now
+    std::vector<uint32_t> input_ind; // save fused kernel's input index
+    std::vector<void*> fuse_attrs; // save fused kernel's attributes
+    int channel_size = -1; // save total channel size for concat
+    int channel_offset = -1; // save output offset if we fuse concat
+    int concat_edge_id = -1; // save concat output edge id
+};
+
 int PPLCUDAConvoutionFuseSupport(conv_param_t &conv_param);
 
 uint64_t PPLCUDAConvolutionGetCompilationBufSize(
