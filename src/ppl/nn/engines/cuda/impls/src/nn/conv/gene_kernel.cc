@@ -51,6 +51,7 @@ std::string GetSizeString(float size) {
 	} else if(size == 16.0) {
 		return "16";
 	}
+    return "";
 }
 
 void WriteIncludeFile(std::stringstream& file_str, std::string path) { 
@@ -69,8 +70,8 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
     int cta_num = cta_y * cta_x / warp_y / warp_x;
     int cta_size = cta_num * k_size / s_size * WARP_SIZE;
 
-    int sAv4_size = warp_y / INT4_TO_4HALF2;
-    int sBv4_size = warp_x / INT4_TO_4HALF2;
+    // int sAv4_size = warp_y / INT4_TO_4HALF2;
+    // int sBv4_size = warp_x / INT4_TO_4HALF2;
 
     float dAv4_size = (cta_y * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
     float dBv4_size = (cta_x * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
@@ -197,12 +198,12 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
 
 
 ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size) {
-    int WARP_SIZE = 32;
+    // iggnt WARP_SIZE = 32;
     int MMA_Y = 16;
     int MMA_X = 8;
     int MMA_Y_HALF = MMA_Y / 2;
 
-    int cta_num = cta_y * cta_x / warp_y / warp_x;
+    // int cta_num = cta_y * cta_x / warp_y / warp_x;
 
     int dAvn_size = warp_y / MMA_Y_HALF;
     int dBvn_size = warp_x / MMA_X;
@@ -267,31 +268,30 @@ ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, i
     return ppl::common::RC_SUCCESS;
 }
 
-ppl::common::RetCode ReplaceFusion(std::string& file_res, fuse_info_t fuse_info) {
-    auto begin = file_res.find("#if defined(ENABLE_FUSE)");
-    auto end = file_res.substr(begin).find("#endif");
-
-    std::stringstream file_str;
-
-    file_str << "#if defined(ENABLE_FUSE)\n\n";
-    file_str << "if(dCv4_x_valid  && dCv4_y_valid ) {\n";
-
+ppl::common::RetCode ReplaceFusionFor2spk(std::string& file_res, fuse_info_t fuse_info) {
     const std::set<std::string> relu_set{"Relu", "Clip", "PRelu", "LeakyRelu", "Sigmoid"};
     int fuse_index = 0;
     int fuse_size = fuse_info.types.size();
 
+    auto begin = file_res.find("uint concatV4_off = 0;");
+    auto end = file_res.find("#endif", begin);
+
+    std::stringstream file_str;
+    file_str << "uint concatV4_off = 0;\n";
+    file_str << "if(dCv4_x_valid  && dCv4_y_valid ) {\n";
+
     if (fuse_index < fuse_size && relu_set.find(fuse_info.types[fuse_index]) != relu_set.end()) {
         auto type = fuse_info.types[fuse_index];
         if (type == "Relu") {
-
+            file_str << "JIT_FUSE_RELU_V4()\n";
         } else if (type == "Clip") {
-
+            file_str << "JIT_FUSE_CLIP_V4(clip_max, clip_min)\n";
         } else if (type == "PRelu") {
-
+            file_str << "JIT_FUSE_PRELU_V4(has_prelu, prelu)\n";
         } else if (type == "LeakyRelu") {
-
+            file_str << "JIT_FUSE_LEAKY_V4(leaky)\n";
         } else if (type == "Sigmoid") {
-
+            file_str << "JIT_FUSE_SIGMOID_V4()\n";
         } else {
             LOG(ERROR) << "Fuse conv with op[" << type << "] failed.";
             return ppl::common::RC_UNSUPPORTED;
@@ -300,21 +300,22 @@ ppl::common::RetCode ReplaceFusion(std::string& file_res, fuse_info_t fuse_info)
     }
 
     if (fuse_index < fuse_size && fuse_info.types[fuse_index] == "Add") {
+        file_str << "JIT_FUSE_ELT_V4(pre_data)\n";
         fuse_index++;
     }
 
     if (fuse_index < fuse_size && relu_set.find(fuse_info.types[fuse_index]) != relu_set.end()) {
         auto type = fuse_info.types[fuse_index];
         if (type == "Relu") {
-
+            file_str << "JIT_FUSE_RELU_V4()\n";
         } else if (type == "Clip") {
-
+            file_str << "JIT_FUSE_CLIP_V4(elt_clip_max, elt_clip_min)\n";
         } else if (type == "PRelu") {
-
+            file_str << "JIT_FUSE_PRELU_V4(has_elt_prelu, elt_prelu)\n";
         } else if (type == "LeakyRelu") {
-
+            file_str << "JIT_FUSE_LEAKY_V4(elt_leaky)\n";
         } else if (type == "Sigmoid") {
-
+            file_str << "JIT_FUSE_SIGMOID_V4()\n";
         } else {
             LOG(ERROR) << "Fuse conv with op[" << type << "] failed.";
             return ppl::common::RC_UNSUPPORTED;
@@ -323,9 +324,76 @@ ppl::common::RetCode ReplaceFusion(std::string& file_res, fuse_info_t fuse_info)
     }
 
     if (fuse_info.channel_offset >= 0) {
+        file_str << "JIT_SET_CONCAT_OFF_V4(concatV4_off)\n";
     }
 
     file_str << "}\n";
     file_res.replace(begin, end-begin, file_str.str());
+    return ppl::common::RC_SUCCESS;
+}
+
+ppl::common::RetCode ReplaceFusionForIdxn(std::string& file_res, fuse_info_t fuse_info) {
+    const std::set<std::string> relu_set{"Relu", "Clip", "PRelu", "LeakyRelu", "Sigmoid"};
+    int fuse_size = fuse_info.types.size();
+
+    for (uint32_t i = 1; i <= 4; i *= 2) {
+        int fuse_index = 0;
+
+        auto begin = file_res.find("uint concat_v1_off0 = 0;");
+        auto end = file_res.find("#endif", begin);
+
+        std::stringstream file_str;
+        file_str << "uint concat_v1_off0 = dCv1_idy[0] * num_flt_v2;\n";
+        file_str << "uint concat_v1_off1 = dCv1_idy[1] * num_flt_v2;\n";
+
+        if (fuse_index < fuse_size && relu_set.find(fuse_info.types[fuse_index]) != relu_set.end()) {
+            auto type = fuse_info.types[fuse_index];
+            if (type == "Relu") {
+                file_str << "JIT_FUSE_RELU_2x" << i << "_V1()\n";
+            } else if (type == "Clip") {
+                file_str << "JIT_FUSE_CLIP_2x" << i << "_V1(clip_max, clip_min)\n";
+            } else if (type == "PRelu") {
+                file_str << "JIT_FUSE_PRELU_2x" << i << "_V1(has_prelu, prelu)\n";
+            } else if (type == "LeakyRelu") {
+                file_str << "JIT_FUSE_LEAKY_2x" << i << "_V1(leaky)\n";
+            } else if (type == "Sigmoid") {
+                file_str << "JIT_FUSE_SIGMOID_2x" << i << "_V1()\n";
+            } else {
+                LOG(ERROR) << "Fuse conv with op[" << type << "] failed.";
+                return ppl::common::RC_UNSUPPORTED;
+            }
+            fuse_index++;
+        }
+
+        if (fuse_index < fuse_size && fuse_info.types[fuse_index] == "Add") {
+            file_str << "JIT_FUSE_ELT_2x" << i << "_V1(pre_data)\n";
+            fuse_index++;
+        }
+
+        if (fuse_index < fuse_size && relu_set.find(fuse_info.types[fuse_index]) != relu_set.end()) {
+            auto type = fuse_info.types[fuse_index];
+            if (type == "Relu") {
+                file_str << "JIT_FUSE_RELU_2x" << i << "_V1()\n";
+            } else if (type == "Clip") {
+                file_str << "JIT_FUSE_CLIP_2x" << i << "_V1(elt_clip_max, elt_clip_min)\n";
+            } else if (type == "PRelu") {
+                file_str << "JIT_FUSE_PRELU_2x" << i << "_V1(has_elt_prelu, elt_prelu)\n";
+            } else if (type == "LeakyRelu") {
+                file_str << "JIT_FUSE_LEAKY_2x" << i << "_V1(elt_leaky)\n";
+            } else if (type == "Sigmoid") {
+                file_str << "JIT_FUSE_SIGMOID_2x" << i << "_V1()\n";
+            } else {
+                LOG(ERROR) << "Fuse conv with op[" << type << "] failed.";
+                return ppl::common::RC_UNSUPPORTED;
+            }
+            fuse_index++;
+        }
+
+        if (fuse_info.channel_offset >= 0) {
+            file_str << "JIT_SET_CONCAT_OFF_V1(concat_v1_off0, concat_v1_off1);\n";
+        }
+
+        file_res.replace(begin, end-begin, file_str.str());
+    }
     return ppl::common::RC_SUCCESS;
 }

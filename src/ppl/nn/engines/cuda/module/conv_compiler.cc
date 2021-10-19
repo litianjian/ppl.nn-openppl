@@ -41,11 +41,11 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
     std::string source = "";
     if (algo_param.algo_name.find("Idxn") != std::string::npos) {
         GeneIdxnKernel(source, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_step);
+        ReplaceFusionForIdxn(source, conv_param->extra_param.fuse_info);
     } else {
         Gene2spkKernel(source, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_set, algo_param.splitk, algo_param.splitf, 1);
+        ReplaceFusionFor2spk(source, conv_param->extra_param.fuse_info);
     }
-    LOG(INFO) << name << " " << node->GetName() << " " << algo_param.splitk << " " << algo_param.splitf;
-    // ReplaceFusion(source, conv_param->extra_param.fuse_info);
 
     // struct select_param_t tiles = conv_param->extra_param.algo_info.tiles;
 
