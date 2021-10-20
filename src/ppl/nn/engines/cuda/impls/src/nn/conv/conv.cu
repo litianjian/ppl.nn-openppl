@@ -410,7 +410,8 @@ float AlgoForwardTime(
     uint64_t workspace) 
 {
     printf("%s\n", name.c_str());
-    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
+    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, r_code), compile_params, device, include);
+
     ppl::nn::cuda::CUDAModule* cuda_module = new ppl::nn::cuda::CUDAModule();
     cuda_module->SetSourceCode(name, ptx);
     CUfunction function = cuda_module->GetKernelFunc();
@@ -420,17 +421,19 @@ float AlgoForwardTime(
     cudaEvent_t begin, end;
     cudaEventCreate(&begin);
     cudaEventCreate(&end);
+    cudaEventRecord(begin, stream);
     for (int i = 0; i < times; i++) {
         PPLCUDAConvolutionForwardJITImp( 
             stream, function, type, d_input, d_flt, d_output, bias, d_temp_buf,
             algo_param, conv_param, fuse_param);
     }
     cudaEventRecord(end, stream);
+    cudaEventSynchronize(begin);
     cudaEventSynchronize(end);
     cudaEventElapsedTime(&elapsed, begin, end);
-
     cudaEventDestroy(begin);
     cudaEventDestroy(end);
+
     delete cuda_module;
     return elapsed; 
 }

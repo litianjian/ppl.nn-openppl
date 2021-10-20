@@ -38,8 +38,16 @@ std::string CUDANVRTCCompile(std::pair<string, string> code, std::vector<const c
     }
     nvrtcProgram program;
     PPL_NVRTC_SAFE_CALL(nvrtcCreateProgram(&program, code.second.c_str(), code.first.c_str(), 0, nullptr, nullptr));
-    (nvrtcCompileProgram(program, cuda_compile_params.size(), cuda_compile_params.data()));
-    
+    nvrtcResult compile_res = nvrtcCompileProgram(program, cuda_compile_params.size(), cuda_compile_params.data());
+    if (compile_res != NVRTC_SUCCESS) {
+        size_t log_size = 0;
+        nvrtcGetProgramLogSize(program, &log_size);
+        std::string log;
+        log.resize(log_size);
+        nvrtcGetProgramLog(program, &log[0]);
+        LOG(ERROR) << log;
+    }
+
     std::string ptx_code;
     size_t ptx_size = 0;
     PPL_NVRTC_SAFE_CALL(nvrtcGetPTXSize(program, &ptx_size));

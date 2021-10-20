@@ -1011,9 +1011,6 @@
 
 #define JIT_SET_CONCAT_OFF_V1(_concat_v1_off0, _concat_v1_off1) \
         { \
-	        if(_has_concat) \
-            { \
-                if(dCv1_y_valid[0]) _concat_v1_off0 = concat_offset_v8 * _INT4_TO_4HALF2_ + dCv1_idy[0] * concat_stride_v8 * _INT4_TO_4HALF2_; \
-                if(dCv1_y_valid[1]) _concat_v1_off1 = concat_offset_v8 * _INT4_TO_4HALF2_ + dCv1_idy[1] * concat_stride_v8 * _INT4_TO_4HALF2_; \
-	        } \
+            if(dCv1_y_valid[0]) _concat_v1_off0 = concat_offset_v8 * _INT4_TO_4HALF2_ + dCv1_idy[0] * concat_stride_v8 * _INT4_TO_4HALF2_; \
+            if(dCv1_y_valid[1]) _concat_v1_off1 = concat_offset_v8 * _INT4_TO_4HALF2_ + dCv1_idy[1] * concat_stride_v8 * _INT4_TO_4HALF2_; \
         }
