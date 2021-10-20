@@ -256,10 +256,10 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
     int flt_hw = conv_param.flt_height * conv_param.flt_width;
     int chl_per_group = conv_param.num_chl / conv_param.num_grp;
 
+    if(!is_g_kernel_container_initialized) 
+        InitializeKernelContainer(g_kernel_container, ppl::common::DATATYPE_FLOAT16);
+
     if (algo_param.kid >= 0) {
-        if(!is_g_kernel_container_initialized) 
-            InitializeKernelContainer(g_kernel_container, ppl::common::DATATYPE_FLOAT16);
-        
         auto kid = algo_param.kid;
         algo_param.algo_name = g_kernel_container[kid].kname;
         algo_param.tiles.m_cta = g_kernel_container[kid].tile_m_per_cta;

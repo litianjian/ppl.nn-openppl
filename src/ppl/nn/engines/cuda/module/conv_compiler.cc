@@ -51,6 +51,10 @@ const ppl::common::RetCode ConvCompiler::Compile(ir::Node* node, const OptKernel
 
     // std::cout << name << std::endl;
     // std::cout << source << std::endl;
+    // std::ofstream outfile;
+    // outfile.open("jit_raw.txt");
+    // outfile << source << std::endl;
+    // outfile.close();
 
     std::vector<std::string> compile_params;
     std::vector<const char*> param_cstring{};
