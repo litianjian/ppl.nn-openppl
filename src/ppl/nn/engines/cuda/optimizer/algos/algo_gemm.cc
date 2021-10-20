@@ -71,7 +71,7 @@ double GemmAlgorithm::ExcuteTimer(const ir::Node* node, OptKernelOptions& option
     temp_conv_param.hole_height = 1;        temp_conv_param.hole_width = 1;
     temp_conv_param.num_grp = 1;
 
-    auto algo_info = options.algos->find(GetConvShapeString(temp_conv_param));
+    auto algo_info = options.algos->find("");
     if (algo_info != options.algos->end()) {
         attr_param_.extra_param.kernel_index = algo_info->second.kid;
         return 0.0f;

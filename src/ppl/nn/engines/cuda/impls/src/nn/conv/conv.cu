@@ -393,8 +393,9 @@ string PPLCUDACompile(string name, string code, std::vector<const char*> compile
 
 float AlgoForwardTime(
     cudaStream_t &stream, 
-    string name,
+    std::vector<string> name,
     string code,
+    int &idx,
     std::vector<const char*> compile_params,
     int device,
     bool include,
@@ -404,36 +405,45 @@ float AlgoForwardTime(
     int4* d_output,
     int4* bias,
     int4* d_temp_buf, 
-    algo_param_t &algo_param,
+    std::vector<algo_param_t> &algo_param,
     conv_param_t &conv_param, 
     fuse_param_t &fuse_param,
     uint64_t workspace) 
 {
-    // printf("%s\n", name.c_str());
-    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
-
+    printf("%s\n", name[0].c_str());
+    std::string src_name = name[0];
+    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(src_name, code), compile_params, device, include);
+    // std::cout << ptx << std::endl;
     ppl::nn::cuda::CUDAModule* cuda_module = new ppl::nn::cuda::CUDAModule();
-    cuda_module->SetSourceCode(name, ptx);
-    CUfunction function = cuda_module->GetKernelFunc();
+    cuda_module->SetSourceCode(src_name, ptx);
+    float min_time = FLT_MAX;
+    int times = 1;
 
-    int times = 4;
     float elapsed = 0;
     cudaEvent_t begin, end;
     cudaEventCreate(&begin);
     cudaEventCreate(&end);
-    cudaEventRecord(begin, stream);
-    for (int i = 0; i < times; i++) {
-        PPLCUDAConvolutionForwardJITImp( 
-            stream, function, type, d_input, d_flt, d_output, bias, d_temp_buf,
-            algo_param, conv_param, fuse_param);
+
+    for(size_t n = 0; n < name.size(); n++) {
+        CUfunction function = cuda_module->GetKernelFunc(name[n]);
+        // std::cout << "test " << function << std::endl;
+        cudaEventRecord(begin, stream);
+        for (int i = 0; i < times; i++) {
+            PPLCUDAConvolutionForwardJITImp( 
+                stream, function, type, d_input, d_flt, d_output, bias, d_temp_buf,
+                algo_param[n], conv_param, fuse_param);
+        }
+        cudaEventRecord(end, stream);
+        cudaEventSynchronize(begin);
+        cudaEventSynchronize(end);
+        cudaEventElapsedTime(&elapsed, begin, end);
+        if (elapsed < min_time) {
+            min_time = elapsed;
+            idx = n;
+        }
     }
-    cudaEventRecord(end, stream);
-    cudaEventSynchronize(begin);
-    cudaEventSynchronize(end);
-    cudaEventElapsedTime(&elapsed, begin, end);
     cudaEventDestroy(begin);
     cudaEventDestroy(end);
-
     delete cuda_module;
     return elapsed; 
 }
@@ -481,7 +491,7 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
 
         for(unsigned int kid = 0; kid < g_kernel_container.size(); kid++) {
             unsigned int splitf = (g_kernel_container[kid].ktype == CONV_2SPK_FS) ? flt_hw : 1;
-            printf("%d,%s\n", kid,g_kernel_container[kid].kname.c_str());
+            // printf("%d,%s\n", kid,g_kernel_container[kid].kname.c_str());
         
             if(!g_kernel_container[kid].CheckKernelTypeFeasible(conv_param.flt_height, conv_param.flt_width, num_chl_per_grp, splitk)) continue;
 
@@ -532,17 +542,17 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
             }
 
             total_source = total_source + source;
-            knames.emplace(g_kernel_container[kid].kname);
-            params.emplace(temp_algo_param);
+            knames.push_back(g_kernel_container[kid].kname);
+            params.push_back(temp_algo_param);
         }
     }
     
     int index = 0;
     std::vector<const char*> compile_params;
-    elapsed = AlgoForwardTime(stream, g_kernel_container[kid].kname, source, index,
+    elapsed = AlgoForwardTime(stream, knames, total_source, index,
                               compile_params, 0, true, type,
                               d_input, d_flt, d_output, bias, d_temp_buf, 
-                              temp_algo_param, conv_param, fuse_param, workspace);
+                              params, conv_param, fuse_param, workspace);
     
     algo_param = params[index];
     g_conv_shape_hash[conv_shape_hash] = algo_param;

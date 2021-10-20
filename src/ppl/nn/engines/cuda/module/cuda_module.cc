@@ -31,7 +31,6 @@ CUfunction CUDAModule::GetKernelFunc() {
         // LOG(INFO) << this->source_code_.first;
         PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&func_, module_, this->source_code_.first.c_str()));
     }
-
     return func_;
 }
 
@@ -40,7 +39,7 @@ CUfunction CUDAModule::GetKernelFunc(std::string name) {
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
     }
     CUfunction function;
-    PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&func_, module_, name.c_str()));
+    PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&function, module_, name.c_str()));
 
     return function;
 }
