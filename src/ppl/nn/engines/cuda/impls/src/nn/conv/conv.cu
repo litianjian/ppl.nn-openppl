@@ -515,7 +515,7 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
             temp_algo_param.tiles.flt_pad_size = g_kernel_container[kid].flt_pad_size;
             temp_algo_param.tiles.cta_size_in_thd = g_kernel_container[kid].cta_size_in_thd;
 
-            if(!g_kernel_container[kid].CheckQuickSelectFeasible(pre_algo_param, conv_param.num_chl / conv_param.num_grp, splitk, splitf)) continue;
+            if(!g_kernel_container[kid].CheckQuickSelectFeasible(pre_algo_param, conv_param.num_chl / conv_param.num_grp, flt_hw, splitk, splitf)) continue;
 
             std::string source = "";
             if (temp_algo_param.algo_name.find("Idxn") != std::string::npos) {
@@ -541,7 +541,13 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
                 declare_times++;
             }
 
-            total_source = total_source + source;
+            bool has_flag = true;
+            for (auto iter = knames.begin(); iter != knames.end(); iter++) {
+                if (*iter == g_kernel_container[kid].kname)
+                    has_flag = false;
+            }
+            if (has_flag)
+                total_source = total_source + source;
             knames.push_back(g_kernel_container[kid].kname);
             params.push_back(temp_algo_param);
         }

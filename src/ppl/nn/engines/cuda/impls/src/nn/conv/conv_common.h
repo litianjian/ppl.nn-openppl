@@ -237,13 +237,13 @@ struct kernel_info_t
             return true;
     }
 
-    __inline__ bool CheckQuickSelectFeasible(algo_param_t algo_param, int k, int splitk, int splitf)
+    __inline__ bool CheckQuickSelectFeasible(algo_param_t algo_param, int k, int flt_hw, int splitk, int splitf)
     {
      
         if (kname.at(kname.length()-1) == '2')
             return false;
         
-        if (ktype == CONV_2SPK_FN)
+        if (ktype == CONV_2SPK_FN && flt_hw <= 9)
             return false;
         
         int count = 0;
