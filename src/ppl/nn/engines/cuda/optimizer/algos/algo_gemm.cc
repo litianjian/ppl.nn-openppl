@@ -59,6 +59,24 @@ double GemmAlgorithm::ExcuteTimer(const ir::Node* node, OptKernelOptions& option
     auto shape_out = options.tensors->find(node->GetOutput(0))->second->GetShape();
     auto align_size = ppl::common::cuda::GetDataFormatChannelAlignment(shape_in0.GetDataFormat());
 
+    conv_param_t temp_conv_param;
+    temp_conv_param.in_num = attr_param_.param.transA ? shape_in0.GetDim(1) : shape_in0.GetDim(0);
+    temp_conv_param.num_chl = attr_param_.param.transB ? shape_in1.GetDim(1) : shape_in1.GetDim(0);
+    temp_conv_param.num_flt = attr_param_.param.transB ? shape_in1.GetDim(0) : shape_in1.GetDim(1);
+    temp_conv_param.in_height = 1;          temp_conv_param.in_width = 1;
+    temp_conv_param.flt_height = 1;         temp_conv_param.flt_width = 1;
+    temp_conv_param.out_height = 1;         temp_conv_param.out_width = 1;
+    temp_conv_param.pad_height = 1;         temp_conv_param.pad_width = 1;
+    temp_conv_param.stride_height = 1;      temp_conv_param.stride_width = 1;
+    temp_conv_param.hole_height = 1;        temp_conv_param.hole_width = 1;
+    temp_conv_param.num_grp = 1;
+
+    auto algo_info = options.algos->find(GetConvShapeString(temp_conv_param));
+    if (algo_info != options.algos->end()) {
+        attr_param_.extra_param.kernel_index = algo_info->second.kid;
+        return 0.0f;
+    }
+
     // illegal gemm input
     if (shape_in0.GetDim(!attr_param_.param.transA) != shape_in1.GetDim(attr_param_.param.transB)) {
         return ALGO_MAX_TIME;
