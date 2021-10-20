@@ -33,6 +33,8 @@
 #include "common/merge_split.h"
 
 #include "ppl/nn/engines/cuda/module/cuda_compiler.h"
+#include "ppl/nn/engines/cuda/module/cuda_module.h"
+
 #include "float.h"
 
 #define TIMES 4
@@ -383,13 +385,18 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
     return ppl::common::RC_SUCCESS;
 }
 
-CUfunction PPLCUDACompile(string name, string code, std::vector<const char*> compile_params, int device, bool include) {
-    auto ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
-    
+string PPLCUDACompile(string name, string code, std::vector<const char*> compile_params, int device, bool include) {
+    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
+    return ptx;
 }
 
 float AlgoForwardTime(
     cudaStream_t &stream, 
+    string name,
+    string code,
+    std::vector<const char*> compile_params,
+    int device,
+    bool include,
     ppl::common::datatype_t type,
     int4* d_input,
     int4* d_flt,
@@ -401,10 +408,29 @@ float AlgoForwardTime(
     fuse_param_t &fuse_param,
     uint64_t workspace) 
 {
+    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
+    ppl::nn::cuda::CUDAModule* cuda_module = new ppl::nn::cuda::CUDAModule();
+    cuda_module->SetSourceCode(name, ptx);
+    CUfunction function = cuda_module->GetKernelFunc();
 
-    // PPLCUDAConvolutionForwardJITImp(stream, type, d_input, d_flt, d_output, bias, d_temp_buf, 
-    //         algo_param, conv_param, fuse_param);
-    
+    int times = 4;
+    float elapsed = 0;
+    cudaEvent_t begin, end;
+    cudaEventCreate(&begin);
+    cudaEventCreate(&end);
+    for (int i = 0; i < times; i++) {
+        PPLCUDAConvolutionForwardJITImp( 
+            stream, function, type, d_input, d_flt, d_output, bias, d_temp_buf,
+            algo_param, conv_param, fuse_param);
+    }
+    cudaEventRecord(end, stream);
+    cudaEventSynchronize(end);
+    cudaEventElapsedTime(&elapsed, begin, end);
+
+    cudaEventDestroy(begin);
+    cudaEventDestroy(end);
+    delete cuda_module;
+    return elapsed; 
 }
 
 ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
