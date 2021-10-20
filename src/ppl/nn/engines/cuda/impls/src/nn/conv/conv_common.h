@@ -236,6 +236,45 @@ struct kernel_info_t
         } else
             return true;
     }
+
+    __inline__ bool CheckQuickSelectFeasible(algo_param_t algo_param, int k, int splitk, int splitf)
+    {
+     
+        if (kname.at(kname.length()-1) == '2')
+            return false;
+        
+        if (ktype == CONV_2SPK_FN)
+            return false;
+        
+        int count = 0;
+        uint64_t mul_tile = (uint64_t)tile_m_per_cta * tile_k_per_cta * tile_k_per_cta * 
+                            tile_m_per_warp * tile_n_per_warp;
+        uint64_t select_tile = (uint64_t)algo_param.tiles.m_cta * algo_param.tiles.n_cta * algo_param.tiles.k_cta *
+                               algo_param.tiles.m_warp * algo_param.tiles.n_warp;
+                               
+        if (ktype == CONV_2SPK_F1 || ktype == CONV_2SPK_F3 || ktype == CONV_2SPK_FN || ktype == CONV_2SPK_FS) { // for 2spk conv
+            mul_tile *= tile_k_per_set;
+            select_tile *= algo_param.tiles.k_per_set;
+            count += algo_param.tiles.k_per_set == tile_k_per_set; 
+        } else if (ktype == CONV_IDXN_C2 || ktype == CONV_IDXN_C4 || ktype == CONV_IDXN_C32) { // for idxn conv
+            mul_tile *= tile_k_per_step;
+            select_tile *= algo_param.tiles.k_per_step;
+            count += algo_param.tiles.k_per_step == tile_k_per_step; 
+        // } else if (ktype == CONV_SWZL_F1 || ktype == CONV_SWZL_F3 || ktype == CONV_SWZL_FN) {  // for swizzle conv
+        //     mul_tile *= tile_k_per_cta;
+        //     count += 1;
+        } else {
+            return false;
+        }
+
+        count += algo_param.tiles.m_cta == tile_m_per_cta;
+        count += algo_param.tiles.n_cta == tile_n_per_cta;
+        count += algo_param.tiles.k_cta == tile_k_per_cta;
+        count += algo_param.tiles.m_warp == tile_m_per_warp;
+        count += algo_param.tiles.n_warp == tile_n_per_warp;
+        return (count >= 5) || // && mul_tile / select_tile <= 2 && select_tile / mul_tile <= 2) || 
+               (count >= 4 && mul_tile == select_tile);
+    }
 };
 
 ///////////////////////////////////////////////////////////////

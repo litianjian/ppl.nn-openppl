@@ -78,13 +78,14 @@ bool TuringHMMAImpgemm::IsSupported(const ir::Node* node, const OptKernelOptions
 
 double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& options) {
     this->attr_param_ = *(reinterpret_cast<CudaConvParam*>(options.param));
-    attr_param_.extra_param.algo_info.algo_type = "TuringHMMAImpgemm";
 
     conv_param_t temp_conv_param;
     fuse_param_t temp_fuse_param;
     auto shape_in0 = options.tensors->find(node->GetInput(0))->second->GetShape();
     auto shape_in1 = options.tensors->find(node->GetInput(1))->second->GetShape();
+    auto shape_in2 = TensorShape();
     auto shape_out = options.tensors->find(node->GetOutput(0))->second->GetShape();
+    auto align_size = ppl::common::cuda::GetDataFormatChannelAlignment(shape_in0.GetDataFormat());
     ConvertToForwardConvParam(shape_in0, shape_in1, shape_out, attr_param_.param, temp_conv_param);
     ConvertToEmptyFuseParam(temp_fuse_param);
 
@@ -95,6 +96,8 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
         attr_param_.extra_param.algo_info.splitf = algo_info->second.splitf;
         PPLCUDAConvolutionQuickSelectKernel(attr_param_.extra_param.algo_info, temp_conv_param);
     } else {
+        PPLCUDAConvolutionQuickSelectKernel(attr_param_.extra_param.algo_info, temp_conv_param);
+
         // input H or W is too small
         if (shape_in0.GetDim(2) + 2 * temp_conv_param.pad_height < shape_in1.GetDim(2) ||
             shape_in0.GetDim(3) + 2 * temp_conv_param.pad_width < shape_in1.GetDim(3)) {
@@ -125,10 +128,11 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
         auto stream = options.device->GetStream();
         PPLCUDAConvolutionSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
                                     (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
-                                    attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param, temp_select_param,node->GetName());
+                                    attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param);
 
     }
 
+    attr_param_.extra_param.algo_info.algo_type = "TuringHMMAImpgemm";
     options.info->compile_set.emplace(node->GetId());
     return 0.0f;
 }
