@@ -34,6 +34,16 @@ CUfunction CUDAModule::GetKernelFunc() {
 
     return func_;
 }
+
+CUfunction CUDAModule::GetKernelFunc(std::string name) {
+    if (module_ == nullptr) {
+        PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
+    }
+    CUfunction function;
+    PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&func_, module_, name.c_str()));
+
+    return function;
+}
 void CUDAModule::SetSourceCode(std::string name, std::string code) {
     source_code_ = std::make_pair<std::string, std::string>(std::move(name), std::move(code));
 }

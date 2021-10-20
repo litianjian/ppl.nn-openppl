@@ -24,6 +24,8 @@
 #include <unordered_map>
 #include <nvrtc.h>
 
+#include "ppl/nn/common/logger.h"
+
 #include "ppl/nn/engines/cuda/cuda_common.h"
 
 using namespace std;

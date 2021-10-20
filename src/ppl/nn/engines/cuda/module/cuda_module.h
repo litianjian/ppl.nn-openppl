@@ -42,7 +42,7 @@ public:
     }
     // Get the kernel function from the CUmodule
     CUfunction GetKernelFunc();
-
+    CUfunction GetKernelFunc(std::string name);
     void SetCuModule(CUmodule module) { this->module_ = module; }
 
     void SetCuModule(CUfunction func) { this->func_ = func; }
