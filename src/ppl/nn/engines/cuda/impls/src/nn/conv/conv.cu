@@ -410,7 +410,7 @@ float AlgoForwardTime(
     uint64_t workspace) 
 {
     printf("%s\n", name.c_str());
-    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, r_code), compile_params, device, include);
+    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
 
     ppl::nn::cuda::CUDAModule* cuda_module = new ppl::nn::cuda::CUDAModule();
     cuda_module->SetSourceCode(name, ptx);
