@@ -762,6 +762,8 @@ int main(int argc, char* argv[]) {
 
     LOG(INFO) << "ppl.nn version: " << GetVersionString();
 
+    auto prepare_begin_ts = std::chrono::system_clock::now();
+
     vector<unique_ptr<Engine>> engines;
     if (!RegisterEngines(&engines)) {
         LOG(ERROR) << "RegisterEngines failed.";
@@ -843,6 +845,10 @@ int main(int argc, char* argv[]) {
             return -1;
         }
     }
+
+    auto prepare_end_ts = std::chrono::system_clock::now();
+    auto prepare_diff = std::chrono::duration_cast<std::chrono::microseconds>(prepare_end_ts - prepare_begin_ts);
+    LOG(INFO) << "Prepare costs: " << (float)prepare_diff.count() / 1000 << " ms.";
 
     auto run_begin_ts = std::chrono::system_clock::now();
     auto status = runtime->Run();

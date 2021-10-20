@@ -409,7 +409,7 @@ float AlgoForwardTime(
     fuse_param_t &fuse_param,
     uint64_t workspace) 
 {
-    printf("%s\n", name.c_str());
+    // printf("%s\n", name.c_str());
     string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
     ppl::nn::cuda::CUDAModule* cuda_module = new ppl::nn::cuda::CUDAModule();
     cuda_module->SetSourceCode(name, ptx);
@@ -464,16 +464,18 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
     int num_chl_per_grp = conv_param.num_chl / conv_param.num_grp;
     int flt_hw = conv_param.flt_height * conv_param.flt_width;
     
+    int declare_times = 0;
     float minTime = FLT_MAX;
     float elapsed;
 
     const int SPLITK_OPTIONS[] = {1, 2, 4, 8};
 
-    for(unsigned int spk = 0; spk < 4; spk++) {
+    for(unsigned int spk = 0; spk < 1; spk++) {
         unsigned int splitk = SPLITK_OPTIONS[spk];
 
         for(unsigned int kid = 0; kid < g_kernel_container.size(); kid++) {
             unsigned int splitf = (g_kernel_container[kid].ktype == CONV_2SPK_FS) ? flt_hw : 1;
+            printf("%d,%s\n", kid,g_kernel_container[kid].kname.c_str());
         
             if(!g_kernel_container[kid].CheckKernelTypeFeasible(conv_param.flt_height, conv_param.flt_width, num_chl_per_grp, splitk)) continue;
 
@@ -507,7 +509,8 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
                                        temp_algo_param.tiles.m_warp, 
                                        temp_algo_param.tiles.n_warp, 
                                        temp_algo_param.tiles.k_cta, 
-                                       temp_algo_param.tiles.k_per_step);
+                                       temp_algo_param.tiles.k_per_step, declare_times);
+                declare_times++;
             } else {
                 Gene2spkKernel(source, temp_algo_param.algo_name, 
                                        temp_algo_param.tiles.m_cta, 
@@ -518,10 +521,11 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
                                        temp_algo_param.tiles.k_per_set, 
                                        temp_algo_param.splitk, 
                                        temp_algo_param.splitf, 
-                                       1);
+                                       1, declare_times);
+                declare_times++;
             }
-            std::vector<const char*> compile_params;
 
+            std::vector<const char*> compile_params;
             elapsed = AlgoForwardTime(stream, 
                                       g_kernel_container[kid].kname,
                                       source,
@@ -539,7 +543,6 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
                                       fuse_param,
                                       workspace);
             
-            printf("%d %f\n", kid, elapsed);
 	        if(elapsed < minTime){
                 algo_param = temp_algo_param;
 	            minTime = elapsed;

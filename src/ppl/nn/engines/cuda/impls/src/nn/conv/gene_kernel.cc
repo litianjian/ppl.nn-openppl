@@ -60,7 +60,7 @@ void WriteIncludeFile(std::stringstream& file_str, std::string path) {
     return;
 }
 
-ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int splitk, int splitf, int buf_size) {
+ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int splitk, int splitf, int buf_size, int declare_times) {
     int WARP_SIZE = 32;
     int INT4_TO_4HALF2 = 8;
     int MMA_Y = 16;
@@ -126,11 +126,15 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
 
     file_str << "#define uint int\n\n";
     file_str << "#define uint32_t int\n\n";
-    file_str << "#define MAX_LUT_SIZE 128\n\n";
-    file_str << "#define MAX_SPLITK_SIZE 8\n\n";
-    file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
-    file_str << "struct chl_lut_t{ int idx[MAX_SPLITK_SIZE + 1]; };\n\n";
-    file_str << "struct kloop_lut_t{ int idx[MAX_SPLITK_SIZE + 1]; };\n\n";
+
+    if (declare_times == 0) {
+        file_str << "#define MAX_LUT_SIZE 128\n\n";
+        file_str << "#define MAX_SPLITK_SIZE 8\n\n";
+        file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
+        file_str << "struct chl_lut_t{ int idx[MAX_SPLITK_SIZE + 1]; };\n\n";
+        file_str << "struct kloop_lut_t{ int idx[MAX_SPLITK_SIZE + 1]; };\n\n";
+    }
+
     WriteIncludeFile(file_str, "/2spk/common/const_macros.h");
     WriteIncludeFile(file_str, "/2spk/" + flt_size + "/bound_macros.h");
     WriteIncludeFile(file_str, "/2spk/common/ldsm_macros.h");
@@ -197,7 +201,7 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
 }
 
 
-ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size) {
+ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, int cta_y, int cta_x, int warp_y, int warp_x, int k_size, int s_size, int declare_times) {
     // iggnt WARP_SIZE = 32;
     int MMA_Y = 16;
     int MMA_X = 8;
@@ -227,8 +231,11 @@ ppl::common::RetCode GeneIdxnKernel(std::string& file_res, std::string& kname, i
     file_str << "#define ENABLE_FUSE 1\n\n";
     file_str << "#define uint int\n\n";
     file_str << "#define uint32_t int\n\n";
-    file_str << "#define MAX_LUT_SIZE 128\n\n";
-    file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
+
+    if (declare_times == 0) {
+        file_str << "#define MAX_LUT_SIZE 128\n\n";
+        file_str << "struct lut_t{ int idx[MAX_LUT_SIZE]; };\n\n";
+    }
 
     WriteIncludeFile(file_str, "/idxn/common/const_macros.h");
 

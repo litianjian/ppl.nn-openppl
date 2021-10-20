@@ -41,6 +41,7 @@ struct CudaArgs {
     }
 
     struct AlgoInfo {
+        std::string kname = "";
         int kid = 0;
         int splitk = 1;
         int splitf = 1;
