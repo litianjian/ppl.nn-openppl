@@ -467,6 +467,9 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
     int num_chl_per_grp = conv_param.num_chl / conv_param.num_grp;
     int flt_hw = conv_param.flt_height * conv_param.flt_width;
     
+    std::vector<std::string> knames;
+    std::vector<algo_param_t> params;
+    std::string total_source = "";
     int declare_times = 0;
     float minTime = FLT_MAX;
     float elapsed;
@@ -528,30 +531,20 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
                 declare_times++;
             }
 
-            std::vector<const char*> compile_params;
-            elapsed = AlgoForwardTime(stream, 
-                                      g_kernel_container[kid].kname,
-                                      source,
-                                      compile_params,
-                                      0,
-                                      true,
-                                      type,
-                                      d_input,
-                                      d_flt,
-                                      d_output,
-                                      bias,
-                                      d_temp_buf, 
-                                      temp_algo_param,
-                                      conv_param,
-                                      fuse_param,
-                                      workspace);
-            
-	        if(elapsed < minTime){
-                algo_param = temp_algo_param;
-	            minTime = elapsed;
-	        }
+            total_source = total_source + source;
+            knames.emplace(g_kernel_container[kid].kname);
+            params.emplace(temp_algo_param);
         }
     }
+    
+    int index = 0;
+    std::vector<const char*> compile_params;
+    elapsed = AlgoForwardTime(stream, g_kernel_container[kid].kname, source, index,
+                              compile_params, 0, true, type,
+                              d_input, d_flt, d_output, bias, d_temp_buf, 
+                              temp_algo_param, conv_param, fuse_param, workspace);
+    
+    algo_param = params[index];
     g_conv_shape_hash[conv_shape_hash] = algo_param;
 
     return ppl::common::RC_SUCCESS;
