@@ -293,7 +293,7 @@ ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
             algo_param.tiles.n_warp = 16;
         }
 
-        if (conv_param.num_chl >= 16) {
+        if (conv_param.num_chl >= 8) {
             algo_param.tiles.k_cta = 32;
             algo_param.tiles.k_per_step = 32;
         } else {
@@ -480,7 +480,6 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
     std::vector<algo_param_t> params;
     std::string total_source = "";
     int declare_times = 0;
-    float minTime = FLT_MAX;
     float elapsed;
 
     const int SPLITK_OPTIONS[] = {1, 2, 4, 8};
@@ -514,7 +513,7 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
             temp_algo_param.tiles.flt_pad_size = g_kernel_container[kid].flt_pad_size;
             temp_algo_param.tiles.cta_size_in_thd = g_kernel_container[kid].cta_size_in_thd;
 
-            if(!g_kernel_container[kid].CheckQuickSelectFeasible(pre_algo_param, conv_param.num_chl / conv_param.num_grp, flt_hw, splitk, splitf)) continue;
+            if(declare_times && !g_kernel_container[kid].CheckQuickSelectFeasible(pre_algo_param, conv_param.num_chl / conv_param.num_grp, flt_hw, splitk, splitf)) continue;
 
             std::string source = "";
             if (temp_algo_param.algo_name.find("Idxn") != std::string::npos) {
@@ -548,6 +547,16 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
         }
     }
     
+    printf("%d %d %d %d %d %d %d %d %d %d\n", params.size(), 
+                                pre_algo_param.tiles.m_cta, 
+                                pre_algo_param.tiles.n_cta, 
+                                pre_algo_param.tiles.m_warp, 
+                                pre_algo_param.tiles.n_warp, 
+                                pre_algo_param.tiles.k_cta, 
+                                pre_algo_param.tiles.k_per_set,
+                                pre_algo_param.tiles.k_per_step, 
+                                pre_algo_param.splitk, 
+                                pre_algo_param.splitf);
     int index = 0;
     std::vector<const char*> compile_params;
     elapsed = AlgoForwardTime(stream, knames, total_source, index,
