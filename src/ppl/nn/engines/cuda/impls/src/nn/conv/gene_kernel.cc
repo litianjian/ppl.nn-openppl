@@ -72,7 +72,9 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
 
     // int sAv4_size = warp_y / INT4_TO_4HALF2;
     // int sBv4_size = warp_x / INT4_TO_4HALF2;
-
+    if (splitk >= 2) {
+        kname = kname + "_splitk";
+    }
     float dAv4_size = (cta_y * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
     float dBv4_size = (cta_x * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
 
@@ -110,7 +112,7 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
         LOG(ERROR) << "knum is error, create kernel failed";
         return ppl::common::RC_INVALID_VALUE;
     } 
-
+    
     file_str << "#define KERNEL_NAME " << kname  << "\n";
 
     file_str << "#define USE_" << buf_size << "BUF\n\n";
@@ -195,7 +197,13 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
     WriteIncludeFile(file_str, "/2spk/common/main_body.h");
     file_str << "}\n\n";
     WriteIncludeFile(file_str, "/2spk/common/uni_undefs.h");
-
+    if (splitk == 1 && splitf == 1)
+        file_str << "#undef ENABLE_FUSE\n\n";
+    if (splitk > 1)
+        file_str << "#undef ENABLE_SPLITK\n";
+    if (splitf > 1) {
+        file_str << "#undef ENABLE_SPLITF\n";
+    }
     file_res = file_str.str();
     return ppl::common::RC_SUCCESS;
 }

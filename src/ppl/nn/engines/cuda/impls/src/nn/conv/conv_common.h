@@ -245,7 +245,8 @@ struct kernel_info_t
         
         if (ktype == CONV_2SPK_FN && flt_hw <= 9)
             return false;
-        
+        if (splitk != 1 && k / splitk <= 128)
+            return false;
         int count = 0;
         uint64_t mul_tile = (uint64_t)tile_m_per_cta * tile_k_per_cta * tile_k_per_cta * 
                             tile_m_per_warp * tile_n_per_warp;

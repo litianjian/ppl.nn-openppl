@@ -25,6 +25,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <nvrtc.h>
+#include <algorithm>
 
 #include "cudakernel/nn/conv/conv_fp16.h"
 #include "cudakernel/nn/conv/gene_kernel.h"
@@ -410,7 +411,6 @@ float AlgoForwardTime(
     fuse_param_t &fuse_param,
     uint64_t workspace) 
 {
-    printf("%s\n", name[0].c_str());
     std::string src_name = name[0];
     string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(src_name, code), compile_params, device, include);
     // std::cout << ptx << std::endl;
@@ -426,7 +426,6 @@ float AlgoForwardTime(
 
     for(size_t n = 0; n < name.size(); n++) {
         CUfunction function = cuda_module->GetKernelFunc(name[n]);
-        // std::cout << "test " << function << std::endl;
         cudaEventRecord(begin, stream);
         for (int i = 0; i < times; i++) {
             PPLCUDAConvolutionForwardJITImp( 
@@ -486,7 +485,7 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
 
     const int SPLITK_OPTIONS[] = {1, 2, 4, 8};
 
-    for(unsigned int spk = 0; spk < 1; spk++) {
+    for(unsigned int spk = 0; spk < 4; spk++) {
         unsigned int splitk = SPLITK_OPTIONS[spk];
 
         for(unsigned int kid = 0; kid < g_kernel_container.size(); kid++) {
@@ -541,14 +540,10 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
                 declare_times++;
             }
 
-            bool has_flag = true;
-            for (auto iter = knames.begin(); iter != knames.end(); iter++) {
-                if (*iter == g_kernel_container[kid].kname)
-                    has_flag = false;
-            }
-            if (has_flag)
+            if (std::find(knames.begin(), knames.end(), temp_algo_param.algo_name) == knames.end()) {
                 total_source = total_source + source;
-            knames.push_back(g_kernel_container[kid].kname);
+            }
+            knames.push_back(temp_algo_param.algo_name);
             params.push_back(temp_algo_param);
         }
     }
