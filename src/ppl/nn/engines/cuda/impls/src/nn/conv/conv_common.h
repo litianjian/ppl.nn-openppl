@@ -129,6 +129,15 @@ struct kernel_info_t
         parse_kname();
     }
 
+    kernel_info_t(int kid_, conv_ktype_t ktype_, const char kname_[])
+    {
+        kid      = kid_;
+        ktype    = ktype_;
+        kname    = std::string(kname_);
+        
+        parse_kname();
+    }
+
     void parse_kname()
     {
         std::stringstream kname_str(kname);

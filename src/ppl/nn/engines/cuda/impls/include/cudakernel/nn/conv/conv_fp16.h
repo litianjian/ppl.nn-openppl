@@ -48,6 +48,7 @@ struct tiles_param_t{
     int k_per_step = -1; // for idxn conv
     int k_per_set = -1;  // for 2spk conv
     int flt_size = -1; // for 2spk conv 
+    int buf_size = -1; // for 2spk conv
     int flt_pad_size = -1; // for idxn conv 
     
     int cta_size_in_thd = -1;
@@ -98,11 +99,24 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
         unsigned int splitf,
         uint64_t workspace = ((uint64_t)8)*1024*1024*1024);
 
-ppl::common::RetCode PPLCUDAConvolutionQuickSelectKernel(
+ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
         algo_param_t &algo_param,
         conv_param_t &conv_param);
 
 ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
+        cudaStream_t &stream, 
+        ppl::common::datatype_t type,
+        int4* d_input,
+        int4* d_flt,
+        int4* d_output,
+	int4* bias,
+	int4* d_temp_buf, 
+        algo_param_t &algo_param,
+	conv_param_t &conv_param, 
+	fuse_param_t &fuse_param,
+	uint64_t workspace = (uint64_t)8*1024*1024*1024);
+
+ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
         int4* d_input,

@@ -78,6 +78,8 @@ bool TuringHMMAImpgemm::IsSupported(const ir::Node* node, const OptKernelOptions
 
 double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& options) {
     this->attr_param_ = *(reinterpret_cast<CudaConvParam*>(options.param));
+    attr_param_.extra_param.algo_info.algo_type = "TuringHMMAImpgemm";
+    options.info->compile_set.emplace(node->GetId());
 
     conv_param_t temp_conv_param;
     fuse_param_t temp_fuse_param;
@@ -94,47 +96,52 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
         attr_param_.extra_param.algo_info.kid = algo_info->second.kid;
         attr_param_.extra_param.algo_info.splitk = algo_info->second.splitk;
         attr_param_.extra_param.algo_info.splitf = algo_info->second.splitf;
-        PPLCUDAConvolutionQuickSelectKernel(attr_param_.extra_param.algo_info, temp_conv_param);
-    } else {
-        PPLCUDAConvolutionQuickSelectKernel(attr_param_.extra_param.algo_info, temp_conv_param);
-
-        // input H or W is too small
-        if (shape_in0.GetDim(2) + 2 * temp_conv_param.pad_height < shape_in1.GetDim(2) ||
-            shape_in0.GetDim(3) + 2 * temp_conv_param.pad_width < shape_in1.GetDim(3)) {
-            shape_in0.SetDim(2, shape_in1.GetDim(2));
-            shape_in0.SetDim(3, shape_in1.GetDim(3));
-        }
-
-        // Padding
-        shape_in0.SetDim(1, shape_in1.GetDim(1) * attr_param_.param.group);
-        uint32_t k_per_grp = shape_in1.GetDim(0) / attr_param_.param.group;
-        uint32_t k_per_grp_pad = (k_per_grp + align_size - 1) / align_size * align_size;
-        shape_in1.SetDim(0, k_per_grp_pad * attr_param_.param.group);
-        if (temp_conv_param.has_bias) {
-            shape_in2 = options.tensors->find(node->GetInput(2))->second->GetShape();
-            shape_in2.SetDim(0, k_per_grp_pad * temp_conv_param.num_grp);
-        }
-
-        RetCode status;
-        ALLOC_BUFFERF_FOR_ALGO_SELECT(input_buffer, shape_in0.GetBytesIncludingPadding(), ALGO_MAX_TIME)
-        ALLOC_BUFFERF_FOR_ALGO_SELECT(weight_buffer, shape_in1.GetBytesIncludingPadding(), ALGO_MAX_TIME)
-        ALLOC_BUFFERF_FOR_ALGO_SELECT(bias_buffer, shape_in2.GetBytesIncludingPadding(), ALGO_MAX_TIME)
-        ALLOC_BUFFERF_FOR_ALGO_SELECT(output_buffer, shape_out.GetBytesIncludingPadding(), ALGO_MAX_TIME)
-
-        uint64_t size = PPLCUDAConvolutionGetCompilationBufSize(shape_in0.GetDataType(), temp_conv_param);
-        ALLOC_BUFFERF_FOR_ALGO_SELECT(temp_buffer, size, ALGO_MAX_TIME)
-
-        // Do select
-        auto stream = options.device->GetStream();
-        LOG(ERROR) << node->GetName();
-        PPLCUDAConvolutionSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
-                                    (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
-                                    attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param);
-
+        PPLCUDAConvolutionPredictKernel(attr_param_.extra_param.algo_info, temp_conv_param);
+        return 0.0f;
+    }
+    PPLCUDAConvolutionPredictKernel(attr_param_.extra_param.algo_info, temp_conv_param);
+    // input H or W is too small
+    if (shape_in0.GetDim(2) + 2 * temp_conv_param.pad_height < shape_in1.GetDim(2) ||
+        shape_in0.GetDim(3) + 2 * temp_conv_param.pad_width < shape_in1.GetDim(3)) {
+        shape_in0.SetDim(2, shape_in1.GetDim(2));
+        shape_in0.SetDim(3, shape_in1.GetDim(3));
     }
 
-    attr_param_.extra_param.algo_info.algo_type = "TuringHMMAImpgemm";
-    options.info->compile_set.emplace(node->GetId());
+    // Padding
+    shape_in0.SetDim(1, shape_in1.GetDim(1) * attr_param_.param.group);
+    uint32_t k_per_grp = shape_in1.GetDim(0) / attr_param_.param.group;
+    uint32_t k_per_grp_pad = (k_per_grp + align_size - 1) / align_size * align_size;
+    shape_in1.SetDim(0, k_per_grp_pad * attr_param_.param.group);
+    if (temp_conv_param.has_bias) {
+        shape_in2 = options.tensors->find(node->GetInput(2))->second->GetShape();
+        shape_in2.SetDim(0, k_per_grp_pad * temp_conv_param.num_grp);
+    }
+
+    RetCode status;
+    ALLOC_BUFFERF_FOR_ALGO_SELECT(input_buffer, shape_in0.GetBytesIncludingPadding(), ALGO_MAX_TIME)
+    ALLOC_BUFFERF_FOR_ALGO_SELECT(weight_buffer, shape_in1.GetBytesIncludingPadding(), ALGO_MAX_TIME)
+    ALLOC_BUFFERF_FOR_ALGO_SELECT(bias_buffer, shape_in2.GetBytesIncludingPadding(), ALGO_MAX_TIME)
+    ALLOC_BUFFERF_FOR_ALGO_SELECT(output_buffer, shape_out.GetBytesIncludingPadding(), ALGO_MAX_TIME)
+
+    uint64_t size = PPLCUDAConvolutionGetCompilationBufSize(shape_in0.GetDataType(), temp_conv_param);
+    ALLOC_BUFFERF_FOR_ALGO_SELECT(temp_buffer, size, ALGO_MAX_TIME)
+    auto stream = options.device->GetStream();
+
+        // Do select
+        LOG(ERROR) << node->GetName();
+        PPLCUDAConvolutionJitSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
+                                    (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
+                                    attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param);
+        
+        // Do select
+        algo_param_t algo_param;
+        PPLCUDAConvolutionSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
+                                    (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
+                                    algo_param, temp_conv_param, temp_fuse_param);
+
+        attr_param_.extra_param.algo_info.kid = algo_param.kid;
+        attr_param_.extra_param.algo_info.splitk = algo_param.splitk;
+        attr_param_.extra_param.algo_info.splitf = algo_param.splitf;
     return 0.0f;
 }
 
