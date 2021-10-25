@@ -15,6 +15,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// #ifdef PPLNN_ENABLE_CUDA_JIT
+
 #include <ppl/nn/engines/cuda/module/cuda_module.h>
 #include <ppl/nn/engines/cuda/module/cuda_compiler.h>
 
