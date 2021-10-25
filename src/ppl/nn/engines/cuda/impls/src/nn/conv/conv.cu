@@ -147,12 +147,14 @@ static std::unordered_map<size_t, algo_param_t> g_conv_shape_hash;
 void InitializeKernelContainer(std::vector<kernel_info_t> &g_kernel_container, ppl::common::datatype_t type)
 {
     if( type == ppl::common::DATATYPE_FLOAT16 ) {
+#ifndef PPLNN_ENABLE_CUDA_JIT
         Initialize2spkConvF1KernelContainer(g_kernel_container);
         Initialize2spkConvF3KernelContainer(g_kernel_container);
         Initialize2spkConvFNKernelContainer(g_kernel_container);
         Initialize2spkConvFSKernelContainer(g_kernel_container);
                       
         InitializeIdxnConvKernelContainer(g_kernel_container);
+#endif
     }
     
     is_g_kernel_container_initialized = true;
@@ -731,11 +733,6 @@ ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
     return ppl::common::RC_SUCCESS;
 }
 
-string PPLCUDACompile(string name, string code, std::vector<const char*> compile_params, int device, bool include) {
-    string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(name, code), compile_params, device, include);
-    return ptx;
-}
-
 float AlgoForwardTime(
     cudaStream_t &stream, 
     std::vector<string> name,
@@ -755,6 +752,9 @@ float AlgoForwardTime(
     fuse_param_t &fuse_param,
     uint64_t workspace) 
 {
+    float elapsed = 0;
+
+#ifdef PPLNN_ENABLE_CUDA_JIT
     std::string src_name = name[0];
     string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(src_name, code), compile_params, device, include);
     // std::cout << ptx << std::endl;
@@ -763,7 +763,6 @@ float AlgoForwardTime(
     float min_time = FLT_MAX;
     int times = 1;
 
-    float elapsed = 0;
     cudaEvent_t begin, end;
     cudaEventCreate(&begin);
     cudaEventCreate(&end);
@@ -788,6 +787,7 @@ float AlgoForwardTime(
     cudaEventDestroy(begin);
     cudaEventDestroy(end);
     delete cuda_module;
+#endif
     return elapsed; 
 }
 
@@ -923,7 +923,6 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
     
     algo_param = params[index];
     g_conv_shape_hash[conv_shape_hash] = algo_param;
-
     return ppl::common::RC_SUCCESS;
 }
 
@@ -936,23 +935,13 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
       exit(1);                                                    \
     }                                                             \
   } while(0)
+
 #define CUDA_SAFE_CALL(x)                                         \
   do {                                                            \
     CUresult result = x;                                          \
     if (result != CUDA_SUCCESS) {                                 \
       const char *msg;                                            \
       cuGetErrorName(result, &msg);                               \
-      std::cerr << "\nerror: " #x " failed with error "           \
-                << msg << '\n';                                   \
-      exit(1);                                                    \
-    }                                                             \
-  } while(0)
-
-#define CUDA_RUNTIME_CALL(x)                                    \
-  do {                                                            \
-    cudaError_t result = x;                                       \
-    if (result != cudaSuccess) {                                 \
-      const char *msg = cudaGetErrorName(result);                   \
       std::cerr << "\nerror: " #x " failed with error "           \
                 << msg << '\n';                                   \
       exit(1);                                                    \

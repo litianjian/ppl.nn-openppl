@@ -20,7 +20,8 @@
 namespace ppl { namespace nn { namespace cuda {
 
 std::string CUDANVRTCCompile(std::pair<string, string> code, std::vector<const char*> compile_params, int device, bool include) {
-    
+    std::string ptx_code;
+#ifdef PPLNN_ENABLE_CUDA_JIT
     std::vector<const char*> cuda_compile_params{};
     std::vector<std::string> params;
     auto arch = PPLCudaGetDeviceArch(device);
@@ -48,13 +49,13 @@ std::string CUDANVRTCCompile(std::pair<string, string> code, std::vector<const c
         LOG(ERROR) << log;
     }
 
-    std::string ptx_code;
     size_t ptx_size = 0;
     PPL_NVRTC_SAFE_CALL(nvrtcGetPTXSize(program, &ptx_size));
     ptx_code.resize(ptx_size);
 
     PPL_NVRTC_SAFE_CALL(nvrtcGetPTX(program, &ptx_code[0]));
     PPL_NVRTC_SAFE_CALL(nvrtcDestroyProgram(&program));
+#endif
     return ptx_code;
 }
     

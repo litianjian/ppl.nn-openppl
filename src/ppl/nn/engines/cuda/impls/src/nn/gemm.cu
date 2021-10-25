@@ -75,11 +75,13 @@ static bool is_g_kvec_set = false;
 
 void init_f1_kvec(std::vector<kernel_info_t> &g_kvec, ppl::common::datatype_t type)
 {
+#ifndef PPLNN_ENABLE_CUDA_JIT
     if ( type == ppl::common::DATATYPE_FLOAT16 )
     {
         Initialize2spkConvF1KernelContainer(g_kvec);
     }
     is_g_kvec_set = true;
+#endif
 }
 
 uint64_t PPLGemmCUDAGetBufSize(

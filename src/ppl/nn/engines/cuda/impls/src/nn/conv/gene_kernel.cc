@@ -54,9 +54,11 @@ std::string GetSizeString(float size) {
     return "";
 }
 
-void WriteIncludeFile(std::stringstream& file_str, std::string path) { 
+void WriteIncludeFile(std::stringstream& file_str, std::string path) {
+#ifdef PPLNN_ENABLE_CUDA_JIT 
     auto header_str = GeneHeader::Instance()->Find(path);
     file_str << header_str << "\n\n";
+#endif
     return;
 }
 
