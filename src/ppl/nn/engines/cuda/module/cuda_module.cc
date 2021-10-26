@@ -15,7 +15,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// #ifdef PPLNN_ENABLE_CUDA_JIT
 
 #include <ppl/nn/engines/cuda/module/cuda_module.h>
 #include <ppl/nn/engines/cuda/module/cuda_compiler.h>
@@ -41,6 +40,8 @@ CUfunction CUDAModule::GetKernelFunc(std::string name) {
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
     }
     CUfunction function;
+    LOG(ERROR) << name;
+    LOG(ERROR) << module_;
     PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&function, module_, name.c_str()));
 
     return function;

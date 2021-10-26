@@ -604,41 +604,96 @@ std::string ToString(int v) {
     return ss.str();
 }
 
-void LoadAlgokname(algo_param_t &algo_param) {
-    auto& kname = algo_param.algo_name;
-    uint32_t count = 0;
-    uint32_t num = 0;
-    for (uint32_t i = 0; i < kname.length() && count < 6; i ++) {
-        if ( kname.at(i) >= '0' && kname.at(i) <= '9') {
-            num = num * 10 + kname.at(i) - '0';
-        } else {
-            switch (count)
-            {
-            case 0:
-                algo_param.tiles.m_cta = num;
-                break;
-            case 1:
-                algo_param.tiles.n_cta = num;
-                break;
-            case 2:
-                algo_param.tiles.m_warp = num;
-                break;
-            case 3:
-                algo_param.tiles.n_warp = num;
-                break;
-            case 4:
-                algo_param.tiles.k_cta = num;
-                break;
-            case 5:
-                algo_param.tiles.k_per_step = num;
-                algo_param.tiles.k_per_set = num;
-                break;
-            }
-            count++;
-            num = 0;
-        }
+int GetValidK(int flt_hw, int chl_per_grp_pad, int cta_size_in_thd) {
+    printf("%d %d %d\n", flt_hw, chl_per_grp_pad, cta_size_in_thd);
+    for (int i = 32; i >= 8; i /= 2) {
+        int kloop_num  = DivUp(flt_hw * chl_per_grp_pad, i);
+        int kloop_time = DivUp(kloop_num * 4, cta_size_in_thd);
+        if (kloop_time == 1) 
+            return i;
     }
-    return;
+    printf("error: can not find any valid k\n");
+    return 8;
+}
+
+ppl::common::RetCode PPLCUDAConvolutionLoadAlgoParam(
+        algo_param_t &algo_param,
+        conv_param_t &conv_param) {
+    int chl_per_group = conv_param.num_chl / conv_param.num_grp;
+    auto kname = algo_param.algo_name.substr(algo_param.algo_name.find("_b"));
+
+    if (chl_per_group <= 32) { // Use non-shared memory algo for small channel
+        sscanf(kname.c_str(), "_b%dx%d_w%dx%d_k%d_s%d_nosmem", &algo_param.tiles.m_cta, &algo_param.tiles.n_cta,
+                                       &algo_param.tiles.m_warp,  &algo_param.tiles.n_warp,
+                                        &algo_param.tiles.k_cta, &algo_param.tiles.k_per_step);
+        algo_param.tiles.flt_pad_size = algo_param.tiles.k_per_step / 4;
+        algo_param.tiles.cta_size_in_thd = (algo_param.tiles.m_cta / algo_param.tiles.m_warp) * \
+                                            (algo_param.tiles.n_cta / algo_param.tiles.n_warp) * \
+                                            WARP_SIZE;
+    } else { // Use 2spk algo for large channel
+        sscanf(kname.c_str(), "_b%dx%d_w%dx%d_k%d_s%d_buf%d", &algo_param.tiles.m_cta, &algo_param.tiles.n_cta,
+                                        &algo_param.tiles.m_warp, &algo_param.tiles.n_warp,
+                                        &algo_param.tiles.k_cta, &algo_param.tiles.k_per_set,
+                                        &algo_param.tiles.buf);
+        algo_param.tiles.flt_size = 1;
+        if (conv_param.flt_height == 3) {
+            algo_param.tiles.flt_size = 3;
+        } else if (conv_param.flt_height > 3) {
+            algo_param.tiles.flt_size = 0;
+        }
+        algo_param.tiles.cta_size_in_thd = (algo_param.tiles.m_cta / algo_param.tiles.m_warp) *  \
+                                            (algo_param.tiles.n_cta / algo_param.tiles.n_warp) *  \
+                                            (algo_param.tiles.k_cta / algo_param.tiles.k_per_set)  * \
+                                            WARP_SIZE;
+    }
+    return ppl::common::RC_SUCCESS;
+}
+
+void ModifySingleParam(algo_param_t &algo_param, int pos, int offset) {
+    switch (pos)
+    {
+    case 0:
+        algo_param.tiles.m_cta = offset > 0 ? algo_param.tiles.m_cta * 2 : algo_param.tiles.m_cta / 2;
+        break;
+    case 1:
+        algo_param.tiles.n_cta = offset > 0 ? algo_param.tiles.n_cta * 2 : algo_param.tiles.n_cta / 2;
+        break;
+    case 2:
+        algo_param.tiles.m_warp = offset > 0 ? algo_param.tiles.m_warp * 2 : algo_param.tiles.m_warp / 2;
+        break;
+    case 3:
+        algo_param.tiles.n_warp = offset > 0 ? algo_param.tiles.n_warp * 2 : algo_param.tiles.n_warp / 2;
+        break;
+    case 4:
+        algo_param.tiles.k_cta = offset > 0 ? algo_param.tiles.k_cta * 2 : algo_param.tiles.k_cta / 2;
+        break;
+    case 5:
+        algo_param.tiles.k_per_step = offset > 0 ? algo_param.tiles.k_per_step * 2 : algo_param.tiles.k_per_step / 2;
+        algo_param.tiles.k_per_set = offset > 0 ? algo_param.tiles.k_per_set * 2 : algo_param.tiles.k_per_set / 2;
+        break;
+    }
+}
+
+bool PPLCUDAConvolutionModifyAlgoParam(
+        algo_param_t &algo_param,
+        uint32_t index) {
+    if (index == 0) {
+        return ppl::common::RC_SUCCESS;
+    } else if (index <= 12) {
+        index = index - 1;
+        int pos = index / 6;
+        int offset = index % 2;
+        ModifySingleParam(algo_param, pos, offset);
+    } else {
+        index = index - 13;
+        int pos_1 = index / 5;
+        int pos_2 = index % 5;
+        if (pos_2 >= pos_1) pos_2++;
+        ModifySingleParam(algo_param, pos_1, 1);
+        ModifySingleParam(algo_param, pos_2, 0);
+    }
+
+    return ppl::common::RC_SUCCESS;
 }
 
 ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
@@ -648,11 +703,9 @@ ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
     int in_hw = conv_param.in_num * conv_param.in_height * conv_param.in_width;
     int out_hw = conv_param.in_num * conv_param.out_height * conv_param.out_width;
     int flt_hw = conv_param.flt_height * conv_param.flt_width;
-    int chl_per_group = conv_param.num_chl / conv_param.num_grp;
+    int chl_per_grp = conv_param.num_chl / conv_param.num_grp;
 
-    if (algo_param.algo_name != "") {
-        LoadAlgokname(algo_param);
-    } else if (chl_per_group < 64) { // Use non-shared memory algo for small channel
+    if (chl_per_grp <= 32) { // Use non-shared memory algo for small channel
         if (flt_hw > 9) {
             algo_param.tiles.m_cta = 128;
             algo_param.tiles.m_warp = 64;
@@ -669,12 +722,25 @@ ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
             algo_param.tiles.n_warp = 16;
         }
 
-        if (conv_param.num_chl >= 8) {
-            algo_param.tiles.k_cta = 32;
-            algo_param.tiles.k_per_step = 32;
+        algo_param.tiles.cta_size_in_thd = (algo_param.tiles.m_cta / algo_param.tiles.m_warp) * \
+                                    (algo_param.tiles.n_cta / algo_param.tiles.n_warp) * \
+                                    WARP_SIZE;
+
+        if (chl_per_grp <= 2) {
+            int chl_per_grp_pad = Align(chl_per_grp, 2);
+            int k = GetValidK(flt_hw, chl_per_grp_pad, algo_param.tiles.cta_size_in_thd);
+            algo_param.tiles.k_cta = k;
+            algo_param.tiles.k_per_step = k;
+        } else if (chl_per_grp <= 4) {
+            int chl_per_grp_pad = Align(chl_per_grp, 4);
+            int k = GetValidK(flt_hw, chl_per_grp_pad, algo_param.tiles.cta_size_in_thd);
+            algo_param.tiles.k_cta = k;
+            algo_param.tiles.k_per_step = k;
         } else {
-            algo_param.tiles.k_cta = 16;
-            algo_param.tiles.k_per_step = 16;
+            int chl_per_grp_pad = Align(chl_per_grp, 8);
+            int k = GetValidK(flt_hw, chl_per_grp_pad, algo_param.tiles.cta_size_in_thd);
+            algo_param.tiles.k_cta = k;
+            algo_param.tiles.k_per_step = k;
         }
     } else { // Use 2spk algo for large channel
         float min_pad = 1.0;
@@ -771,7 +837,7 @@ float AlgoForwardTime(
         CUfunction function = cuda_module->GetKernelFunc(name[n]);
         cudaEventRecord(begin, stream);
         for (int i = 0; i < times; i++) {
-            PPLCUDAConvolutionForwardJITImp( 
+            PPLCUDAConvolutionForwardJITImp(
                 stream, function, type, d_input, d_flt, d_output, bias, d_temp_buf,
                 algo_param[n], conv_param, fuse_param);
         }
@@ -825,22 +891,24 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
 
     const int SPLITK_OPTIONS[] = {1, 2, 4, 8};
 
-    for(unsigned int spk = 0; spk < 4; spk++) {
+    for(unsigned int spk = 0; spk < 1; spk++) {
         unsigned int splitk = SPLITK_OPTIONS[spk];
+        unsigned int splitf = 1;
 
-        for(unsigned int index = 0; index < 1; index++) {
-            unsigned int splitf = 1;
-
+        for(unsigned int index = 0; index <= 33; index++) {
             conv_ktype_t ktype;
-            if (num_chl_per_grp < 64) { // Use non-shared memory algo for small channel
-                if(algo_param.tiles.k_per_step == 8)  {
-                    algo_param.tiles.flt_pad_size = 2;
+            algo_param = pre_algo_param;
+            PPLCUDAConvolutionModifyAlgoParam(algo_param, index); // change algo_param
+            algo_param.splitk = splitk;
+            algo_param.splitf = splitf;
+
+            if (num_chl_per_grp <= 32) { // Use non-shared memory algo for small channel
+                algo_param.tiles.flt_pad_size = algo_param.tiles.k_per_step / 4;
+                if (num_chl_per_grp <= 2) {
                     ktype = CONV_IDXN_C2;
-                } else if(algo_param.tiles.k_per_step == 16) {
-                    algo_param.tiles.flt_pad_size = 4;
+                } else if(num_chl_per_grp <= 4) {
                     ktype = CONV_IDXN_C4;
-                } else if(algo_param.tiles.k_per_step == 32) {
-                    algo_param.tiles.flt_pad_size = 8;
+                } else {
                     ktype = CONV_IDXN_C32;
                 }
                 algo_param.tiles.cta_size_in_thd = (algo_param.tiles.m_cta / algo_param.tiles.m_warp) * \
@@ -854,12 +922,15 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
                                                    (algo_param.tiles.n_cta / algo_param.tiles.n_warp) *  \
                                                    (algo_param.tiles.k_cta / algo_param.tiles.k_per_set)  * \
                                                     WARP_SIZE;
+                ktype = CONV_2SPK_F1;
                 std::string f_size = "f1";
                 algo_param.tiles.flt_size = 1;
                 if (conv_param.flt_height == 3) {
+                    ktype = CONV_2SPK_F3;
                     f_size = "f3";
                     algo_param.tiles.flt_size = 3;
                 } else if (conv_param.flt_height > 3) {
+                    ktype = CONV_2SPK_FN;
                     f_size = "fn";
                     algo_param.tiles.flt_size = 0;
                 }
@@ -868,59 +939,60 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
                                                                           "_k"+ToString(algo_param.tiles.k_cta)+"_s"+ToString(algo_param.tiles.k_per_set)+"_buf1";
             }
 
-            kernel_info_t temp_kernel;
-        
-            algo_param_t temp_algo_param = pre_algo_param; // TODO:Xusi change algo_param
-            temp_algo_param.splitk = splitk;
-            temp_algo_param.splitf = splitf;
-
+            kernel_info_t temp_kernel(-1, ktype, algo_param.algo_name.c_str());
+            if(!temp_kernel.CheckKernelTilesFeasible()) continue;
             if(!temp_kernel.CheckKernelTypeFeasible(conv_param.flt_height, conv_param.flt_width, num_chl_per_grp, splitk)) continue;
-
             if(!temp_kernel.CheckSplitkFeasible(num_chl_per_grp, splitk)) continue;
-
             if(!temp_kernel.CheckSplitfFeasible(splitf, splitk)) continue;
-
-            if(!temp_kernel.CheckQuickSelectFeasible(pre_algo_param, conv_param.num_chl / conv_param.num_grp, flt_hw, splitk, splitf)) continue;
-
+            if(!temp_kernel.CheckQuickSelectFeasible(algo_param, conv_param.num_chl / conv_param.num_grp, flt_hw, splitk, splitf)) continue;
+            
+            printf("modify param %d %d %d %d %d %d %d %s\n", index, algo_param.tiles.m_cta, algo_param.tiles.n_cta,
+                                        algo_param.tiles.m_warp,  algo_param.tiles.n_warp,
+                                        algo_param.tiles.k_cta, algo_param.tiles.k_per_step, algo_param.algo_name.c_str());
+        
             std::string source = "";
-            if (temp_algo_param.algo_name.find("Idxn") != std::string::npos) {
-                GeneIdxnKernel(source, temp_algo_param.algo_name, 
-                                       temp_algo_param.tiles.m_cta, 
-                                       temp_algo_param.tiles.n_cta, 
-                                       temp_algo_param.tiles.m_warp, 
-                                       temp_algo_param.tiles.n_warp, 
-                                       temp_algo_param.tiles.k_cta, 
-                                       temp_algo_param.tiles.k_per_step, declare_times);
+            if (algo_param.algo_name.find("Idxn") != std::string::npos) {
+                GeneIdxnKernel(source, algo_param.algo_name, 
+                                       algo_param.tiles.m_cta, 
+                                       algo_param.tiles.n_cta, 
+                                       algo_param.tiles.m_warp, 
+                                       algo_param.tiles.n_warp, 
+                                       algo_param.tiles.k_cta, 
+                                       algo_param.tiles.k_per_step, declare_times);
                 declare_times++;
+                // printf("%s\n", source.c_str());
             } else {
-                Gene2spkKernel(source, temp_algo_param.algo_name, 
-                                       temp_algo_param.tiles.m_cta, 
-                                       temp_algo_param.tiles.n_cta, 
-                                       temp_algo_param.tiles.m_warp, 
-                                       temp_algo_param.tiles.n_warp, 
-                                       temp_algo_param.tiles.k_cta, 
-                                       temp_algo_param.tiles.k_per_set, 
-                                       temp_algo_param.splitk, 
-                                       temp_algo_param.splitf, 
-                                       1, declare_times);
+                Gene2spkKernel(source, algo_param.algo_name, 
+                                       algo_param.tiles.m_cta, 
+                                       algo_param.tiles.n_cta, 
+                                       algo_param.tiles.m_warp, 
+                                       algo_param.tiles.n_warp, 
+                                       algo_param.tiles.k_cta, 
+                                       algo_param.tiles.k_per_set, 
+                                       algo_param.splitk, 
+                                       algo_param.splitf, 
+                                       algo_param.tiles.buf, declare_times);
                 declare_times++;
             }
 
-            if (std::find(knames.begin(), knames.end(), temp_algo_param.algo_name) == knames.end()) {
+            if (index == 30) continue;
+            if (std::find(knames.begin(), knames.end(), algo_param.algo_name) == knames.end()) {
                 total_source = total_source + source;
+                
+                printf("test %s\n", algo_param.algo_name.c_str());
             }
-            knames.push_back(temp_algo_param.algo_name);
-            params.push_back(temp_algo_param);
+            knames.push_back(algo_param.algo_name);
+            params.push_back(algo_param);
         }
     }
-    
+    // printf("%s", total_source.c_str());
     int index = 0;
     std::vector<const char*> compile_params;
     elapsed = AlgoForwardTime(stream, knames, total_source, index,
                               compile_params, 0, true, type,
                               d_input, d_flt, d_output, bias, d_temp_buf, 
                               params, conv_param, fuse_param, workspace);
-    
+
     algo_param = params[index];
     g_conv_shape_hash[conv_shape_hash] = algo_param;
     return ppl::common::RC_SUCCESS;
@@ -1103,9 +1175,9 @@ void PPLCUDAConvolutionForwardJITImp(
             struct kloop_lut_t kloop_lut;
 
             InitializeChlLut(chl_lut_size, chl_lut.idx, conv_param.num_chl, conv_param.num_grp, pad_size,
-                    g_kernel_container[kid].tile_k_per_cta, splitk);
+                    cta_k, splitk);
             InitializeKloopLut(kloop_lut_size, kloop_lut.idx, conv_param.num_chl, conv_param.num_grp, pad_size,
-                    g_kernel_container[kid].tile_k_per_cta, splitk, splitf, flt_hw);
+                    cta_k, splitk, splitf, flt_hw);
             
             void* args[] = {&pad_input, &d_flt, &conv_out, &kloop_num,
                 &in_lut, &in_lut_size, &flt_lut, &flt_lut_size,

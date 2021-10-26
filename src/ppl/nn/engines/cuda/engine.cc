@@ -300,9 +300,9 @@ RetCode CudaEngine::SetAlgorithm(CudaEngine* engine, va_list args) {
                 }
             }
             engine->cuda_flags_.alog_selects.insert(make_pair(shape_name, algo_info));
-            LOG(INFO) << shape_name;
         }
     }
+    LOG(INFO) << "Algo info size is " << engine->cuda_flags_.alog_selects.size();
     return RC_SUCCESS;
 }
 

@@ -55,6 +55,7 @@ std::string CUDANVRTCCompile(std::pair<string, string> code, std::vector<const c
 
     PPL_NVRTC_SAFE_CALL(nvrtcGetPTX(program, &ptx_code[0]));
     PPL_NVRTC_SAFE_CALL(nvrtcDestroyProgram(&program));
+    cudaDeviceSynchronize();
 #endif
     return ptx_code;
 }

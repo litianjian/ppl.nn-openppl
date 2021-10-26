@@ -181,6 +181,27 @@ struct kernel_info_t
         }
     }
 
+    bool CheckKernelTilesFeasible() {
+        if (ktype == CONV_IDXN_C2 || ktype == CONV_IDXN_C4 || ktype == CONV_IDXN_C32) {
+            return tile_m_per_warp >= 16 && tile_m_per_warp <= 64 &&
+                   tile_n_per_warp >= 8  && tile_n_per_warp <= 32 &&
+                   tile_k_per_step >= 8  && tile_k_per_step <= 32 &&
+                   tile_m_per_cta >= tile_m_per_warp && tile_m_per_cta / tile_m_per_warp <= 4 &&
+                   tile_n_per_cta >= tile_n_per_warp && tile_n_per_cta / tile_n_per_warp <= 4 &&
+                   tile_k_per_cta >= tile_k_per_step && tile_k_per_cta / tile_k_per_step <= 2 &&
+                   (tile_m_per_cta / tile_m_per_warp != 4 || tile_n_per_cta / tile_n_per_warp != 4);
+        } else {
+            return tile_m_per_warp >= 16 && tile_m_per_warp <= 128 &&
+                   tile_n_per_warp >= 8  && tile_n_per_warp <= 64 &&
+                   tile_k_per_step >= 8  && tile_k_per_step <= 32 &&
+                   tile_m_per_cta >= tile_m_per_warp && tile_m_per_cta / tile_m_per_warp <= 4 &&
+                   tile_n_per_cta >= tile_n_per_warp && tile_n_per_cta / tile_n_per_warp <= 4 &&
+                   tile_k_per_cta >= tile_k_per_set  && tile_k_per_cta / tile_k_per_set  <= 2 &&
+                   (tile_m_per_cta / tile_m_per_warp != 4 || tile_n_per_cta / tile_n_per_warp != 4) &&
+                   (tile_m_per_warp != 128 || tile_n_per_warp != 64);
+        }
+    }
+
     bool CheckKernelTypeFeasible(int flt_height, int flt_width, int num_chl_per_grp, int splitk)
     {
         if(num_chl_per_grp > 0 && num_chl_per_grp <= 2) {

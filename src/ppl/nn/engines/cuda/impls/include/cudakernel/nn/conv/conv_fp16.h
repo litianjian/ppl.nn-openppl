@@ -52,6 +52,7 @@ struct tiles_param_t{
     int flt_pad_size = -1; // for idxn conv 
     
     int cta_size_in_thd = -1;
+    int buf = 1;
 };
 
 struct algo_param_t{
@@ -98,6 +99,10 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
         unsigned int splitk,
         unsigned int splitf,
         uint64_t workspace = ((uint64_t)8)*1024*1024*1024);
+
+ppl::common::RetCode PPLCUDAConvolutionLoadAlgoParam(
+        algo_param_t &algo_param,
+        conv_param_t &conv_param);
 
 ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
         algo_param_t &algo_param,

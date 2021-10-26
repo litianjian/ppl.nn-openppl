@@ -93,12 +93,14 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
 
     auto algo_info = options.algos->find(GetConvShapeString(temp_conv_param));
     if (algo_info != options.algos->end()) {
+        attr_param_.extra_param.algo_info.algo_name = algo_info->second.kname;
         attr_param_.extra_param.algo_info.kid = algo_info->second.kid;
         attr_param_.extra_param.algo_info.splitk = algo_info->second.splitk;
         attr_param_.extra_param.algo_info.splitf = algo_info->second.splitf;
-        PPLCUDAConvolutionPredictKernel(attr_param_.extra_param.algo_info, temp_conv_param);
+        PPLCUDAConvolutionLoadAlgoParam(attr_param_.extra_param.algo_info, temp_conv_param);
         return 0.0f;
     }
+
     PPLCUDAConvolutionPredictKernel(attr_param_.extra_param.algo_info, temp_conv_param);
     // input H or W is too small
     if (shape_in0.GetDim(2) + 2 * temp_conv_param.pad_height < shape_in1.GetDim(2) ||
@@ -127,21 +129,20 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
     ALLOC_BUFFERF_FOR_ALGO_SELECT(temp_buffer, size, ALGO_MAX_TIME)
     auto stream = options.device->GetStream();
 
+#ifdef PPLNN_ENABLE_CUDA_JIT
         // Do select
-        LOG(ERROR) << node->GetName();
         PPLCUDAConvolutionJitSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
                                     (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
                                     attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param);
-        
+#else
         // Do select
         algo_param_t algo_param;
         PPLCUDAConvolutionSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
                                     (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
                                     algo_param, temp_conv_param, temp_fuse_param);
+        attr_param_.extra_param.algo_info = algo_param;
+#endif
 
-        attr_param_.extra_param.algo_info.kid = algo_param.kid;
-        attr_param_.extra_param.algo_info.splitk = algo_param.splitk;
-        attr_param_.extra_param.algo_info.splitf = algo_param.splitf;
     return 0.0f;
 }
 
