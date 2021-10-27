@@ -30,6 +30,8 @@ OpCompiler* OpCompilerManager::FindCompiler(const std::string& kernel_type) cons
 OpCompilerManager::OpCompilerManager() {
     type2compiler_.emplace("Conv", &conv_);
     type2compiler_.emplace("Gemm", &gemm_);
+    type2compiler_.emplace("", &gemm_);
+    type2compiler_.emplace("Gemm", &gemm_);
 
 }
 

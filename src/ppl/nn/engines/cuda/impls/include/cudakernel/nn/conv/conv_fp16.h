@@ -88,6 +88,8 @@ struct fuse_info_t {
 
 std::string GetConvShapeString(conv_param_t &conv_param);
 
+ppl::common::RetCode PPLCUDAConvolutionModifyAlgoParam(algo_param_t &algo_param, uint32_t index);
+
 uint64_t PPLCUDAConvolutionGetCompilationBufSize(
         ppl::common::datatype_t type, 
         conv_param_t &conv_param,
