@@ -598,6 +598,8 @@ void PPLCUDAConvolutionForwardImp(
 
 /* -----------------  JIT FP16 KERNEL ------------------ */
 
+#define MAX_KERNEL_SIZE (1+12+30)
+
 std::string ToString(int v) {
     std::stringstream ss;
     ss << v;
@@ -893,11 +895,11 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
 
     const int SPLITK_OPTIONS[] = {1, 2, 4, 8};
 
-    for(unsigned int spk = 0; spk < 1; spk++) {
+    for(unsigned int spk = 0; spk < 4; spk++) {
         unsigned int splitk = SPLITK_OPTIONS[spk];
         unsigned int splitf = 1;
 
-        for(unsigned int index = 0; index <= 42; index++) {
+        for(unsigned int index = 0; index < MAX_KERNEL_SIZE; index++) {
             conv_ktype_t ktype;
             algo_param = pre_algo_param;
             PPLCUDAConvolutionModifyAlgoParam(algo_param, index); // change algo_param
@@ -1044,7 +1046,6 @@ void PPLCUDAConvolutionForwardJITImp(
     conv_param_t &conv_param,
     fuse_param_t &fuse_param)
 {
-    unsigned int kid = algo_param.kid;
     unsigned int splitk = algo_param.splitk;
     unsigned int splitf = algo_param.splitf;
 
