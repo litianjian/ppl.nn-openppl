@@ -15,22 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "ppl/nn/engines/cuda/module/op_compile_manager.h"
+#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_GEMM_COMPILER_H_
+#define _ST_HPC_PPL_NN_ENGINES_CUDA_MODULE_GEMM_COMPILER_H_
+
+#include <set>
+#include <map>
+#include <vector>
+#include <string>
+
+#include "ppl/common/types.h"
+#include "ppl/nn/ir/graph.h"
+#include "ppl/nn/engines/cuda/module/op_compiler.h"
+#include "ppl/nn/engines/cuda/module/cuda_module.h"
+
 
 namespace ppl { namespace nn { namespace cuda {
 
-OpCompiler* OpCompilerManager::FindCompiler(const std::string& kernel_type) const{
-    auto res = type2compiler_.find(kernel_type);
-    if (res == type2compiler_.end()) {
-        return nullptr;
-    }
-    return res->second;
-}
-
-OpCompilerManager::OpCompilerManager() {
-    type2compiler_.emplace("Conv", &conv_);
-    type2compiler_.emplace("Gemm", &gemm_);
-
-}
+class GemmCompiler : public OpCompiler {
+public:
+    const ppl::common::RetCode Compile(ir::Node*, const OptKernelOptions&) override;
+};
 
 }}} // namespace ppl::nn::cuda
+
+#endif
