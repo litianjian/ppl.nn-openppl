@@ -86,7 +86,7 @@ struct fuse_info_t {
     int concat_edge_id = -1; // save concat output edge id
 };
 
-int PPLCUDAConvoutionFuseSupport(conv_param_t &conv_param);
+std::string GetConvShapeString(conv_param_t &conv_param);
 
 uint64_t PPLCUDAConvolutionGetCompilationBufSize(
         ppl::common::datatype_t type, 
@@ -108,7 +108,7 @@ ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
         algo_param_t &algo_param,
         conv_param_t &conv_param);
 
-ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
+double PPLCUDAConvolutionSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
         int4* d_input,
@@ -121,7 +121,7 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
 	fuse_param_t &fuse_param,
 	uint64_t workspace = (uint64_t)8*1024*1024*1024);
 
-ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
+double PPLCUDAConvolutionJitSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
         int4* d_input,
@@ -133,6 +133,25 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
 	conv_param_t &conv_param, 
 	fuse_param_t &fuse_param,
 	uint64_t workspace = (uint64_t)8*1024*1024*1024);
+
+float AlgoForwardTime(
+    cudaStream_t &stream, 
+    std::vector<std::string> name,
+    std::string code,
+    int &idx,
+    std::vector<const char*> compile_params,
+    int device,
+    bool include,
+    ppl::common::datatype_t type,
+    int4* d_input,
+    int4* d_flt,
+    int4* d_output,
+    int4* bias,
+    int4* d_temp_buf, 
+    std::vector<algo_param_t> &algo_param,
+    conv_param_t &conv_param, 
+    fuse_param_t &fuse_param,
+    uint64_t workspace);
 
 void PPLCUDAConvolutionForwardImp(
         cudaStream_t &stream, 

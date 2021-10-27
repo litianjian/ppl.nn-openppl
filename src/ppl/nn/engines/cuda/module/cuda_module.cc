@@ -40,8 +40,6 @@ CUfunction CUDAModule::GetKernelFunc(std::string name) {
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
     }
     CUfunction function;
-    LOG(ERROR) << name;
-    LOG(ERROR) << module_;
     PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&function, module_, name.c_str()));
 
     return function;

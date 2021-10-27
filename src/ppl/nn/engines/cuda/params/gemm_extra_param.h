@@ -24,7 +24,7 @@
 namespace ppl { namespace nn { namespace cuda {
 
 struct GemmExtraParam {
-    uint32_t kernel_index = 0;
+    ConvAlgoInfo algo_info;
     uint32_t has_activation = 0;
     bool has_clip = false;
     ClipParam clip;

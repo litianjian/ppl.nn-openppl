@@ -160,8 +160,7 @@ void InitializeKernelContainer(std::vector<kernel_info_t> &g_kernel_container, p
     is_g_kernel_container_initialized = true;
 }
 
-__inline__ std::string GetConvShapeString(conv_param_t &conv_param)
-{
+std::string GetConvShapeString(conv_param_t &conv_param) {
     return std::string("b" + std::to_string(conv_param.in_num)  + \
                        "_c" + std::to_string(conv_param.num_chl) + \
                        "_d" + std::to_string(conv_param.num_flt) + \
@@ -250,7 +249,7 @@ uint64_t PPLCUDAConvolutionGetRuntimeBufSize(
 
 /* -----------------  FP16 KERNEL ------------------ */
 
-ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
+double PPLCUDAConvolutionSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
         int4* d_input,
@@ -447,7 +446,7 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
 
     g_conv_shape_hash[conv_shape_hash] = algo_param;
 
-    return ppl::common::RC_SUCCESS;
+    return minTime;
 }
 
 void PPLCUDAConvolutionForwardImp(
@@ -600,22 +599,10 @@ void PPLCUDAConvolutionForwardImp(
 
 #define MAX_KERNEL_SIZE (1+12+30)
 
-std::string ToString(int v) {
+__inline__ std::string ToString(int v) {
     std::stringstream ss;
     ss << v;
     return ss.str();
-}
-
-int GetValidK(int flt_hw, int chl_per_grp_pad, int cta_size_in_thd) {
-    printf("%d %d %d\n", flt_hw, chl_per_grp_pad, cta_size_in_thd);
-    for (int i = 32; i >= 8; i /= 2) {
-        int kloop_num  = DivUp(flt_hw * chl_per_grp_pad, i);
-        int kloop_time = DivUp(kloop_num * 4, cta_size_in_thd);
-        if (kloop_time == 1) 
-            return i;
-    }
-    printf("error: can not find any valid k\n");
-    return 8;
 }
 
 ppl::common::RetCode PPLCUDAConvolutionLoadAlgoParam(
@@ -731,18 +718,12 @@ ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
                                     WARP_SIZE;
 
         if (chl_per_grp <= 2) {
-            int chl_per_grp_pad = Align(chl_per_grp, 2);
-            int k = GetValidK(flt_hw, chl_per_grp_pad, algo_param.tiles.cta_size_in_thd);
             algo_param.tiles.k_cta = 8;
             algo_param.tiles.k_per_step = 8;
         } else if (chl_per_grp <= 4) {
-            int chl_per_grp_pad = Align(chl_per_grp, 4);
-            int k = GetValidK(flt_hw, chl_per_grp_pad, algo_param.tiles.cta_size_in_thd);
             algo_param.tiles.k_cta = 16;
             algo_param.tiles.k_per_step = 16;
         } else {
-            int chl_per_grp_pad = Align(chl_per_grp, 8);
-            int k = GetValidK(flt_hw, chl_per_grp_pad, algo_param.tiles.cta_size_in_thd);
             algo_param.tiles.k_cta = 32;
             algo_param.tiles.k_per_step = 32;
         }
@@ -861,7 +842,7 @@ float AlgoForwardTime(
     return elapsed; 
 }
 
-ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
+double PPLCUDAConvolutionJitSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
         int4* d_input,
@@ -947,21 +928,11 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
             }
 
             kernel_info_t temp_kernel(-1, ktype, algo_param.algo_name.c_str());
-            // printf("step 1\n");
             if(!temp_kernel.CheckKernelTilesFeasible()) continue;
-            // printf("step 2\n");
             if(!temp_kernel.CheckKernelTypeFeasible(conv_param.flt_height, conv_param.flt_width, num_chl_per_grp, splitk)) continue;
-            // printf("step 3\n");
             if(!temp_kernel.CheckSplitkFeasible(num_chl_per_grp, splitk)) continue;
-            // printf("step 4\n");
             if(!temp_kernel.CheckSplitfFeasible(splitf, splitk)) continue;
-            // printf("step 5\n");
             if(!temp_kernel.CheckQuickSelectFeasible(algo_param, conv_param.num_chl / conv_param.num_grp, flt_hw, splitk, splitf)) continue;
-
-
-            // printf("modify param %d %d %d %d %d %d %d %s\n", index, algo_param.tiles.m_cta, algo_param.tiles.n_cta,
-            //                 algo_param.tiles.m_warp,  algo_param.tiles.n_warp,
-            //                 algo_param.tiles.k_cta, algo_param.tiles.k_per_set, algo_param.algo_name.c_str());
 
             std::string source = "";
             if (algo_param.algo_name.find("Idxn") != std::string::npos) {
@@ -973,7 +944,6 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
                                        algo_param.tiles.k_cta, 
                                        algo_param.tiles.k_per_step, declare_times);
                 declare_times++;
-                // printf("%s\n", source.c_str());
             } else {
                 Gene2spkKernel(source, algo_param.algo_name, 
                                        algo_param.tiles.m_cta, 
@@ -990,15 +960,12 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
 
             if (std::find(knames.begin(), knames.end(), algo_param.algo_name) == knames.end()) {
                 total_source = total_source + source;
-                
-                printf("test %s\n", algo_param.algo_name.c_str());
+                // printf("test %s\n", algo_param.algo_name.c_str());
             }
             knames.push_back(algo_param.algo_name);
             params.push_back(algo_param);
         }
     }
-    // printf("%s", total_source.c_str());
-    printf("selected kernel size is %d\n", knames.size());
     int index = 0;
     std::vector<const char*> compile_params;
     elapsed = AlgoForwardTime(stream, knames, total_source, index,
@@ -1008,7 +975,7 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
 
     algo_param = params[index];
     g_conv_shape_hash[conv_shape_hash] = algo_param;
-    return ppl::common::RC_SUCCESS;
+    return elapsed;
 }
 
 #define NVRTC_SAFE_CALL(x)                                        \

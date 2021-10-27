@@ -27,25 +27,6 @@ using namespace ppl::common;
 
 namespace ppl { namespace nn { namespace cuda {
 
-static std::string GetConvShapeString(conv_param_t &conv_param)
-{
-    return std::string("b" + std::to_string(conv_param.in_num)  + \
-                       "_c" + std::to_string(conv_param.num_chl) + \
-                       "_d" + std::to_string(conv_param.num_flt) + \
-                       "_g" + std::to_string(conv_param.num_grp) + \
-                       "_h" + std::to_string(conv_param.in_height) + \
-                       "_w" + std::to_string(conv_param.in_width) + \
-                       "_r" + std::to_string(conv_param.flt_height) + \
-                       "_s" + std::to_string(conv_param.flt_width) + \
-                       "_p" + std::to_string(conv_param.pad_height) + \
-                       "_q" + std::to_string(conv_param.pad_width) + \
-                       "_u" + std::to_string(conv_param.stride_height) + \
-                       "_v" + std::to_string(conv_param.stride_width) + \
-                       "_y" + std::to_string(conv_param.hole_height) + \
-                       "_x" + std::to_string(conv_param.hole_width) + \
-                       "_");
-}
-
 void TuringHMMAImpgemm::DeleteAttrParam(void*& param) {
     delete (CudaConvParam*)param;
     return;
@@ -101,7 +82,15 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
         return 0.0f;
     }
 
-    PPLCUDAConvolutionPredictKernel(attr_param_.extra_param.algo_info, temp_conv_param);
+    if (options.args->quick_select) {
+        attr_param_.extra_param.algo_info.algo_name = "nv2spkConv_hmma1688_nhwc_fn_b32x32_w32x8_k64_s32_buf2";
+        attr_param_.extra_param.algo_info.kid = 5100;
+        attr_param_.extra_param.algo_info.splitk = 1;
+        attr_param_.extra_param.algo_info.splitf = 1;
+        PPLCUDAConvolutionLoadAlgoParam(attr_param_.extra_param.algo_info, temp_conv_param);
+        return 0.0f;
+    }
+
     // input H or W is too small
     if (shape_in0.GetDim(2) + 2 * temp_conv_param.pad_height < shape_in1.GetDim(2) ||
         shape_in0.GetDim(3) + 2 * temp_conv_param.pad_width < shape_in1.GetDim(3)) {
@@ -127,23 +116,23 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
 
     uint64_t size = PPLCUDAConvolutionGetCompilationBufSize(shape_in0.GetDataType(), temp_conv_param);
     ALLOC_BUFFERF_FOR_ALGO_SELECT(temp_buffer, size, ALGO_MAX_TIME)
+
     auto stream = options.device->GetStream();
 
 #ifdef PPLNN_ENABLE_CUDA_JIT
-        // Do select
-        PPLCUDAConvolutionJitSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
-                                    (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
-                                    attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param);
+    // Do select
+    PPLCUDAConvolutionPredictKernel(attr_param_.extra_param.algo_info, temp_conv_param);
+    auto timer = PPLCUDAConvolutionJitSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
+                        (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
+                        attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param);
 #else
-        // Do select
-        algo_param_t algo_param;
-        PPLCUDAConvolutionSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
-                                    (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
-                                    algo_param, temp_conv_param, temp_fuse_param);
-        attr_param_.extra_param.algo_info = algo_param;
+    // Do select
+    auto timer = PPLCUDAConvolutionSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
+                        (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
+                        attr_param_.extra_param.algo_info, temp_conv_param, temp_fuse_param);
 #endif
 
-    return 0.0f;
+    return timer;
 }
 
 RetCode TuringHMMAImpgemm::ModifyParam(const ir::Node* node, OptKernelOptions& options) {

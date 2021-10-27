@@ -75,7 +75,7 @@ ppl::common::RetCode GemmKernel::DoExecute(KernelExecContext* ctx) {
     auto stream = GetStream();
     status = PPLCUDAGemmForwardImp(stream, &input->GetShape(), input->GetBufferPtr(), &weight->GetShape(),
                                    weight->GetBufferPtr(), bias, &output->GetShape(), output->GetBufferPtr(),
-                                   param_->param, tmp_buffer, temp_fuse_param, param_->extra_param.kernel_index);
+                                   param_->param, tmp_buffer, temp_fuse_param, param_->extra_param.algo_info.kid);
 
     return status;
 }
