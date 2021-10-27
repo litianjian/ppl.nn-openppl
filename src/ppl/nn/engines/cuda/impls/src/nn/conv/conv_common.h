@@ -191,12 +191,22 @@ struct kernel_info_t
                    tile_k_per_cta >= tile_k_per_step && tile_k_per_cta / tile_k_per_step <= 2 &&
                    (tile_m_per_cta / tile_m_per_warp != 4 || tile_n_per_cta / tile_n_per_warp != 4);
         } else {
-            return tile_m_per_warp >= 16 && tile_m_per_warp <= 128 &&
+            int MAX_SMEM_V4_PER_CTA = 3072;
+            int INT4_TO_4HALF2 = 8;
+            int BUF_SIZE = 1;
+
+            int sm_a_v4 = tile_m_per_cta * tile_k_per_cta * BUF_SIZE / INT4_TO_4HALF2;
+            int sm_b_v4 = tile_n_per_cta * tile_k_per_cta * BUF_SIZE / INT4_TO_4HALF2;
+            int sm_c_v4 = tile_m_per_cta * tile_n_per_cta / INT4_TO_4HALF2;
+
+            return tile_m_per_warp >= 16 && tile_m_per_warp <= 128 &&  // tiles limit
                    tile_n_per_warp >= 8  && tile_n_per_warp <= 64 &&
                    tile_k_per_set  >= 8  && tile_k_per_set  <= 32 &&
                    tile_m_per_cta >= tile_m_per_warp && tile_m_per_cta / tile_m_per_warp <= 4 &&
                    tile_n_per_cta >= tile_n_per_warp && tile_n_per_cta / tile_n_per_warp <= 4 &&
                    tile_k_per_cta >= tile_k_per_set  && tile_k_per_cta / tile_k_per_set  <= 2 &&
+                   sm_a_v4 + sm_b_v4 <= MAX_SMEM_V4_PER_CTA &&          // share memeory limit
+                   sm_c_v4 * tile_k_per_cta / tile_k_per_set <= MAX_SMEM_V4_PER_CTA &&
                    (tile_m_per_cta / tile_m_per_warp != 4 || tile_n_per_cta / tile_n_per_warp != 4) &&
                    (tile_m_per_warp != 128 || tile_n_per_warp != 64);
         }
