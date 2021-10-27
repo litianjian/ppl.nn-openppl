@@ -266,6 +266,7 @@ T* RemovePadding(
 
 ppl::common::RetCode PPLCUDAConvTransposeForward(
     cudaStream_t stream,
+    ppl::nn::cuda::CUDAModule* module,
     ppl::nn::TensorShape* input_shape,
     const void* input,
     const void* filter,
@@ -352,7 +353,7 @@ ppl::common::RetCode PPLCUDAConvTransposeForward(
 	    ppl::nn::TensorShape a_shape, b_shape, c_shape;
 	    //input transpose KxN -> NxK    weight transpose KxM -> MxK
 	    int kernel_id = 0;
-            PPLCUDAGemmForwardImp(stream,
+            PPLCUDAGemmForwardImp(stream, module,
                                   &out_a_shape, trans_filter,
                                   &out_b_shape, trans_in_data,
                                   NULL,

@@ -22,6 +22,10 @@
 #include "ppl/common/retcode.h"
 #include "cudakernel/nn/conv/conv_fp16.h"
 
+#include "ppl/nn/engines/cuda/module/cuda_module.h"
+
+#include "cuda.h"
+
 uint64_t PPLGemmCUDAGetBufSize(
     const ppl::nn::TensorShape* input_shape,
     int transA);
@@ -46,6 +50,7 @@ int PPLCUDAGemmSelectKernel(
 
 ppl::common::RetCode PPLCUDAGemmForwardImp(
     const cudaStream_t &stream,
+    ppl::nn::cuda::CUDAModule* module,
     const ppl::nn::TensorShape* input_shape,
     const void* input,
     const ppl::nn::TensorShape* weight_shape,
@@ -55,7 +60,7 @@ ppl::common::RetCode PPLCUDAGemmForwardImp(
     void* output,
     const ppl::nn::common::GemmParam &param,
     void* temp_buffer,
-    const fuse_param_t &fuse_param,
+    fuse_param_t &fuse_param,
     int kid);
 
 ppl::common::RetCode PPLCUDAGemmModifyWeights(

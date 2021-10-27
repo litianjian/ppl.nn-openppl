@@ -29,6 +29,7 @@
 
 #include "cudakernel/nn/conv/conv_fp16.h"
 #include "cudakernel/nn/conv/gene_kernel.h"
+#include "cudakernel/common/cuda_check.h"
 #include "kernel_type.h"
 #include "conv_common.h"
 #include "common/init_lut.h"
@@ -826,10 +827,18 @@ float AlgoForwardTime(
 
 #ifdef PPLNN_ENABLE_CUDA_JIT
     std::string src_name = name[0];
+    cudaError_t error = cudaGetLastError();
+    if (error != cudaSuccess) {
+        printf("error1\n");
+    }
     string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(src_name, code), compile_params, device, include);
     // std::cout << ptx << std::endl;
     ppl::nn::cuda::CUDAModule* cuda_module = new ppl::nn::cuda::CUDAModule();
     cuda_module->SetSourceCode(src_name, ptx);
+    error = cudaGetLastError();
+    if (error != cudaSuccess) {
+        printf("error1\n");
+    }
     float min_time = FLT_MAX;
     int times = 1;
 
@@ -838,12 +847,24 @@ float AlgoForwardTime(
     cudaEventCreate(&end);
 
     for(size_t n = 0; n < name.size(); n++) {
+        cudaDeviceSynchronize();
+        cudaError_t error = cudaGetLastError();
+        if (error != cudaSuccess) {
+            printf("error1\n");
+        }
+       std::cout << name[n] << std::endl;
+
         CUfunction function = cuda_module->GetKernelFunc(name[n]);
         cudaEventRecord(begin, stream);
         for (int i = 0; i < times; i++) {
             PPLCUDAConvolutionForwardJITImp(
                 stream, function, type, d_input, d_flt, d_output, bias, d_temp_buf,
                 algo_param[n], conv_param, fuse_param);
+        }
+        cudaDeviceSynchronize();
+        error = cudaGetLastError();
+        if (error != cudaSuccess) {
+            printf("error2\n");
         }
         cudaEventRecord(end, stream);
         cudaEventSynchronize(begin);
@@ -852,6 +873,10 @@ float AlgoForwardTime(
         if (elapsed < min_time) {
             min_time = elapsed;
             idx = n;
+        }
+        error = cudaGetLastError();
+        if (error != cudaSuccess) {
+            printf("error3\n");
         }
     }
     cudaEventDestroy(begin);
@@ -1011,27 +1036,6 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
     return ppl::common::RC_SUCCESS;
 }
 
-#define NVRTC_SAFE_CALL(x)                                        \
-  do {                                                            \
-    nvrtcResult result = x;                                       \
-    if (result != NVRTC_SUCCESS) {                                \
-      std::cerr << "\nerror: " #x " failed with error "           \
-                << nvrtcGetErrorString(result) << '\n';           \
-      exit(1);                                                    \
-    }                                                             \
-  } while(0)
-
-#define CUDA_SAFE_CALL(x)                                         \
-  do {                                                            \
-    CUresult result = x;                                          \
-    if (result != CUDA_SUCCESS) {                                 \
-      const char *msg;                                            \
-      cuGetErrorName(result, &msg);                               \
-      std::cerr << "\nerror: " #x " failed with error "           \
-                << msg << '\n';                                   \
-      exit(1);                                                    \
-    }                                                             \
-  } while(0)
 
 void PPLCUDAConvolutionForwardJITImp(
     cudaStream_t &stream,
@@ -1101,7 +1105,8 @@ void PPLCUDAConvolutionForwardJITImp(
     int cta_k = algo_param.tiles.k_cta;
 
     dim3 block_size, grid_size;
-    block_size.x = algo_param.tiles.cta_size_in_thd;;
+    block_size.x = algo_param.tiles.cta_size_in_thd;
+    std::cout << block_size.x << std::endl;
     block_size.y = 1;
     block_size.z = 1;
 

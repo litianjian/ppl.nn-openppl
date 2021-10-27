@@ -353,6 +353,7 @@ int64_t PPLCUDADeformConvGetBufSize(
 
 ppl::common::RetCode PPLCUDADeformConvForward(
     const cudaStream_t &stream,
+    ppl::nn::cuda::CUDAModule* module,
     const ppl::nn::TensorShape *output_shape,
     const ppl::nn::TensorShape *input_shape,
     void *output,
@@ -460,7 +461,7 @@ ppl::common::RetCode PPLCUDADeformConvForward(
 
             __half *tmp_bias = (__half*)bias + g*oc_per_grp;
             PPLCUDAGemmForwardImp(
-                stream, &shape_a, tmp_a, &shape_b, tmp_b,
+                stream, module, &shape_a, tmp_a, &shape_b, tmp_b,
                 tmp_bias, &shape_c, tmp_output,
                 gemm_param, temp_buffer, fuse_param, kid);
 
