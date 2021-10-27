@@ -74,9 +74,6 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
 
     // int sAv4_size = warp_y / INT4_TO_4HALF2;
     // int sBv4_size = warp_x / INT4_TO_4HALF2;
-    if (splitk >= 2) {
-        kname = kname + "_splitk";
-    }
     float dAv4_size = (cta_y * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
     float dBv4_size = (cta_x * k_size * 1.0) / (INT4_TO_4HALF2 * cta_size);
 
