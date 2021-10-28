@@ -27,10 +27,11 @@ class MMCVModulatedDeformConv2dOp final : public CudaOptKernel {
 public:
     MMCVModulatedDeformConv2dOp(const ir::Node* node) : CudaOptKernel(node) {}
     ppl::common::RetCode Init(const OptKernelOptions& options) override;
+    ppl::common::RetCode Finalize(const OptKernelOptions& options) override;
     KernelImpl* CreateKernelImpl() const override;
 
 private:
-    std::shared_ptr<ppl::nn::common::MMCVModulatedDeformConv2dParam> param_;
+    ppl::nn::common::MMCVModulatedDeformConv2dParam param_;
 };
 
 }}} // namespace ppl::nn::cuda

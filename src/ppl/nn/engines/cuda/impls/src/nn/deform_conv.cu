@@ -251,6 +251,9 @@ void deformable_im2col(
   }
 
   cudaError_t err = cudaGetLastError();
+  if (err != cudaSuccess) {
+    printf("error in deformable_im2col: %s\n", cudaGetErrorString(err));
+  }
 }
 
 template <typename T>
@@ -413,6 +416,9 @@ ppl::common::RetCode PPLCUDADeformConvForward(
             shape_a.SetDim(0, M); shape_a.SetDim(1, K); \
             shape_b.SetDim(0, N); shape_b.SetDim(1, K); \
             shape_c.SetDim(0, M); shape_c.SetDim(1, N); \
+            shape_a.SetDataType(ppl::common::DATATYPE_FLOAT16); \
+            shape_b.SetDataType(ppl::common::DATATYPE_FLOAT16); \
+            shape_c.SetDataType(ppl::common::DATATYPE_FLOAT16); \
             ppl::nn::common::GemmParam gemm_param; \
             fuse_param_t fuse_param; \
             gemm_param.bias_term = 0; \

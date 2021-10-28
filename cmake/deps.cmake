@@ -43,7 +43,7 @@ endif()
 
 FetchContent_Declare(hpcc
     GIT_REPOSITORY https://github.com/openppl-public/hpcc.git
-    GIT_TAG 072f718bf47a893c86e48d3a78d2a0f181adb8c5
+    GIT_TAG 97b154551d2cac09fa4558cb933f6372c4da83dc
     SOURCE_DIR ${HPCC_DEPS_DIR}/hpcc
     BINARY_DIR ${CMAKE_CURRENT_BINARY_DIR}/hpcc-build
     SUBBUILD_DIR ${HPCC_DEPS_DIR}/hpcc-subbuild
@@ -57,14 +57,14 @@ endif()
 
 # --------------------------------------------------------------------------- #
 
-set(PPLCOMMON_BUILD_TESTS OFF CACHE BOOL "disable ppl.common tests")
-set(PPLCOMMON_BUILD_BENCHMARK OFF CACHE BOOL "disable ppl.common benchmark")
+set(PPLCOMMON_BUILD_TESTS OFF CACHE BOOL "disable pplcommon tests")
+set(PPLCOMMON_BUILD_BENCHMARK OFF CACHE BOOL "disable pplcommon benchmark")
 set(PPLCOMMON_ENABLE_PYTHON_API ${PPLNN_ENABLE_PYTHON_API})
 set(PPLCOMMON_ENABLE_LUA_API ${PPLNN_ENABLE_LUA_API})
 
-hpcc_declare_git_dep(ppl.common
+hpcc_declare_git_dep(pplcommon
     https://github.com/openppl-public/ppl.common.git
-    742439f844f6fa4e669c3ea872ef46beb5a942b2)
+    fb123ab9d757eaecb2276f27392148f5c4dd1560)
 
 # --------------------------------------------------------------------------- #
 
@@ -80,9 +80,9 @@ set(RAPIDJSON_BUILD_TESTS OFF CACHE BOOL "disable rapidjson tests")
 set(RAPIDJSON_BUILD_EXAMPLES OFF CACHE BOOL "disable rapidjson examples")
 set(RAPIDJSON_BUILD_DOC OFF CACHE BOOL "disable rapidjson docs")
 
-hpcc_declare_git_dep(rapidjson
-    https://github.com/Tencent/rapidjson.git
-    00dbcf2c6e03c47d6c399338b6de060c71356464)
+hpcc_declare_pkg_dep(rapidjson
+    https://github.com/Tencent/rapidjson/archive/2e8f5d897d9d461a7273b4b812b0127f321b1dcf.zip
+    aadb4462dab0f019a5522ae4489ee1aa)
 
 # --------------------------------------------------------------------------- #
 
@@ -99,9 +99,9 @@ hpcc_declare_pkg_dep(pybind11
 
 set(LUACPP_INSTALL OFF CACHE BOOL "")
 
-hpcc_declare_git_dep(luacpp
-    https://github.com/ouonline/lua-cpp.git
-    cf8481951f83e35121e61e3aff95443f53630073)
+hpcc_declare_pkg_dep(luacpp
+    https://github.com/ouonline/lua-cpp/archive/30d40b248e25e2c72a552c70fde48a289365b9ea.zip
+    1c7e50a374d5e7b6c2a697f3f2e9f765)
 
 # --------------------------------------------------------------------------- #
 

@@ -22,6 +22,7 @@
 #include "ppl/nn/runtime/tensor_impl.h"
 #include "ppl/nn/engines/x86/x86_device.h"
 #include "ppl/nn/engines/x86/x86_common_param.h"
+#include "ppl/nn/runtime/runtime_partition_info.h"
 #include <functional>
 
 namespace ppl { namespace nn { namespace utils {
@@ -33,7 +34,10 @@ namespace ppl { namespace nn { namespace x86 {
 struct OptKernelOptions {
     utils::SharedResource* resource = nullptr;
     ir::GraphData* graph_data = nullptr;
+    ir::GraphTopo* graph_topo = nullptr;
     X86Device* device = nullptr;
+    RuntimePartitionInfo *info = nullptr;
+    std::map<edgeid_t, std::unique_ptr<TensorImpl>> *tensors = nullptr;
 };
 
 class X86OptKernel : public OptKernel {
@@ -54,11 +58,6 @@ public:
             return infer_dims_func_(info);
         }
         return ppl::common::RC_NOT_FOUND;
-    }
-    void InferTypes(InputOutputInfo* info) const {
-        if (infer_type_func_) {
-            infer_type_func_(info);
-        }
     }
 
     virtual ppl::common::RetCode SelectFormat(const InputOutputInfo& info,

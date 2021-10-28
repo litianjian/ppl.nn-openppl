@@ -19,6 +19,7 @@
 #define __ST_PPL_KERNEL_X86_INT64_REORDER_H_
 
 #include "ppl/kernel/x86/common/general_include.h"
+#include "ppl/kernel/x86/common/reorder_common.h"
 
 namespace ppl { namespace kernel { namespace x86 {
 

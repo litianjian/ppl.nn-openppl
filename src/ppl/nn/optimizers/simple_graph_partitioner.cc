@@ -69,7 +69,7 @@ static EngineImpl* FindEngine(utils::SharedResource* resource, const ir::Node* n
     auto engines = &resource->engines;
     for (auto it = engines->begin(); it != engines->end(); ++it) {
         auto engine = *it;
-        if (engine->CanRunOp(node)) {
+        if (engine->Supports(node)) {
             return engine;
         }
     }
@@ -87,8 +87,9 @@ RetCode SimpleGraphPartitioner::Partition(utils::SharedResource* resource, ir::G
         auto engine = FindEngine(resource, node);
         if (!engine) {
             const ir::Node::Type& type = node->GetType();
-            LOG(ERROR) << "cannot find implementation of op[" << type.domain << ":" << type.name << "]";
-            return RC_NOT_FOUND;
+            LOG(ERROR) << "cannot find implementation of op: domain[" << type.domain << "], type[" << type.name
+                       << "], version[" << type.version << "]";
+            return RC_UNSUPPORTED;
         }
 
         auto ret_pair = engine_partitions.insert(make_pair(engine, vector<nodeid_t>()));

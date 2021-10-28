@@ -32,7 +32,7 @@ include(cmake/deps.cmake)
 include(cmake/protobuf.cmake)
 
 hpcc_populate_dep(rapidjson)
-hpcc_populate_dep(ppl.common)
+hpcc_populate_dep(pplcommon)
 
 # --------------------------------------------------------------------------- #
 
@@ -110,7 +110,14 @@ target_include_directories(pplnn_static PRIVATE
 
 if(PPLNN_INSTALL)
     install(DIRECTORY include DESTINATION .)
-    install(TARGETS pplnn_static LIBRARY DESTINATION lib)
+    install(TARGETS pplnn_static DESTINATION lib)
+
+    set(PPLNN_CMAKE_CONFIG_FILE ${CMAKE_CURRENT_BINARY_DIR}/generated/pplnn-config.cmake)
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/cmake/pplnn-config.cmake.in
+        ${PPLNN_CMAKE_CONFIG_FILE}
+        @ONLY)
+    install(FILES ${PPLNN_CMAKE_CONFIG_FILE} DESTINATION lib/cmake/ppl)
+    unset(PPLNN_CMAKE_CONFIG_FILE)
 endif()
 
 # --------------------------------------------------------------------------- #

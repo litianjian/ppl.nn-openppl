@@ -122,3 +122,141 @@ ppl::common::RetCode PPLCUDAChannelShuffleForwardImp(
     }
 #undef SWITCH_CASE
 }
+
+template <typename T>
+__global__ void ppl_cukernel_fuse_channel_shuffle(
+    int64_t num_elems,
+    int32_t group,
+    int32_t channels_per_group,
+    GArray<DivModFast> input_strides_fast,
+    const T* input1,
+    const T* input2,
+    T* output1,
+    T* output2)
+{
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= 2*num_elems)
+        return;
+    int64_t output_offset = 0;
+    int n_idx, c_idx, hw_idx, remain = index;
+    int hw = input_strides_fast[1].d_;
+
+    input_strides_fast[0].divmod(remain, n_idx, remain); // index / chw
+    output_offset += (index - remain);
+    input_strides_fast[1].divmod(remain, c_idx, remain); // index / hw
+    hw_idx = remain;
+    int out_c_idx = c_idx % channels_per_group * group + c_idx / channels_per_group; 
+    output_offset += out_c_idx * input_strides_fast[1].d_ + hw_idx;
+    int out_div_hw = output_offset / hw;
+    int in_div_hw = index / hw;
+
+    if(out_div_hw % 2) {
+        if(in_div_hw % 2) {
+            output2[(out_div_hw - 1) / 2 * hw + hw_idx] = input2[(in_div_hw - 1) / 2 * hw + hw_idx];
+        } else {
+            output2[(out_div_hw - 1) / 2 * hw + hw_idx] = input1[in_div_hw / 2 * hw + hw_idx];
+        }
+    } else {
+        if(in_div_hw % 2) {
+            output1[out_div_hw / 2 * hw + hw_idx] = input2[(in_div_hw - 1) / 2 * hw + hw_idx];
+        } else {
+            output1[out_div_hw / 2 * hw + hw_idx] = input1[in_div_hw / 2 * hw + hw_idx];
+        }
+    }
+}
+
+template <typename T>
+__global__ void ppl_cukernel_fuse_channel_shuffle_nhwc(
+    int64_t num_elems,
+    int32_t group,
+    int channels_per_group,
+    int pad_channels,
+    DivModFast channels_fast,
+    const T *input1,
+    const T *input2,
+    T *output1,
+    T *output2,
+    int elems_nhw,
+    int elems_c)
+{
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
+    if (index >= 2*num_elems)
+        return;
+    int64_t input_offset = 0;
+    int64_t output_offset = 0;
+    int nhw_idx, c_idx, remain = index;
+    channels_fast.divmod(remain, nhw_idx, c_idx);
+    int out_c_idx = c_idx % channels_per_group * group + c_idx / channels_per_group; 
+    input_offset += nhw_idx * 2 * elems_c + c_idx;
+    output_offset += nhw_idx * 2 * elems_c + out_c_idx;
+    if(output_offset % (2 * elems_c) >= elems_c) {
+        if(input_offset % (2 * elems_c) >= elems_c) {
+            output2[nhw_idx * pad_channels + out_c_idx - elems_c] = input2[nhw_idx * pad_channels + c_idx - elems_c];
+        } else {
+            output2[nhw_idx * pad_channels + out_c_idx - elems_c] = input1[nhw_idx * pad_channels + c_idx];
+        }
+    } else {
+        if(input_offset % (2 * elems_c) >= elems_c) {
+            output1[nhw_idx * pad_channels + out_c_idx] = input2[nhw_idx * pad_channels + c_idx - elems_c];
+        } else {
+            output1[nhw_idx * pad_channels + out_c_idx] = input1[nhw_idx * pad_channels + c_idx];
+        }
+    }
+}
+
+ppl::common::RetCode PPLCUDAFuseChannelShuffleForwardImp(
+    cudaStream_t stream,
+    int group,
+    const ppl::nn::TensorShape* input_shape,
+    const void* input1,
+    const void* input2,
+    const ppl::nn::TensorShape* output_shape,
+    void* output1,
+    void* output2)
+{
+    // num_dims must be equal to 4
+    int num_dims      = output_shape->GetDimCount();
+    int64_t num_elems = output_shape->GetElementsExcludingPadding();
+
+    // for ndarray layout
+    int num_input_strides_dims = num_dims - 2;
+    GArray<DivModFast> input_strides_fast(num_input_strides_dims);
+    int elems_hw = input_shape->GetDim(2) * input_shape->GetDim(3);
+    input_strides_fast[1] = DivModFast(elems_hw);
+    int elems_chw = 2 * input_shape->GetDim(1) * elems_hw;
+    input_strides_fast[0] = DivModFast(elems_chw);
+    // for nhwc layout
+    int pad_channels = input_shape->GetDim(1) + input_shape->GetPadding0(1) + input_shape->GetPadding1(1);
+    DivModFast channels_fast(2 * input_shape->GetDim(1));
+    int elems_nhw = elems_hw * input_shape->GetDim(0);
+    int elems_c = input_shape->GetDim(1);
+
+    int block_size = 256;
+    int grid_size  = (2*num_elems + block_size - 1) / block_size;
+    int channels_per_group = (2 * input_shape->GetDim(1)) / group;
+
+    #define SWITCH_CASE(TYPE)                                                                                       \
+    case sizeof(TYPE): {                                                                                            \
+        if (output_shape->GetDataFormat() == ppl::common::DATAFORMAT_NHWC8){                                         \
+            ppl_cukernel_fuse_channel_shuffle_nhwc<<<grid_size, block_size, 0, stream>>>(                                \
+                num_elems, group, channels_per_group, pad_channels, channels_fast,                                  \
+                (const TYPE *)input1, (const TYPE *) input2, (TYPE *)output1, (TYPE *)output2, elems_nhw, elems_c);                     \
+        } else {                                                                                                    \
+            ppl_cukernel_fuse_channel_shuffle<<<grid_size, block_size, 0, stream>>>(                                     \
+                num_elems, group, channels_per_group, input_strides_fast, (const TYPE *)input1, (const TYPE *)input2,\
+                (TYPE *)output1, (TYPE *)output2);                                                                  \
+        }                                                                                                           \
+        return ppl::common::RC_SUCCESS;                                                                             \
+    }                                                                                                               \
+
+
+    switch (ppl::common::GetSizeOfDataType(input_shape->GetDataType())) {
+        SWITCH_CASE(int8_t);
+        SWITCH_CASE(int16_t);
+        SWITCH_CASE(int32_t);
+        SWITCH_CASE(int64_t);
+        default:
+            return ppl::common::RC_UNSUPPORTED;
+    }
+#undef SWITCH_CASE
+}

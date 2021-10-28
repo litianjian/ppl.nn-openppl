@@ -26,6 +26,7 @@ namespace ppl { namespace nn { namespace cuda {
 struct GemmExtraParam {
     ConvAlgoInfo algo_info;
     ConvFusionInfo fuse_info;
+    bool is_initializer_weight = true;
     // uint32_t has_activation = 0;
     // bool has_clip = false;
     // ClipParam clip;

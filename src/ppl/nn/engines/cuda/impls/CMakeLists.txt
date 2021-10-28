@@ -60,29 +60,29 @@ file(GLOB_RECURSE CUDA_SRC ${CUDA_SRC} src/arithmetic/*.cu
 file(GLOB CUDA_SRC ${CUDA_SRC} src/nn/*.cu)
 file(GLOB CUDA_SRC ${CUDA_SRC} src/nn/depthwise/*.cu)
 
-add_library(PPLCUDAKernel STATIC ${CUDA_SRC})
-target_compile_features(PPLCUDAKernel PRIVATE cxx_std_11)
+add_library(pplkernelcuda_static STATIC ${CUDA_SRC})
+target_compile_features(pplkernelcuda_static PRIVATE cxx_std_11)
 
 set(PPLNN_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../..)
 set(PPLNN_FRAMEWORK_INCLUDE_DIRECTORIES ${PPLNN_SOURCE_DIR}/include ${PPLNN_SOURCE_DIR}/src)
 
-target_include_directories(PPLCUDAKernel PUBLIC
+target_include_directories(pplkernelcuda_static PUBLIC
     include
     ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES}
     ${CMAKE_CURRENT_BINARY_DIR}/conv
     ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv
     ${PPLNN_FRAMEWORK_INCLUDE_DIRECTORIES})
-target_link_directories(PPLCUDAKernel PUBLIC ${CMAKE_CUDA_HOST_IMPLICIT_LINK_DIRECTORIES})
-target_link_libraries(PPLCUDAKernel PUBLIC cuda ${CUDA_LIBRARIES} ${CMAKE_CUDA_HOST_IMPLICIT_LINK_LIBRARIES})
-target_link_libraries(PPLCUDAKernel INTERFACE "cuda;cudart_static;cudadevrt")
+target_link_directories(pplkernelcuda_static PUBLIC ${CMAKE_CUDA_HOST_IMPLICIT_LINK_DIRECTORIES})
+target_link_libraries(pplkernelcuda_static PUBLIC cuda ${CUDA_LIBRARIES} ${CMAKE_CUDA_HOST_IMPLICIT_LINK_LIBRARIES})
+target_link_libraries(pplkernelcuda_static INTERFACE "cuda;cudart_static;cudadevrt")
 
 if(PPLNN_ENABLE_CUDA_JIT)
-    target_link_libraries(PPLCUDAKernel INTERFACE "nvrtc")
+    target_link_libraries(pplkernelcuda_static INTERFACE "nvrtc")
 endif()
 
-hpcc_populate_dep(ppl.common)
-target_link_libraries(PPLCUDAKernel PUBLIC pplcommon_static)
-target_compile_definitions(PPLCUDAKernel PUBLIC ${PPLCUDA_COMPILE_DEFINITIONS})
+hpcc_populate_dep(pplcommon)
+target_link_libraries(pplkernelcuda_static PUBLIC pplcommon_static)
+target_compile_definitions(pplkernelcuda_static PUBLIC ${PPLCUDA_COMPILE_DEFINITIONS})
 
 set(_EXPECTED_CUDA_HOST_LINK_DIRECTORIES )
 foreach(dir ${CMAKE_CUDA_HOST_IMPLICIT_LINK_DIRECTORIES})
@@ -96,5 +96,6 @@ foreach(dir ${CMAKE_CUDA_TOOLKIT_INCLUDE_DIRECTORIES})
 endforeach()
 
 if(PPLNN_INSTALL)
-    install(TARGETS PPLCUDAKernel DESTINATION lib)
+    install(TARGETS pplkernelcuda_static DESTINATION lib)
+    install(FILES ${CMAKE_CURRENT_LIST_DIR}/pplkernelcuda-config.cmake DESTINATION lib/cmake/ppl)
 endif()
