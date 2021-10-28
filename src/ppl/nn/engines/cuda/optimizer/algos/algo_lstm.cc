@@ -26,7 +26,6 @@
 
 //#include "cudakernel/gemm/gemm.h"
 using namespace ppl::common;
-using namespace ppl::nn::common;
 
 namespace ppl { namespace nn { namespace cuda {
 

@@ -78,15 +78,6 @@ double GemmAlgorithm::ExcuteTimer(const ir::Node* node, OptKernelOptions& option
         return 0.0f;
     }
 
-    if (options.args->quick_select) {
-        attr_param_.extra_param.algo_info.algo_name = "nv2spkConv_hmma1688_nhwc_f1_b16x8_w16x8_k8_s8_buf1";
-        attr_param_.extra_param.algo_info.kid = 0;
-        attr_param_.extra_param.algo_info.splitk = 1;
-        attr_param_.extra_param.algo_info.splitf = 1;
-        PPLCUDAConvolutionLoadAlgoParam(attr_param_.extra_param.algo_info, temp_conv_param);
-        return 0.0f;
-    }
-
     // illegal gemm input
     if (shape_in0.GetDim(!attr_param_.param.transA) != shape_in1.GetDim(attr_param_.param.transB)) {
         return ALGO_MAX_TIME;

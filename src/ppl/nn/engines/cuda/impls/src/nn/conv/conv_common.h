@@ -287,6 +287,9 @@ struct kernel_info_t
 
         if (splitk != 1 && k / splitk <= 128) // Filt splitk for small k size
             return false;
+
+        // if (splitf != 1 && block_size / SM_size > 4 && flt_hw * k <= 500)
+        //     return false;
         
         return true;
     }

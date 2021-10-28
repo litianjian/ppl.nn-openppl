@@ -108,7 +108,7 @@ ppl::common::RetCode Gene2spkKernel(std::string& file_res, std::string& kname , 
         }
     }
     else {
-        LOG(ERROR) << "knum is error, create kernel failed";
+        LOG(ERROR) << "knum is error, create kernel failed with ksize " << k_size << " and s_size " << s_size;
         return ppl::common::RC_INVALID_VALUE;
     } 
     

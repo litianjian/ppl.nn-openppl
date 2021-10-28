@@ -15,7 +15,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "ppl/nn/engines/cuda/optimizer/algos/algo_conv_transpose.h"
+#include "ppl/nn/engines/cuda/optimizer/algos/algo_convtranspose.h"
 
 #include <chrono>
 
@@ -25,7 +25,6 @@
 
 //#include "cudakernel/gemm/gemm.h"
 using namespace ppl::common;
-using namespace ppl::nn::common;
 
 namespace ppl { namespace nn { namespace cuda {
 

@@ -808,17 +808,9 @@ float AlgoForwardTime(
 
 #ifdef PPLNN_ENABLE_CUDA_JIT
     std::string src_name = name[0];
-    cudaError_t error = cudaGetLastError();
-    if (error != cudaSuccess) {
-        printf("error1\n");
-    }
     string ptx = ppl::nn::cuda::CUDANVRTCCompile(pair<string,string>(src_name, code), compile_params, device, include);
     ppl::nn::cuda::CUDAModule* cuda_module = new ppl::nn::cuda::CUDAModule();
     cuda_module->SetSourceCode(src_name, ptx);
-    error = cudaGetLastError();
-    if (error != cudaSuccess) {
-        printf("error1\n");
-    }
     float min_time = FLT_MAX;
     int times = 1;
 
@@ -827,23 +819,12 @@ float AlgoForwardTime(
     cudaEventCreate(&end);
 
     for(size_t n = 0; n < name.size(); n++) {
-        cudaDeviceSynchronize();
-        cudaError_t error = cudaGetLastError();
-        if (error != cudaSuccess) {
-            printf("error1\n");
-        }
-
         CUfunction function = cuda_module->GetKernelFunc(name[n]);
         cudaEventRecord(begin, stream);
         for (int i = 0; i < times; i++) {
             PPLCUDAConvolutionForwardJITImp(
                 stream, function, type, d_input, d_flt, d_output, bias, d_temp_buf,
                 algo_param[n], conv_param, fuse_param);
-        }
-        cudaDeviceSynchronize();
-        error = cudaGetLastError();
-        if (error != cudaSuccess) {
-            printf("error2\n");
         }
         cudaEventRecord(end, stream);
         cudaEventSynchronize(begin);
@@ -852,10 +833,6 @@ float AlgoForwardTime(
         if (elapsed < min_time) {
             min_time = elapsed;
             idx = n;
-        }
-        error = cudaGetLastError();
-        if (error != cudaSuccess) {
-            printf("error3\n");
         }
     }
     cudaEventDestroy(begin);

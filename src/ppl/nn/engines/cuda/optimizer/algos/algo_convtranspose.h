@@ -20,10 +20,7 @@
 
 #include "ppl/nn/engines/cuda/optimizer/algos/algorithm.h"
 
-#include "ppl/nn/params/onnx/conv_transpose_param.h"
-
 using namespace ppl::common;
-using namespace ppl::nn::common;
 
 namespace ppl { namespace nn { namespace cuda {
 
@@ -39,6 +36,13 @@ public:
     }
 
 public:
+    void GetAttrParam(void*& param) const override {
+        return;
+    };
+    void DeleteAttrParam(void*& param) override {
+        return;
+    };
+
     double ExcuteTimer(const ir::Node* node, OptKernelOptions& options) override;
     RetCode ModifyParam(const ir::Node* node, OptKernelOptions& options) override;
     void ReshapeOnEdges(const ir::Node* node, std::map<edgeid_t, std::unique_ptr<TensorImpl>>* tensors,

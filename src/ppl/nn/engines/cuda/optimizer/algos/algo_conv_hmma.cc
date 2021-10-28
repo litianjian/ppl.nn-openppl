@@ -82,15 +82,6 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
         return 0.0f;
     }
 
-    if (options.args->quick_select) {
-        attr_param_.extra_param.algo_info.algo_name = "nv2spkConv_hmma1688_nhwc_fn_b32x32_w32x8_k64_s32_buf2";
-        attr_param_.extra_param.algo_info.kid = 5100;
-        attr_param_.extra_param.algo_info.splitk = 1;
-        attr_param_.extra_param.algo_info.splitf = 1;
-        PPLCUDAConvolutionLoadAlgoParam(attr_param_.extra_param.algo_info, temp_conv_param);
-        return 0.0f;
-    }
-
     // input H or W is too small
     if (shape_in0.GetDim(2) + 2 * temp_conv_param.pad_height < shape_in1.GetDim(2) ||
         shape_in0.GetDim(3) + 2 * temp_conv_param.pad_width < shape_in1.GetDim(3)) {
@@ -121,6 +112,7 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
 
 #ifdef PPLNN_ENABLE_CUDA_JIT
     // Do select
+    LOG(INFO) << "Compiling " << node->GetName();
     PPLCUDAConvolutionPredictKernel(attr_param_.extra_param.algo_info, temp_conv_param);
     auto timer = PPLCUDAConvolutionJitSelectKernel(stream, shape_in0.GetDataType(), (int4*)input_buffer.addr, (int4*)weight_buffer.addr,
                         (int4*)output_buffer.addr, (int4*)bias_buffer.addr, (int4*)temp_buffer.addr,
