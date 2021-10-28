@@ -22,6 +22,7 @@
 #include "ppl/nn/engines/cuda/module/op_compiler.h"
 #include "ppl/nn/engines/cuda/module/conv_compiler.h"
 #include "ppl/nn/engines/cuda/module/gemm_compiler.h"
+#include "ppl/nn/engines/cuda/module/normal_compiler.h"
 
 namespace ppl { namespace nn { namespace cuda {
 
@@ -41,6 +42,7 @@ private:
     std::map<std::string, OpCompiler*> type2compiler_;
     ConvCompiler conv_;
     GemmCompiler gemm_;
+    NormalCompiler normal_;
 
 };
 

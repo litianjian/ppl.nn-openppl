@@ -930,17 +930,17 @@ double PPLCUDAConvolutionJitSelectKernel(
                                                    (algo_param.tiles.n_cta / algo_param.tiles.n_warp) *  \
                                                    (algo_param.tiles.k_cta / algo_param.tiles.k_per_set)  * \
                                                     WARP_SIZE;
-                ktype = CONV_2SPK_F1;
-                std::string f_size = "f1";
-                algo_param.tiles.flt_size = 1;
-                if (conv_param.flt_height == 3) {
+                ktype = CONV_2SPK_FN;
+                std::string f_size = "fn";
+                algo_param.tiles.flt_size = 0;
+                if (conv_param.flt_height == 1 && conv_param.flt_width == 1) {
+                    ktype = CONV_2SPK_F1;
+                    f_size = "f1";
+                    algo_param.tiles.flt_size = 1;
+                } else if (conv_param.flt_height == 3 && conv_param.flt_width == 3) {
                     ktype = CONV_2SPK_F3;
                     f_size = "f3";
                     algo_param.tiles.flt_size = 3;
-                } else if (conv_param.flt_height > 3) {
-                    ktype = CONV_2SPK_FN;
-                    f_size = "fn";
-                    algo_param.tiles.flt_size = 0;
                 }
                 algo_param.algo_name = "nv2spkConv_hmma1688_nhwc_"+f_size+"_b"+ToString(algo_param.tiles.m_cta)+"x"+ToString(algo_param.tiles.n_cta)+
                                                                           "_w"+ToString(algo_param.tiles.m_warp)+"x"+ToString(algo_param.tiles.n_warp)+

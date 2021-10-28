@@ -63,6 +63,21 @@ struct algo_param_t{
     unsigned int splitk = 1;
     unsigned int splitf = 1;
     bool is_initializer_weight = true;
+
+    void UseDefaultF1Kernel() {
+        algo_name = "nv2spkConv_hmma1688_nhwc_f1_b16x8_w16x8_k8_s8_buf1";
+        tiles.m_cta = 16;
+        tiles.n_cta = 8;
+        tiles.m_warp = 16;
+        tiles.n_warp = 8;
+        tiles.k_cta = 8;
+        tiles.k_per_set = 8;
+        tiles.cta_size_in_thd = 32;
+        tiles.flt_size = 1;
+        tiles.buf_size = 1;
+        tiles.buf = 1;
+        kid = 0;
+    };
 };
 
 struct fuse_param_t{

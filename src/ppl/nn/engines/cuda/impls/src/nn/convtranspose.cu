@@ -346,13 +346,14 @@ ppl::common::RetCode PPLCUDAConvTransposeForward(
                     pad_in_data, padK, padN);
 
             PPLCUDATransposeForwardImp(stream,
-		trans_param, &b_shape, pad_in_data,
-		&out_b_shape, trans_in_data);
+            trans_param, &b_shape, pad_in_data,
+            &out_b_shape, trans_in_data);
 
-	    //NT
-	    ppl::nn::TensorShape a_shape, b_shape, c_shape;
-	    //input transpose KxN -> NxK    weight transpose KxM -> MxK
-        algo_param_t algo_param;
+            //NT
+            ppl::nn::TensorShape a_shape, b_shape, c_shape;
+            //input transpose KxN -> NxK    weight transpose KxM -> MxK
+            algo_param_t algo_param;
+            algo_param.UseDefaultF1Kernel();
             PPLCUDAGemmForwardImp(stream, module,
                                   &out_a_shape, trans_filter,
                                   &out_b_shape, trans_in_data,
