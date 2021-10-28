@@ -22,9 +22,11 @@
 
 #include <cuda_fp16.h>
 #include <float.h>
+#include <algorithm>
 
 #include "kernel_type.h"
 #include "conv_common.h"
+#include "cudakernel/nn/conv/gene_kernel.h"
 
 #define TIMES 4
 
@@ -236,9 +238,100 @@ ppl::common::RetCode PPLCUDAGemmModifyBias(
     return ppl::common::RC_SUCCESS;
 }
 
+#define MAX_KERNEL_SIZE (1+12+30)
 
+__inline__ std::string ToString(int v) {
+    std::stringstream ss;
+    ss << v;
+    return ss.str();
+}
 
-int PPLCUDAGemmSelectKernel(
+double PPLCUDAGemmJITSelectKernel(
+    cudaStream_t &stream,
+    ppl::common::datatype_t type,
+    ppl::nn::TensorShape* input_shape,
+    void* input,
+    ppl::nn::TensorShape* weight_shape,
+    void* weight,
+    void* bias,
+    ppl::nn::TensorShape* output_shape,
+    void* output,
+    void* temp_buffer, 
+    conv_param_t &conv_param, 
+    fuse_param_t &fuse_param,
+    algo_param_t &algo_param,
+    uint64_t workspace) {
+
+    auto pre_algo_param = algo_param;
+    int num_chl_per_grp = conv_param.num_chl / conv_param.num_grp;
+    int flt_hw = conv_param.flt_height * conv_param.flt_width;
+    
+    std::vector<std::string> knames;
+    std::vector<algo_param_t> params;
+    std::string total_source = "";
+    int declare_times = 0;
+    float elapsed = 0.0f;
+
+    unsigned int splitk = 1;
+    unsigned int splitf = 1;
+
+    for(unsigned int index = 0; index < MAX_KERNEL_SIZE; index++) {
+        conv_ktype_t ktype;
+        algo_param = pre_algo_param;
+        PPLCUDAConvolutionModifyAlgoParam(algo_param, index); // change algo_param
+        algo_param.splitk = splitk;
+        algo_param.splitf = splitf;
+
+        algo_param.tiles.cta_size_in_thd = (algo_param.tiles.m_cta / algo_param.tiles.m_warp) *  \
+                                            (algo_param.tiles.n_cta / algo_param.tiles.n_warp) *  \
+                                            (algo_param.tiles.k_cta / algo_param.tiles.k_per_set)  * \
+                                            WARP_SIZE;
+        ktype = CONV_2SPK_F1;
+        std::string f_size = "f1";
+        algo_param.tiles.flt_size = 1;
+        algo_param.algo_name = "nv2spkConv_hmma1688_nhwc_"+f_size+"_b"+ToString(algo_param.tiles.m_cta)+"x"+ToString(algo_param.tiles.n_cta)+
+                                                                    "_w"+ToString(algo_param.tiles.m_warp)+"x"+ToString(algo_param.tiles.n_warp)+
+                                                                    "_k"+ToString(algo_param.tiles.k_cta)+"_s"+ToString(algo_param.tiles.k_per_set)+"_buf1";
+
+        kernel_info_t temp_kernel(-1, ktype, algo_param.algo_name.c_str());
+        if(!temp_kernel.CheckKernelTilesFeasible()) continue;
+        if(!temp_kernel.CheckKernelTypeFeasible(conv_param.flt_height, conv_param.flt_width, num_chl_per_grp, splitk)) continue;
+        if(!temp_kernel.CheckSplitkFeasible(num_chl_per_grp, splitk)) continue;
+        if(!temp_kernel.CheckSplitfFeasible(splitf, splitk)) continue;
+        if(!temp_kernel.CheckQuickSelectFeasible(algo_param, conv_param.num_chl / conv_param.num_grp, flt_hw, splitk, splitf)) continue;
+
+        std::string source = "";
+        Gene2spkKernel(source, algo_param.algo_name, 
+                                algo_param.tiles.m_cta, 
+                                algo_param.tiles.n_cta, 
+                                algo_param.tiles.m_warp, 
+                                algo_param.tiles.n_warp, 
+                                algo_param.tiles.k_cta, 
+                                algo_param.tiles.k_per_set, 
+                                algo_param.splitk, 
+                                algo_param.splitf, 
+                                algo_param.tiles.buf, declare_times);
+        declare_times++;
+
+        if (std::find(knames.begin(), knames.end(), algo_param.algo_name) == knames.end()) {
+            total_source = total_source + source;
+        }
+        knames.push_back(algo_param.algo_name);
+        params.push_back(algo_param);
+    }
+
+    int index = 0;
+    std::vector<const char*> compile_params;
+    elapsed = AlgoForwardTime(stream, knames, total_source, index,
+                              compile_params, 0, true, type,
+                              (int4*)input, (int4*)weight, (int4*)output, (int4*)bias, (int4*)temp_buffer, 
+                              params, conv_param, fuse_param, workspace);
+
+    algo_param = params[index];
+    return elapsed; 
+}
+
+double PPLCUDAGemmSelectKernel(
     const cudaStream_t &stream,
     const ppl::nn::TensorShape* input_shape,
     const void* input,
@@ -247,9 +340,10 @@ int PPLCUDAGemmSelectKernel(
     const void* bias,
     const ppl::nn::TensorShape* output_shape,
     void* output,
-    const ppl::nn::common::GemmParam &param,
     void* temp_buffer, 
-    const fuse_param_t &fuse_param)
+    const ppl::nn::common::GemmParam &param,
+    const fuse_param_t &fuse_param,
+    algo_param_t &algo_param)
 {
     auto type = weight_shape->GetDataType();
     if (!is_g_kvec_set) init_f1_kvec(g_kvec, type);
@@ -336,7 +430,9 @@ int PPLCUDAGemmSelectKernel(
 
     cudaEventDestroy(begin);
     cudaEventDestroy(end);
-    return best_kid;
+
+    algo_param.kid= best_kid;
+    return minTime;
 }
 
 template<typename T>
@@ -367,11 +463,12 @@ ppl::common::RetCode PPLCUDAGemmForwardImp(
     const ppl::nn::common::GemmParam &param,
     void* temp_buffer, 
     fuse_param_t &fuse_param, 
-    const int kid)
+    const algo_param_t &algo_param)
 {
     auto type = weight_shape->GetDataType();
+#ifndef PPLNN_ENABLE_CUDA_JIT
     if ( !is_g_kvec_set ) init_f1_kvec(g_kvec, type);
-
+#endif
     int pad_size   = GetPadSize(type);
     int transA   = param.transA;
     int transB   = param.transB;
@@ -402,10 +499,10 @@ ppl::common::RetCode PPLCUDAGemmForwardImp(
     }
     // kernel configs
 #ifdef PPLNN_ENABLE_CUDA_JIT
-    int tile_m_per_cta   = g_kvec[kid].tile_m_per_cta;
-    int tile_n_per_cta   = g_kvec[kid].tile_n_per_cta;
-    int tile_k_per_cta   = g_kvec[kid].tile_k_per_cta;
-    int cta_size_in_thd  = g_kvec[kid].cta_size_in_thd;
+    int tile_m_per_cta   = algo_param.tiles.m_cta;
+    int tile_n_per_cta   = algo_param.tiles.n_cta;
+    int tile_k_per_cta   = algo_param.tiles.k_cta;
+    int cta_size_in_thd  = algo_param.tiles.cta_size_in_thd;
 #else
     int tile_m_per_cta   = g_kvec[kid].tile_m_per_cta;
     int tile_n_per_cta   = g_kvec[kid].tile_n_per_cta;

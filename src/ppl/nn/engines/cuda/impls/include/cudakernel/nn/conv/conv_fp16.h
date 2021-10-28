@@ -63,6 +63,21 @@ struct algo_param_t{
     unsigned int splitk = 1;
     unsigned int splitf = 1;
     bool is_initializer_weight = true;
+
+    void UseDefaultF1Kernel() {
+        algo_name = "nv2spkConv_hmma1688_nhwc_f1_b16x8_w16x8_k8_s8_buf1";
+        tiles.m_cta = 16;
+        tiles.n_cta = 8;
+        tiles.m_warp = 16;
+        tiles.n_warp = 8;
+        tiles.k_cta = 8;
+        tiles.k_per_set = 8;
+        tiles.cta_size_in_thd = 32;
+        tiles.flt_size = 1;
+        tiles.buf_size = 1;
+        tiles.buf = 1;
+        kid = 0;
+    };
 };
 
 struct fuse_param_t{
@@ -86,7 +101,9 @@ struct fuse_info_t {
     int concat_edge_id = -1; // save concat output edge id
 };
 
-int PPLCUDAConvoutionFuseSupport(conv_param_t &conv_param);
+std::string GetConvShapeString(conv_param_t &conv_param);
+
+ppl::common::RetCode PPLCUDAConvolutionModifyAlgoParam(algo_param_t &algo_param, uint32_t index);
 
 uint64_t PPLCUDAConvolutionGetCompilationBufSize(
         ppl::common::datatype_t type, 
@@ -108,7 +125,7 @@ ppl::common::RetCode PPLCUDAConvolutionPredictKernel(
         algo_param_t &algo_param,
         conv_param_t &conv_param);
 
-ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
+double PPLCUDAConvolutionSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
         int4* d_input,
@@ -121,7 +138,7 @@ ppl::common::RetCode PPLCUDAConvolutionSelectKernel(
 	fuse_param_t &fuse_param,
 	uint64_t workspace = (uint64_t)8*1024*1024*1024);
 
-ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
+double PPLCUDAConvolutionJitSelectKernel(
         cudaStream_t &stream, 
         ppl::common::datatype_t type,
         int4* d_input,
@@ -133,6 +150,25 @@ ppl::common::RetCode PPLCUDAConvolutionJitSelectKernel(
 	conv_param_t &conv_param, 
 	fuse_param_t &fuse_param,
 	uint64_t workspace = (uint64_t)8*1024*1024*1024);
+
+float AlgoForwardTime(
+    cudaStream_t &stream, 
+    std::vector<std::string> name,
+    std::string code,
+    int &idx,
+    std::vector<const char*> compile_params,
+    int device,
+    bool include,
+    ppl::common::datatype_t type,
+    int4* d_input,
+    int4* d_flt,
+    int4* d_output,
+    int4* bias,
+    int4* d_temp_buf, 
+    std::vector<algo_param_t> &algo_param,
+    conv_param_t &conv_param, 
+    fuse_param_t &fuse_param,
+    uint64_t workspace);
 
 void PPLCUDAConvolutionForwardImp(
         cudaStream_t &stream, 

@@ -18,33 +18,34 @@
 #include <fstream>
 #include <sstream>
 
-#include "ppl/nn/engines/cuda/module/gemm_compiler.h"
+#include "ppl/nn/engines/cuda/module/normal_compiler.h"
 #include "ppl/nn/engines/cuda/module/cuda_compiler.h"
-#include "ppl/nn/engines/cuda/params/gemm_extra_param.h"
+#include "ppl/nn/engines/cuda/params/conv_extra_param.h"
 
 #include "cudakernel/nn/conv/gene_kernel.h"
 
 using namespace std;
 namespace ppl { namespace nn { namespace cuda {
 
-const ppl::common::RetCode GemmCompiler::Compile(ir::Node* node, const OptKernelOptions& options) {
+const ppl::common::RetCode NormalCompiler::Compile(ir::Node* node, const OptKernelOptions& options) {
 
     auto node_id = node->GetId();
     auto opt_kerenl = options.info->kernels.find(node_id)->second.get();
     CudaOptKernel* cuda_kernel = static_cast<CudaOptKernel*>(opt_kerenl);
     auto param = cuda_kernel->GetCommparam();
     CudaCommonParam* cuda_param = static_cast<CudaCommonParam*>(param);
-    CudaGemmParam* gemm_param = static_cast<CudaGemmParam*>(cuda_kernel->GetParam());
     
-    auto algo_param = gemm_param->extra_param.algo_info;
-    
+    algo_param_t algo_param;
+    fuse_info_t fuse_info;
     std::string source = "";
+    algo_param.UseDefaultF1Kernel();
+
     if (algo_param.algo_name.find("Idxn") != std::string::npos) {
         GeneIdxnKernel(source, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_step, 0);
-        ReplaceFusionForIdxn(source, gemm_param->extra_param.fuse_info);
+        ReplaceFusionForIdxn(source, fuse_info);
     } else {
         Gene2spkKernel(source, algo_param.algo_name, algo_param.tiles.m_cta, algo_param.tiles.n_cta, algo_param.tiles.m_warp, algo_param.tiles.n_warp, algo_param.tiles.k_cta, algo_param.tiles.k_per_set, algo_param.splitk, algo_param.splitf, 1, 0);
-        ReplaceFusionFor2spk(source, gemm_param->extra_param.fuse_info);
+        ReplaceFusionFor2spk(source, fuse_info);
     }
     std::string name = algo_param.algo_name;
 

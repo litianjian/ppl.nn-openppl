@@ -35,7 +35,23 @@ unsigned int PPLCUDAGemmGetBiasSize(
     int K,
     bool is_scalar);
 
-int PPLCUDAGemmSelectKernel(
+double PPLCUDAGemmJITSelectKernel(
+    cudaStream_t &stream,
+    ppl::common::datatype_t type,
+    ppl::nn::TensorShape* input_shape,
+    void* input,
+    ppl::nn::TensorShape* weight_shape,
+    void* weight,
+    void* bias,
+    ppl::nn::TensorShape* output_shape,
+    void* output,
+    void* temp_buffer, 
+    conv_param_t &conv_param,
+    fuse_param_t &fuse_param,
+    algo_param_t &algo_param,
+    uint64_t workspace = (uint64_t)8*1024*1024*1024);
+
+double PPLCUDAGemmSelectKernel(
     const cudaStream_t &stream,
     const ppl::nn::TensorShape* input_shape,
     const void* input,
@@ -44,9 +60,10 @@ int PPLCUDAGemmSelectKernel(
     const void* bias,
     const ppl::nn::TensorShape* output_shape,
     void* output,
-    const ppl::nn::common::GemmParam &param,
     void* temp_buffer, 
-    const fuse_param_t &fuse_param);
+    const ppl::nn::common::GemmParam &param,
+    const fuse_param_t &fuse_param,
+    algo_param_t &algo_param);
 
 ppl::common::RetCode PPLCUDAGemmForwardImp(
     const cudaStream_t &stream,
@@ -61,7 +78,7 @@ ppl::common::RetCode PPLCUDAGemmForwardImp(
     const ppl::nn::common::GemmParam &param,
     void* temp_buffer,
     fuse_param_t &fuse_param,
-    int kid);
+    const algo_param_t &algo_param);
 
 ppl::common::RetCode PPLCUDAGemmModifyWeights(
     const cudaStream_t &stream,
