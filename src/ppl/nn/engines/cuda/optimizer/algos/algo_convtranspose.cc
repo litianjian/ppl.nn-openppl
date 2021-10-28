@@ -15,12 +15,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#include "ppl/nn/engines/cuda/optimizer/algos/algo_lstm.h"
+#include "ppl/nn/engines/cuda/optimizer/algos/algo_conv_transpose.h"
 
 #include <chrono>
 
 #include "ppl/common/cuda/cuda_types.h"
-#include "cudakernel/nn/lstm.h"
 #include "ppl/nn/common/logger.h"
 #include "ppl/nn/utils/utils.h"
 
@@ -30,16 +29,16 @@ using namespace ppl::nn::common;
 
 namespace ppl { namespace nn { namespace cuda {
 
-double LstmAlgorithm::ExcuteTimer(const ir::Node* node, OptKernelOptions& options) {
+double ConvTransposeAlgorithm::ExcuteTimer(const ir::Node* node, OptKernelOptions& options) {
     options.info->compile_set.emplace(node->GetId());
     return 1e-5f;
 }
 
-RetCode LstmAlgorithm::ModifyParam(const ir::Node* node, OptKernelOptions& options) {
+RetCode ConvTransposeAlgorithm::ModifyParam(const ir::Node* node, OptKernelOptions& options) {
     return RC_SUCCESS;
 }
 
-void LstmAlgorithm::ReshapeOnEdges(const ir::Node* node, std::map<edgeid_t, std::unique_ptr<TensorImpl>>* tensors,
+void ConvTransposeAlgorithm::ReshapeOnEdges(const ir::Node* node, std::map<edgeid_t, std::unique_ptr<TensorImpl>>* tensors,
                                    dataformat_t input_format, dataformat_t output_format) {
     for (uint32_t i = 0; i < node->GetInputCount(); ++i) { // only reset formats of input0 and weight
         auto edge_id = node->GetInput(i);

@@ -15,27 +15,27 @@
 // specific language governing permissions and limitations
 // under the License.
 
-#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA_OPTIMIZER_ALGOS_ALGO_LSTM_H_
-#define _ST_HPC_PPL_NN_ENGINES_CUDA_OPTIMIZER_ALGOS_ALGO_LSTM_H_
+#ifndef _ST_HPC_PPL_NN_ENGINES_CUDA_OPTIMIZER_ALGOS_ALGO_CONVTANSPOSE_H_
+#define _ST_HPC_PPL_NN_ENGINES_CUDA_OPTIMIZER_ALGOS_ALGO_CONVTANSPOSE_H_
 
 #include "ppl/nn/engines/cuda/optimizer/algos/algorithm.h"
 
-#include "ppl/nn/params/onnx/lstm_param.h"
+#include "ppl/nn/params/onnx/conv_transpose_param.h"
 
 using namespace ppl::common;
 using namespace ppl::nn::common;
 
 namespace ppl { namespace nn { namespace cuda {
 
-class LstmAlgorithm : public Algorithm {
+class ConvTransposeAlgorithm : public Algorithm {
 public:
-    LstmAlgorithm() {
+    ConvTransposeAlgorithm() {
         std::set<dataformat_t> ndarray{DATAFORMAT_NDARRAY};
-        lstm_formats_.emplace(DATAFORMAT_NDARRAY, ndarray);
+        conv_transpose_formats_.emplace(DATAFORMAT_NDARRAY, ndarray);
     }
 
     const std::map<dataformat_t, std::set<dataformat_t>> Getformats(const std::string& type_name) const override {
-        return lstm_formats_;
+        return conv_transpose_formats_;
     }
 
 public:
@@ -45,7 +45,7 @@ public:
                                 ppl::common::dataformat_t input_format, ppl::common::dataformat_t output_format) override;
 
 private:
-    std::map<dataformat_t, std::set<dataformat_t>> lstm_formats_;
+    std::map<dataformat_t, std::set<dataformat_t>> conv_transpose_formats_;
 };
 
 }}} // namespace ppl::nn::cuda

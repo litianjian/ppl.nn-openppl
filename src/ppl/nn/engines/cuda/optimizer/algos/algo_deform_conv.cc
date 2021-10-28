@@ -29,6 +29,7 @@ using namespace ppl::common;
 namespace ppl { namespace nn { namespace cuda {
 
 double DeformConvAlgorithm::ExcuteTimer(const ir::Node* node, OptKernelOptions& options) {
+    options.info->compile_set.emplace(node->GetId());
     return 1e-5;
 }
 
