@@ -504,6 +504,7 @@ ppl::common::RetCode PPLCUDAGemmForwardImp(
     int tile_k_per_cta   = algo_param.tiles.k_cta;
     int cta_size_in_thd  = algo_param.tiles.cta_size_in_thd;
 #else
+    int kid = algo_param.kid;
     int tile_m_per_cta   = g_kvec[kid].tile_m_per_cta;
     int tile_n_per_cta   = g_kvec[kid].tile_n_per_cta;
     int tile_k_per_cta   = g_kvec[kid].tile_k_per_cta;
