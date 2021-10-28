@@ -46,12 +46,7 @@ public:
     CUfunction GetKernelFunc();
     CUfunction GetKernelFunc(std::string name);
     void SetCuModule(CUmodule module) { this->module_ = module; }
-
     void SetCuModule(CUfunction func) { this->func_ = func; }
-
-
-    void SaveToFile();
-
     void SetSourceCode(std::string, std::string);
 
     std::pair<std::string, std::string> GetSourceCode() { return source_code_; }
@@ -61,11 +56,8 @@ private:
     std::unordered_map<std::string, std::string> code_list_;
     // opt source code
     std::pair<std::string, std::string> source_code_;
-
     std::mutex mutex_;
-
     CUmodule module_ = nullptr;
-
     CUfunction func_ = nullptr;
 
 };
@@ -85,7 +77,6 @@ public:
         std::fill(cuda_thread_config_.thread_config, cuda_thread_config_.thread_config + 6, 1);
         cuda_thread_config_.dyn_shmem_size = 0;
     }
-    
     // Invoke the cuda kernel 
     void Run(void **args) {
         CUfunction func = module_->GetKernelFunc();
@@ -120,9 +111,7 @@ public:
         }
     }
     CUDAModuleWrapper* FindModuleByNodeId(nodeid_t id);
-    
     void InsertModule(std::pair<nodeid_t, CUDAModuleWrapper*> mod);
-
     ModuleMap* GetModule() { return &(this->module_); }
 
 private:

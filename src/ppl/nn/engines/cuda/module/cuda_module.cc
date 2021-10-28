@@ -19,18 +19,13 @@
 #include <ppl/nn/engines/cuda/module/cuda_module.h>
 
 namespace ppl { namespace nn { namespace cuda {
-
-void CUDAModule::SaveToFile() {
-}
-
+    
 CUfunction CUDAModule::GetKernelFunc() {
     std::lock_guard<std::mutex> lock(mutex_);
-
     if (module_ == nullptr) {
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
     }
     if (func_ == nullptr) {
-        // LOG(INFO) << this->source_code_.first;
         PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&func_, module_, this->source_code_.first.c_str()));
     }
     return func_;
@@ -38,13 +33,11 @@ CUfunction CUDAModule::GetKernelFunc() {
 
 CUfunction CUDAModule::GetKernelFunc(std::string name) {
     std::lock_guard<std::mutex> lock(mutex_);
-
     if (module_ == nullptr) {
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
     }
     CUfunction function;
     PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&function, module_, name.c_str()));
-
     return function;
 }
 void CUDAModule::SetSourceCode(std::string name, std::string code) {
@@ -53,18 +46,15 @@ void CUDAModule::SetSourceCode(std::string name, std::string code) {
 CUfunction CUDAModuleWrapper::GetKernelFunc() {
     return module_->GetKernelFunc();
 }
-
 CUDAModuleWrapper* CUDAModuleManager::FindModuleByNodeId(nodeid_t id) {
     auto mod = this->module_.find(id);
     if (mod != this->module_.end()) {
         return mod->second;
-    } else {
-        return nullptr;
     }
+    return nullptr;
 }
 void CUDAModuleManager::InsertModule(std::pair<nodeid_t, CUDAModuleWrapper*> mod) {
     this->module_.emplace(mod);
 }
-
 
 }}} // namespace ppl::nn::cuda

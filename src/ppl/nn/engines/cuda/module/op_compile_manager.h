@@ -32,9 +32,7 @@ public:
         static OpCompilerManager mgr;
         return &mgr;
     }
-
     OpCompiler* FindCompiler(const std::string& kernel_type) const;
-
 private:
     OpCompilerManager();
 
@@ -43,7 +41,6 @@ private:
     ConvCompiler conv_;
     GemmCompiler gemm_;
     NormalCompiler normal_;
-
 };
 
 }}} // namespace ppl::nn::cuda

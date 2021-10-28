@@ -34,7 +34,6 @@ const ppl::common::RetCode NormalCompiler::Compile(ir::Node* node, const OptKern
     CudaOptKernel* cuda_kernel = static_cast<CudaOptKernel*>(opt_kerenl);
     auto param = cuda_kernel->GetCommparam();
     CudaCommonParam* cuda_param = static_cast<CudaCommonParam*>(param);
-    
     algo_param_t algo_param;
     fuse_info_t fuse_info;
     std::string source = "";
@@ -48,20 +47,15 @@ const ppl::common::RetCode NormalCompiler::Compile(ir::Node* node, const OptKern
         ReplaceFusionFor2spk(source, fuse_info);
     }
     std::string name = algo_param.algo_name;
-
     std::vector<std::string> compile_params;
     std::vector<const char*> param_cstring{};
-    
     for (auto &string : compile_params) {
        param_cstring.push_back(string.c_str());
     }
-
     CUDAModuleWrapper* wrapper = new CUDAModuleWrapper();
     CUDAModule* cuda_module = new CUDAModule();
     cuda_param->module = (void*)cuda_module;
-
     auto ptx_code = CUDANVRTCCompile(pair<string,string>(name, source), param_cstring,  options.device->GetDeviceId(), true);
-    // std::cout << source << std::endl;
     cuda_module->SetSourceCode(name, ptx_code);
     wrapper->Init(cuda_module, name, options.device);
 
