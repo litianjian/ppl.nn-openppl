@@ -30,14 +30,25 @@
 #include "ppl/nn/engines/cuda/cuda_device.h"
 #include "ppl/nn/common/types.h"
 #include "ppl/nn/common/logger.h"
+#include <ppl/nn/engines/cuda/module/cuda_compiler.h>
 
 namespace ppl { namespace nn { namespace cuda {
-
+#define MAX_GPUS 32
 class CUDAModule {
 public:
+    CUDAModule() {
+        LOG(INFO) << "CUDAModule";
+        std::fill(module_list_.begin(), module_list_.end(), nullptr);
+    }
     ~CUDAModule() {
+        for(size_t i = 0; i < module_list_.size(); i++) {
+            if (module_list_[i] != nullptr) {
+                PPL_RUNTIME_SAFE_CALL(cudaSetDevice(static_cast<int>(i)));
+                PPL_CUDA_SAFE_CALL(cuModuleUnload(module_list_[i]));
+            }
+        }
         if (module_ != nullptr) {
-            cuModuleUnload(module_);
+            PPL_CUDA_SAFE_CALL(cuModuleUnload(module_));
         }
     }
     // Get the kernel function from the CUmodule
@@ -61,6 +72,7 @@ private:
     std::pair<std::string, std::string> source_code_;
 
     std::mutex mutex_;
+    std::vector<CUmodule> module_list_ = std::vector<CUmodule>(MAX_GPUS);
 
     CUmodule module_ = nullptr;
 

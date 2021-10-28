@@ -17,7 +17,6 @@
 
 
 #include <ppl/nn/engines/cuda/module/cuda_module.h>
-#include <ppl/nn/engines/cuda/module/cuda_compiler.h>
 
 namespace ppl { namespace nn { namespace cuda {
 
@@ -25,6 +24,8 @@ void CUDAModule::SaveToFile() {
 }
 
 CUfunction CUDAModule::GetKernelFunc() {
+    std::lock_guard<std::mutex> lock(mutex_);
+
     if (module_ == nullptr) {
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
     }
@@ -36,12 +37,12 @@ CUfunction CUDAModule::GetKernelFunc() {
 }
 
 CUfunction CUDAModule::GetKernelFunc(std::string name) {
+    std::lock_guard<std::mutex> lock(mutex_);
+
     if (module_ == nullptr) {
         PPL_CUDA_SAFE_CALL(cuModuleLoadDataEx(&module_, source_code_.second.c_str(), 0, 0 , 0));
     }
     CUfunction function;
-    LOG(ERROR) << name;
-    LOG(ERROR) << module_;
     PPL_CUDA_SAFE_CALL(cuModuleGetFunction(&function, module_, name.c_str()));
 
     return function;
