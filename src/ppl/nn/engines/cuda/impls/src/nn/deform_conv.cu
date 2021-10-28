@@ -418,8 +418,7 @@ ppl::common::RetCode PPLCUDADeformConvForward(
             gemm_param.bias_term = 0; \
             gemm_param.transA = 0;   gemm_param.transB = 1; \
             gemm_param.alpha  = 1.f; gemm_param.beta   = 1.f; \
-            gemm_param.N      = N; \
-            int kid = 0;
+            gemm_param.N      = N;
     FAKE_GEMM_PARAM
 #undef FAKE_GEMM_PARAM
 
