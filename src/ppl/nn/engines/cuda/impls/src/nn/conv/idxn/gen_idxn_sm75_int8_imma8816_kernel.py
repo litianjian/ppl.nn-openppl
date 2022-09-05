@@ -312,7 +312,8 @@ def GenAllKernels(parent_path, kernel_cut=False):
                                 continue
 
                             kernel = KernelInfo(parent_path, s_size, k_num, cta_y_num, cta_x_num, warp_y, warp_x)
-
+                            if not kernel.IsKernelFeasible() :
+                                print(s_size, k_num, cta_y_num, cta_x_num, warp_y, warp_x) 
                             if kernel.IsKernelFeasible():
                                 kernel.GenKernel()
 
