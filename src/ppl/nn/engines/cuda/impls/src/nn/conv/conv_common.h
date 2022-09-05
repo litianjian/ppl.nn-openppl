@@ -64,6 +64,10 @@
 #define SM86_MAX_DYN_SMEM_SIZE_PER_CTA  (99  * _BYTE1024_)
 #define SM87_MAX_DYN_SMEM_SIZE_PER_CTA  (163 * _BYTE1024_)
 
+#define SM70_MAX_DYN_SMEM_SIZE_PER_CTA  (96  * _BYTE1024_)
+#define SM72_MAX_DYN_SMEM_SIZE_PER_CTA  (64  * _BYTE1024_)
+
+
 #define ADD_KERNEL(_ktype, _kname, _lut_kptr, _spk_kptr, _idx_kptr) \
     kernel_container.push_back(kernel_info_t(kernel_container.size(), _ktype, _kname, _lut_kptr, _spk_kptr, _idx_kptr));
 
@@ -251,6 +255,9 @@ struct kernel_info_t {
         } else if (strstr(kname_substrs[0].c_str(), "Sm75")) {
             karch_major = 7;
             karch_minor = 5;
+        } else if (strstr(kname_substrs[0].c_str(), "Sm70")) {
+            karch_major = 7;
+            karch_minor = 0;
         }
 
         if (strstr(kname_substrs[0].c_str(), "Fp16"))
@@ -378,6 +385,12 @@ struct kernel_info_t {
         if (device_prop.major == 8 && device_prop.minor == 7)
             return (smem_size <= SM87_MAX_DYN_SMEM_SIZE_PER_CTA);
 
+        if (device_prop.major == 7 && device_prop.minor == 0)
+            return (smem_size <= SM70_MAX_DYN_SMEM_SIZE_PER_CTA);
+        
+        if (device_prop.major == 7 && device_prop.minor == 2)
+            return (smem_size <= SM72_MAX_DYN_SMEM_SIZE_PER_CTA);
+
         return false;
     }
 
@@ -401,8 +414,7 @@ struct kernel_info_t {
                 int kloop_time = DivUp(kloop_num * (tile_k_per_cta / flt_pad_size), cta_size_in_thd);
 
                 return (kloop_time == 1);
-            } else
-                return false;
+            }
         }
         else if (num_chl_per_grp > 2 && num_chl_per_grp <= 4) {
             if (ktype == CONV_IDXN_C4 && splitk == 1) {
@@ -412,8 +424,7 @@ struct kernel_info_t {
                 int kloop_time = DivUp(kloop_num * (tile_k_per_cta / flt_pad_size), cta_size_in_thd);
 
                 return (kloop_time == 1);
-            } else
-                return false;
+            }
         } else if (num_chl_per_grp > 4 && num_chl_per_grp <= 32) {
             if (ktype == CONV_IDXN_C32 && splitk == 1) {
                 int num_chl_per_grp_pad = Align(num_chl_per_grp, 8);
@@ -422,9 +433,9 @@ struct kernel_info_t {
                 int kloop_time = DivUp(kloop_num * (tile_k_per_cta / flt_pad_size), cta_size_in_thd);
 
                 return (kloop_time == 1);
-            } else
-                return false;
-        } else if (flt_height == 1 && flt_width == 1) {
+            }
+        }
+        if (flt_height == 1 && flt_width == 1) {
             return (ktype == CONV_2SPK_F1 || ktype == CONV_SWZL_F1) ? true : false;
         } else if (flt_height == 3 && flt_width == 3) {
             return (ktype == CONV_2SPK_F3 || ktype == CONV_SWZL_F3 || ktype == CONV_2SPK_FS) ? true : false;
@@ -715,4 +726,10 @@ void InitializeSwzlSM80Int8Imma16832ConvF1KernelContainer(std::vector<kernel_inf
 void InitializeSwzlSM80Int8Imma16832ConvF3KernelContainer(std::vector<kernel_info_t> & kernel_container);
 void InitializeSwzlSM80Int8Imma16832ConvFNKernelContainer(std::vector<kernel_info_t> & kernel_container);
 
+// sm70 kernels
+// fp16
+void Initialize2spkSM70FP16Hmma884ConvF1KernelContainer(std::vector<kernel_info_t> &kernel_container);
+void Initialize2spkSM70FP16Hmma884ConvF3KernelContainer(std::vector<kernel_info_t> &kernel_container);
+void Initialize2spkSM70FP16Hmma884ConvFNKernelContainer(std::vector<kernel_info_t> &kernel_container);
+void Initialize2spkSM70FP16Hmma884ConvFSKernelContainer(std::vector<kernel_info_t> &kernel_container);
 #endif

@@ -397,6 +397,27 @@
 #define FWD_KGROUP_STEP4(_sUv1_read)     FWD_KGROUP_GAP2(_sUv1_read)
 #endif
 
+#elif defined(USE_HMMA884)
+#define FWD_KGROUP_GAP1(_sUv1_read) \
+        { \
+            _sUv1_read = _sUv1_read ^ 0x1; \
+        }
+
+#define FWD_KGROUP_GAP2(_sUv1_read) \
+        { \
+            _sUv1_read = _sUv1_read ^ 0x3; \
+        }
+
+#define FWD_KGROUP_STEP1(_sUv1_read)     FWD_KGROUP_GAP1(_sUv1_read)
+#define FWD_KGROUP_STEP3(_sUv1_read)     FWD_KGROUP_GAP1(_sUv1_read)
+
+#if TILE_K_PER_SET == 16
+#define FWD_KGROUP_STEP2(_sUv1_read)     FWD_KGROUP_GAP1(_sUv1_read)
+#elif TILE_K_PER_SET == 32
+#define FWD_KGROUP_STEP2(_sUv1_read)     FWD_KGROUP_GAP2(_sUv1_read)
+#define FWD_KGROUP_STEP4(_sUv1_read)     FWD_KGROUP_GAP2(_sUv1_read)
+#endif
+
 #endif
 ////////////////////////////////////////
 // main loop macros
