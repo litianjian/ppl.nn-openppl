@@ -413,4 +413,191 @@
         MMA_INST_DESCEND4(_C, 59, TILE_N_V2_PER_THD, _A[14], _A[15], _B); \
     }
 
+
+#elif defined(USE_HMMA884)
+
+#define MMA_INST_OPCODE \
+    "mma.sync.aligned.m8n8k4.row.col.f16.f16.f16.f16 {%0,%1,%2,%3}, {%4,%5}, {%6,%7}, {%8,%9,%10,%11};\n"
+
+#define MMA_INST(_d0, _d1, _d2, _d3, _b0, _b1, _a0, _a1) \
+        asm volatile(MMA_INST_OPCODE:   "=r"(_d0), "=r"(_d1), "=r"(_d2), "=r"(_d3): \
+                     "r"(_b0), "r"(_b1), "r"(_a0),  "r"(_a1),  "r"(_d0),  "r"(_d1), "r"(_d2), "r"(_d3));
+
+#define MMA_INST_ASCEND1(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[0].x, _B[0].y, _a.x, _a.y); \
+        }
+
+#define MMA_INST_ASCEND2(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[0].x, _B[0].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride],     _C[_C_off + 1 + _C_stride],     _C[_C_off + 2 + _C_stride],     _C[_C_off + 3 + _C_stride],     _B[1].x, _B[1].y, _a.x, _a.y); \
+        }
+        
+#define MMA_INST_ASCEND4(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[0].x, _B[0].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride],     _C[_C_off + 1 + _C_stride],     _C[_C_off + 2 + _C_stride],     _C[_C_off + 3 + _C_stride],     _B[1].x, _B[1].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 2], _C[_C_off + 1 + _C_stride * 2], _C[_C_off + 2 + _C_stride * 2], _C[_C_off + 3 + _C_stride * 2], _B[2].x, _B[2].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 3], _C[_C_off + 1 + _C_stride * 3], _C[_C_off + 2 + _C_stride * 3], _C[_C_off + 3 + _C_stride * 3], _B[3].x, _B[3].y, _a.x, _a.y); \
+        }
+        
+#define MMA_INST_ASCEND8(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[0].x, _B[0].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride],     _C[_C_off + 1 + _C_stride],     _C[_C_off + 2 + _C_stride],     _C[_C_off + 3 + _C_stride],     _B[1].x, _B[1].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 2], _C[_C_off + 1 + _C_stride * 2], _C[_C_off + 2 + _C_stride * 2], _C[_C_off + 3 + _C_stride * 2], _B[2].x, _B[2].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 3], _C[_C_off + 1 + _C_stride * 3], _C[_C_off + 2 + _C_stride * 3], _C[_C_off + 3 + _C_stride * 3], _B[3].x, _B[3].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 4], _C[_C_off + 1 + _C_stride * 4], _C[_C_off + 2 + _C_stride * 4], _C[_C_off + 3 + _C_stride * 4], _B[4].x, _B[4].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 5], _C[_C_off + 1 + _C_stride * 5], _C[_C_off + 2 + _C_stride * 5], _C[_C_off + 3 + _C_stride * 5], _B[5].x, _B[5].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 6], _C[_C_off + 1 + _C_stride * 6], _C[_C_off + 2 + _C_stride * 6], _C[_C_off + 3 + _C_stride * 6], _B[6].x, _B[6].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off + _C_stride * 7], _C[_C_off + 1 + _C_stride * 7], _C[_C_off + 2 + _C_stride * 7], _C[_C_off + 3 + _C_stride * 7], _B[7].x, _B[7].y, _a.x, _a.y); \
+        }
+
+#define MMA_INST_DESCEND1(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[0].x, _B[0].y, _a.x, _a.y); \
+        }
+
+#define MMA_INST_DESCEND2(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[1].x, _B[1].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride],     _C[_C_off + 1 - _C_stride],     _C[_C_off + 2 - _C_stride],     _C[_C_off + 3 - _C_stride],     _B[0].x, _B[0].y, _a.x, _a.y); \
+        }
+        
+#define MMA_INST_DESCEND4(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[3].x, _B[3].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride],     _C[_C_off + 1 - _C_stride],     _C[_C_off + 2 - _C_stride],     _C[_C_off + 3 - _C_stride],     _B[2].x, _B[2].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 2], _C[_C_off + 1 - _C_stride * 2], _C[_C_off + 2 - _C_stride * 2], _C[_C_off + 3 - _C_stride * 2], _B[1].x, _B[1].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 3], _C[_C_off + 1 - _C_stride * 3], _C[_C_off + 2 - _C_stride * 3], _C[_C_off + 3 - _C_stride * 3], _B[0].x, _B[0].y, _a.x, _a.y); \
+        }
+
+#define MMA_INST_DESCEND8(_C, _C_off, _C_stride, _B, _a) \
+        { \
+            MMA_INST(_C[_C_off],                 _C[_C_off + 1],                 _C[_C_off + 2],                 _C[_C_off + 3],                 _B[7].x, _B[7].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride],     _C[_C_off + 1 - _C_stride],     _C[_C_off + 2 - _C_stride],     _C[_C_off + 3 - _C_stride],     _B[6].x, _B[6].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 2], _C[_C_off + 1 - _C_stride * 2], _C[_C_off + 2 - _C_stride * 2], _C[_C_off + 3 - _C_stride * 2], _B[5].x, _B[5].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 3], _C[_C_off + 1 - _C_stride * 3], _C[_C_off + 2 - _C_stride * 3], _C[_C_off + 3 - _C_stride * 3], _B[4].x, _B[4].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 4], _C[_C_off + 1 - _C_stride * 4], _C[_C_off + 2 - _C_stride * 4], _C[_C_off + 3 - _C_stride * 4], _B[3].x, _B[3].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 5], _C[_C_off + 1 - _C_stride * 5], _C[_C_off + 2 - _C_stride * 5], _C[_C_off + 3 - _C_stride * 5], _B[2].x, _B[2].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 6], _C[_C_off + 1 - _C_stride * 6], _C[_C_off + 2 - _C_stride * 6], _C[_C_off + 3 - _C_stride * 6], _B[1].x, _B[1].y, _a.x, _a.y); \
+            MMA_INST(_C[_C_off - _C_stride * 7], _C[_C_off + 1 - _C_stride * 7], _C[_C_off + 2 - _C_stride * 7], _C[_C_off + 3 - _C_stride * 7], _B[0].x, _B[0].y, _a.x, _a.y); \
+        }
+
+#define MMA_INST_1x1(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND1  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+        }
+
+#define MMA_INST_1x2(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND2  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+        }
+
+#define MMA_INST_1x4(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND4  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+        }
+
+#define MMA_INST_1x8(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND8  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+        }
+
+#define MMA_INST_2x1(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND1  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND1 (_C, 4,   TILE_M_V2_PER_THD, _B, _A[1]); \
+        }
+
+#define MMA_INST_2x2(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND2  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND2 (_C, 12,  TILE_M_V2_PER_THD, _B, _A[1]); \
+        }
+
+#define MMA_INST_2x4(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND4  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND4 (_C, 28,  TILE_M_V2_PER_THD, _B, _A[1]); \
+        }
+
+#define MMA_INST_2x8(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND8  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND8 (_C, 60,  TILE_M_V2_PER_THD, _B, _A[1]); \
+        }
+
+#define MMA_INST_4x1(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND1  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND1 (_C, 4,   TILE_M_V2_PER_THD, _B, _A[1]); \
+            MMA_INST_ASCEND1  (_C, 8,   TILE_M_V2_PER_THD, _B, _A[2]); \
+            MMA_INST_DESCEND1 (_C, 12,  TILE_M_V2_PER_THD, _B, _A[3]); \
+        }
+
+#define MMA_INST_4x2(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND2  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND2 (_C, 20,  TILE_M_V2_PER_THD, _B, _A[1]); \
+            MMA_INST_ASCEND2  (_C, 8,   TILE_M_V2_PER_THD, _B, _A[2]); \
+            MMA_INST_DESCEND2 (_C, 28,  TILE_M_V2_PER_THD, _B, _A[3]); \
+        }
+
+#define MMA_INST_4x4(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND4  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND4 (_C, 52,  TILE_M_V2_PER_THD, _B, _A[1]); \
+            MMA_INST_ASCEND4  (_C, 8,   TILE_M_V2_PER_THD, _B, _A[2]); \
+            MMA_INST_DESCEND4 (_C, 60,  TILE_M_V2_PER_THD, _B, _A[3]); \
+        }
+
+#define MMA_INST_4x8(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND8  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND8 (_C, 116, TILE_M_V2_PER_THD, _B, _A[1]); \
+            MMA_INST_ASCEND8  (_C, 2,   TILE_M_V2_PER_THD, _B, _A[2]); \
+            MMA_INST_DESCEND8 (_C, 124, TILE_M_V2_PER_THD, _B, _A[3]); \
+        }
+
+#define MMA_INST_8x1(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND1  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND1 (_C, 4,   TILE_M_V2_PER_THD, _B, _A[1]); \
+            MMA_INST_ASCEND1  (_C, 8,   TILE_M_V2_PER_THD, _B, _A[2]); \
+            MMA_INST_DESCEND1 (_C, 12,  TILE_M_V2_PER_THD, _B, _A[3]); \
+            \
+            MMA_INST_ASCEND1  (_C, 16,  TILE_M_V2_PER_THD, _B, _A[4]); \
+            MMA_INST_DESCEND1 (_C, 20,  TILE_M_V2_PER_THD, _B, _A[5]); \
+            MMA_INST_ASCEND1  (_C, 24,  TILE_M_V2_PER_THD, _B, _A[6]); \
+            MMA_INST_DESCEND1 (_C, 28,  TILE_M_V2_PER_THD, _B, _A[7]); \
+        }
+
+#define MMA_INST_8x2(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND2  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND2 (_C, 36,  TILE_M_V2_PER_THD, _B, _A[1]); \
+            MMA_INST_ASCEND2  (_C, 8,   TILE_M_V2_PER_THD, _B, _A[2]); \
+            MMA_INST_DESCEND2 (_C, 44,  TILE_M_V2_PER_THD, _B, _A[3]); \
+            \
+            MMA_INST_ASCEND2  (_C, 16,  TILE_M_V2_PER_THD, _B, _A[4]); \
+            MMA_INST_DESCEND2 (_C, 52,  TILE_M_V2_PER_THD, _B, _A[5]); \
+            MMA_INST_ASCEND2  (_C, 24,  TILE_M_V2_PER_THD, _B, _A[6]); \
+            MMA_INST_DESCEND2 (_C, 60,  TILE_M_V2_PER_THD, _B, _A[7]); \
+        }
+
+#define MMA_INST_8x4(_C, _B, _A) \
+        { \
+            MMA_INST_ASCEND4  (_C, 0,   TILE_M_V2_PER_THD, _B, _A[0]); \
+            MMA_INST_DESCEND4 (_C, 100, TILE_M_V2_PER_THD, _B, _A[1]); \
+            MMA_INST_ASCEND4  (_C, 8,   TILE_M_V2_PER_THD, _B, _A[2]); \
+            MMA_INST_DESCEND4 (_C, 108, TILE_M_V2_PER_THD, _B, _A[3]); \
+            \
+            MMA_INST_ASCEND4  (_C, 16,  TILE_M_V2_PER_THD, _B, _A[4]); \
+            MMA_INST_DESCEND4 (_C, 116, TILE_M_V2_PER_THD, _B, _A[5]); \
+            MMA_INST_ASCEND4  (_C, 24,  TILE_M_V2_PER_THD, _B, _A[6]); \
+            MMA_INST_DESCEND4 (_C, 224, TILE_M_V2_PER_THD, _B, _A[7]); \
+        }
+
 #endif
