@@ -25,7 +25,7 @@ if(PPLNN_ENABLE_CUDA_JIT)
 else()
     if(CUDA_VERSION VERSION_GREATER_EQUAL "10.2")
         execute_process(
-            # sm75 kernels
+            # sm70 kernels
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv/2spk/gen_2spk_sm70_fp16_hmma884_kernel.py  ${CMAKE_CURRENT_BINARY_DIR}/conv/2spk/sm70/fp16/hmma884
 
             OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -35,8 +35,7 @@ else()
             ${CMAKE_CURRENT_BINARY_DIR}/conv/2spk/sm70/*/*/init*.cu)
 
         set_source_files_properties(${__SM70_CONV_SRC__} PROPERTIES COMPILE_FLAGS
-                "-gencode arch=compute_70,code=sm_70 -fno-var-tracking-assignments")
-        endif()
+                "-gencode arch=compute_70,code=sm_70 -gencode arch=compute_72,code=sm_72 -fno-var-tracking-assignments")
     endif()
     if(CUDA_VERSION VERSION_GREATER_EQUAL "10.2")
         execute_process(
@@ -121,7 +120,7 @@ else()
         endif()
     endif()
 
-    list(APPEND __CUDA_CONV_SRC__ ${__SM80_CONV_SRC__} ${__SM75_CONV_SRC__})
+    list(APPEND __CUDA_CONV_SRC__ ${__SM80_CONV_SRC__} ${__SM75_CONV_SRC__} ${__SM70_CONV_SRC__})
     unset(__SM80_CONV_SRC__)
     unset(__SM75_CONV_SRC__)
 endif()

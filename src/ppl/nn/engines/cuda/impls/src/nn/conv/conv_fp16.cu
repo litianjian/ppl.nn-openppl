@@ -627,7 +627,6 @@ void PPLCUDAConvolutionForwardImp(
 
     int4 *pad_input  = d_input;
     int4 *pad_output = d_output;
-
     if (is_in_grp_pad) {
         pad_input = d_temp_buf;
         buf_off_v4 += GetCvtInputSize(type, conv_param, num_chl_per_grp_pad) / (_4INT_TO_INT4_ * _INT_TO_4BYTE_);

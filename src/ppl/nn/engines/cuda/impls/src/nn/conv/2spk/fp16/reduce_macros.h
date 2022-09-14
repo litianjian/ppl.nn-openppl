@@ -308,3 +308,242 @@
         WRITE_sRv1_SIZE8(_sm_base_v1, _sRv1_write + TILE_M_PER_MMA_HALF * TILE_N_V2_PER_CTA * 6, _C, _8MMA_ * 6); \
         WRITE_sRv1_SIZE8(_sm_base_v1, _sRv1_write + TILE_M_PER_MMA_HALF * TILE_N_V2_PER_CTA * 7, _C, _8MMA_ * 7); \
     }
+
+#if defined(USE_HMMA884)
+
+/////////////////////////////////////////////////////
+// write sRv1 macros
+/////////////////////////////////////////////////////
+
+#define WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write, _C, _C_off)                                      \
+    {                                                                                               \
+        _sm_base_v4[_sRv4_write + 0 * TILE_N_V8_PER_MMA] = _C[_C_off + 0]; \
+    }
+
+#define WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write, _C, _C_off)                                      \
+    {                                                                                               \
+        _sm_base_v4[_sRv4_write + 0 * TILE_N_V8_PER_MMA] = _C[_C_off + 0]; \
+        _sm_base_v4[_sRv4_write + 1 * TILE_N_V8_PER_MMA] = _C[_C_off + 1]; \
+    }
+
+#define WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write, _C, _C_off)                                      \
+    {                                                                                               \
+        _sm_base_v4[_sRv4_write + 0 * TILE_N_V8_PER_MMA] = _C[_C_off + 0]; \
+        _sm_base_v4[_sRv4_write + 1 * TILE_N_V8_PER_MMA] = _C[_C_off + 1]; \
+        _sm_base_v4[_sRv4_write + 2 * TILE_N_V8_PER_MMA] = _C[_C_off + 2]; \
+        _sm_base_v4[_sRv4_write + 3 * TILE_N_V8_PER_MMA] = _C[_C_off + 3]; \
+    }
+
+#define WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write, _C, _C_off)                                      \
+    {                                                                                               \
+        _sm_base_v4[_sRv4_write + 0 * TILE_N_V8_PER_MMA] = _C[_C_off + 0]; \
+        _sm_base_v4[_sRv4_write + 1 * TILE_N_V8_PER_MMA] = _C[_C_off + 1]; \
+        _sm_base_v4[_sRv4_write + 2 * TILE_N_V8_PER_MMA] = _C[_C_off + 2]; \
+        _sm_base_v4[_sRv4_write + 3 * TILE_N_V8_PER_MMA] = _C[_C_off + 3]; \
+        _sm_base_v4[_sRv4_write + 4 * TILE_N_V8_PER_MMA] = _C[_C_off + 4]; \
+        _sm_base_v4[_sRv4_write + 5 * TILE_N_V8_PER_MMA] = _C[_C_off + 5]; \
+        _sm_base_v4[_sRv4_write + 6 * TILE_N_V8_PER_MMA] = _C[_C_off + 6]; \
+        _sm_base_v4[_sRv4_write + 7 * TILE_N_V8_PER_MMA] = _C[_C_off + 7]; \
+    }
+
+/////////////////////////
+// tile_n_per_warp = 8
+/////////////////////////
+
+#define WRITE_sRv4_1x1(_sm_base_v4, _sRv4_write, _C)       \
+    {                                                      \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write, _C, 0); \
+    }
+
+#define WRITE_sRv4_2x1(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _1MMA_ * 0); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _1MMA_ * 1); \
+    }
+
+#define WRITE_sRv4_4x1(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _1MMA_ * 0); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _1MMA_ * 1); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _1MMA_ * 2); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _1MMA_ * 3); \
+    }
+
+#define WRITE_sRv4_8x1(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _1MMA_ * 0); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _1MMA_ * 1); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _1MMA_ * 2); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _1MMA_ * 3); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 4, _C, _1MMA_ * 4); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 5, _C, _1MMA_ * 5); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 6, _C, _1MMA_ * 6); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 7, _C, _1MMA_ * 7); \
+    }
+
+#define WRITE_sRv4_16x1(_sm_base_v4, _sRv4_write, _C)                                                               \
+    {                                                                                                               \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _1MMA_ * 0);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _1MMA_ * 1);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _1MMA_ * 2);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _1MMA_ * 3);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 4, _C, _1MMA_ * 4);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 5, _C, _1MMA_ * 5);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 6, _C, _1MMA_ * 6);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 7, _C, _1MMA_ * 7);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 8, _C, _1MMA_ * 8);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 9, _C, _1MMA_ * 9);   \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 10, _C, _1MMA_ * 10); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 11, _C, _1MMA_ * 11); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 12, _C, _1MMA_ * 12); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 13, _C, _1MMA_ * 13); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 14, _C, _1MMA_ * 14); \
+        WRITE_sRv4_SIZE1(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 15, _C, _1MMA_ * 15); \
+    }
+
+/////////////////////////
+// tile_n_per_warp = 16
+/////////////////////////
+
+#define WRITE_sRv4_1x2(_sm_base_v4, _sRv4_write, _C)       \
+    {                                                      \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write, _C, 0); \
+    }
+
+#define WRITE_sRv4_2x2(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _2MMA_ * 0); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _2MMA_ * 1); \
+    }
+
+#define WRITE_sRv4_4x2(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _2MMA_ * 0); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _2MMA_ * 1); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _2MMA_ * 2); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _2MMA_ * 3); \
+    }
+
+#define WRITE_sRv4_8x2(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _2MMA_ * 0); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _2MMA_ * 1); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _2MMA_ * 2); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _2MMA_ * 3); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 4, _C, _2MMA_ * 4); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 5, _C, _2MMA_ * 5); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 6, _C, _2MMA_ * 6); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 7, _C, _2MMA_ * 7); \
+    }
+
+#define WRITE_sRv4_16x2(_sm_base_v4, _sRv4_write, _C)                                                               \
+    {                                                                                                               \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _2MMA_ * 0);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _2MMA_ * 1);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _2MMA_ * 2);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _2MMA_ * 3);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 4, _C, _2MMA_ * 4);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 5, _C, _2MMA_ * 5);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 6, _C, _2MMA_ * 6);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 7, _C, _2MMA_ * 7);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 8, _C, _2MMA_ * 8);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 9, _C, _2MMA_ * 9);   \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 10, _C, _2MMA_ * 10); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 11, _C, _2MMA_ * 11); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 12, _C, _2MMA_ * 12); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 13, _C, _2MMA_ * 13); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 14, _C, _2MMA_ * 14); \
+        WRITE_sRv4_SIZE2(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 15, _C, _2MMA_ * 15); \
+    }
+
+/////////////////////////
+// tile_n_per_warp = 32
+/////////////////////////
+
+#define WRITE_sRv4_1x4(_sm_base_v4, _sRv4_write, _C)       \
+    {                                                      \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write, _C, 0); \
+    }
+
+#define WRITE_sRv4_2x4(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _4MMA_ * 0); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _4MMA_ * 1); \
+    }
+
+#define WRITE_sRv4_4x4(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _4MMA_ * 0); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _4MMA_ * 1); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _4MMA_ * 2); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _4MMA_ * 3); \
+    }
+
+#define WRITE_sRv4_8x4(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _4MMA_ * 0); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _4MMA_ * 1); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _4MMA_ * 2); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _4MMA_ * 3); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 4, _C, _4MMA_ * 4); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 5, _C, _4MMA_ * 5); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 6, _C, _4MMA_ * 6); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 7, _C, _4MMA_ * 7); \
+    }
+
+#define WRITE_sRv4_16x4(_sm_base_v4, _sRv4_write, _C)                                                               \
+    {                                                                                                               \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _4MMA_ * 0);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _4MMA_ * 1);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _4MMA_ * 2);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _4MMA_ * 3);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 4, _C, _4MMA_ * 4);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 5, _C, _4MMA_ * 5);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 6, _C, _4MMA_ * 6);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 7, _C, _4MMA_ * 7);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 8, _C, _4MMA_ * 8);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 9, _C, _4MMA_ * 9);   \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 10, _C, _4MMA_ * 10); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 11, _C, _4MMA_ * 11); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 12, _C, _4MMA_ * 12); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 13, _C, _4MMA_ * 13); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 14, _C, _4MMA_ * 14); \
+        WRITE_sRv4_SIZE4(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 15, _C, _4MMA_ * 15); \
+    }
+
+/////////////////////////
+// tile_n_per_warp = 64
+/////////////////////////
+
+#define WRITE_sRv4_1x8(_sm_base_v4, _sRv4_write, _C)       \
+    {                                                      \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write, _C, 0); \
+    }
+
+#define WRITE_sRv4_2x8(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _8MMA_ * 0); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _8MMA_ * 1); \
+    }
+
+#define WRITE_sRv4_4x8(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _8MMA_ * 0); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _8MMA_ * 1); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _8MMA_ * 2); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _8MMA_ * 3); \
+    }
+
+#define WRITE_sRv4_8x8(_sm_base_v4, _sRv4_write, _C)                                                              \
+    {                                                                                                             \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 0, _C, _8MMA_ * 0); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 1, _C, _8MMA_ * 1); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 2, _C, _8MMA_ * 2); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 3, _C, _8MMA_ * 3); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 4, _C, _8MMA_ * 4); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 5, _C, _8MMA_ * 5); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 6, _C, _8MMA_ * 6); \
+        WRITE_sRv4_SIZE8(_sm_base_v4, _sRv4_write + TILE_M_PER_MMA * TILE_N_V8_PER_CTA * 7, _C, _8MMA_ * 7); \
+    }
+
+#endif

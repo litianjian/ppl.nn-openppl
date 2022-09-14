@@ -83,8 +83,16 @@ double TuringHMMAImpgemm::ExcuteTimer(const ir::Node* node, OptKernelOptions& op
         attr_param_.extra_param.algo_info.algo_name = "nvSwzlSm75Fp16Conv_hmma1688_nhwc_fn_b32x256_w32x64_k8_buf2";
         attr_param_.extra_param.algo_info.kid = 685;
 #else
-        attr_param_.extra_param.algo_info.algo_name = "nvSwzlSm75Fp16Conv_hmma1688_nhwc_fn_b128x64_w64x32_k64_buf2";
-        attr_param_.extra_param.algo_info.kid = 5197;
+        int device_id = options.device->GetDeviceId();
+        cudaDeviceProp device_prop;
+        cudaGetDeviceProperties(&device_prop, device_id);
+        if ((device_prop.major == 7 && device_prop.minor == 5) || (device_prop.major > 7)) {
+            attr_param_.extra_param.algo_info.algo_name = "nvSwzlSm75Fp16Conv_hmma1688_nhwc_fn_b128x64_w64x32_k64_buf2";
+            attr_param_.extra_param.algo_info.kid = 5197;
+        } else if (device_prop.major == 7 && (device_prop.minor == 0 || device_prop.minor == 2)) {
+            attr_param_.extra_param.algo_info.algo_name = "nv2spkSm70Fp16Conv_hmma884_nhwc_fn_b256x64_w128x32_k8_s8_buf1";
+            attr_param_.extra_param.algo_info.kid = 738;
+        }
 #endif
         attr_param_.extra_param.algo_info.splitk = 1;
         attr_param_.extra_param.algo_info.splitf = 1;

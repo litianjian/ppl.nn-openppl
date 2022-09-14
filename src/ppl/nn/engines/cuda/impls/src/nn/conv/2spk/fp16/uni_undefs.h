@@ -450,6 +450,39 @@
 #undef WRITE_sRv1
 
 /////////////////////////////////////////////////////
+// write sRv4 macros
+/////////////////////////////////////////////////////
+
+#undef WRITE_sRv4_SIZE1
+#undef WRITE_sRv4_SIZE2
+#undef WRITE_sRv4_SIZE4
+#undef WRITE_sRv4_SIZE8
+
+#undef WRITE_sRv4_1x1
+#undef WRITE_sRv4_2x1
+#undef WRITE_sRv4_4x1
+#undef WRITE_sRv4_8x1
+#undef WRITE_sRv4_16x1
+
+#undef WRITE_sRv4_1x2
+#undef WRITE_sRv4_2x2
+#undef WRITE_sRv4_4x2
+#undef WRITE_sRv4_8x2
+#undef WRITE_sRv4_16x2
+
+#undef WRITE_sRv4_1x4
+#undef WRITE_sRv4_2x4
+#undef WRITE_sRv4_4x4
+#undef WRITE_sRv4_8x4
+#undef WRITE_sRv4_16x4
+
+#undef WRITE_sRv4_1x8
+#undef WRITE_sRv4_2x8
+#undef WRITE_sRv4_4x8
+#undef WRITE_sRv4_8x8
+
+#undef WRITE_sRv4
+/////////////////////////////////////////////////////
 // common load global memory macros
 /////////////////////////////////////////////////////
 
@@ -594,6 +627,9 @@
 
 #undef READ_sAv1
 #undef READ_sBv1
+
+#undef READ_sAv4
+#undef READ_sBv4
 
 /////////////////////////////////////////////////////
 // precision half output

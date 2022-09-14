@@ -140,6 +140,9 @@
 #elif defined(USE_HMMA16816)
 #define REG_sAv1_SIZE   (TILE_M_V1_PER_THD * _K16_TO_2K8_)
 #define REG_sBv1_SIZE   (TILE_N_V2_PER_THD * _K16_TO_2K8_)
+#elif defined(USE_HMMA884)
+#define REG_sAv1_SIZE (TILE_M_V1_PER_THD)
+#define REG_sBv1_SIZE (TILE_N_V2_PER_THD)
 #endif
 
 #define READ_sUv1_SIZE1(_reg, _reg_off, _smp_base_v1, _sUv1_read)                      \
@@ -255,4 +258,37 @@
             READ_sUv1_SIZE4(_reg, 20, _smp_base_v1, _sUv1_read + TILE_K_V2_PER_CTA * (WARP_SIZE_IN_THD / 2) * 5); \
             READ_sUv1_SIZE4(_reg, 24, _smp_base_v1, _sUv1_read + TILE_K_V2_PER_CTA * (WARP_SIZE_IN_THD / 2) * 6); \
             READ_sUv1_SIZE4(_reg, 28, _smp_base_v1, _sUv1_read + TILE_K_V2_PER_CTA * (WARP_SIZE_IN_THD / 2) * 7); \
+        }
+
+
+#define READ_sUv4_SIZE1(_A, _sm_base_v4, _sAv4_read) \
+        { \
+            _A[0] = _sm_base_v4[_sAv4_read]; \
+        }
+#define READ_sUv4_K1_1x1(_A, _sm_base_v4, _sAv4_read) \
+        { \
+            _A[0] = _sm_base_v4[_sAv4_read]; \
+        }
+#define READ_sUv4_K1_1x2(_A, _sm_base_v4, _sAv4_read) \
+        { \
+            _A[0] = _sm_base_v4[_sAv4_read]; \
+            _A[1] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2)]; \
+        }
+#define READ_sUv4_K1_1x4(_A, _sm_base_v4, _sAv4_read) \
+        { \
+            _A[0] = _sm_base_v4[_sAv4_read]; \
+            _A[1] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2)]; \
+            _A[2] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 2]; \
+            _A[3] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 3]; \
+        }
+#define READ_sUv4_K1_1x8(_A, _sm_base_v4, _sAv4_read) \
+        { \
+            _A[0] = _sm_base_v4[_sAv4_read]; \
+            _A[1] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 1]; \
+            _A[2] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 2]; \
+            _A[3] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 3]; \
+            _A[4] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 4]; \
+            _A[5] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 5]; \
+            _A[6] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 6]; \
+            _A[7] = _sm_base_v4[_sAv4_read + TILE_K_V8_PER_CTA * (WARP_SIZE_IN_THD / 2) * 7]; \
         }

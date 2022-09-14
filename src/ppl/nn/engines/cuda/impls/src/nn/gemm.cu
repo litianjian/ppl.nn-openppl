@@ -104,6 +104,8 @@ void init_f1_kvec(std::vector<kernel_info_t> &g_fp16_kvec, int device_id, ppl::c
             Initialize2spkSM80FP16Hmma1688ConvF1KernelContainer(g_fp16_kvec);
             Initialize2spkSM80FP16Hmma16816ConvF1KernelContainer(g_fp16_kvec);
 #endif
+        } else if (device_prop.major == 7 && (device_prop.minor == 0 || device_prop.minor == 0)) {
+             Initialize2spkSM70FP16Hmma884ConvF1KernelContainer(g_fp16_kvec);           
         }
     }
     is_g_fp16_kvec_set = true;

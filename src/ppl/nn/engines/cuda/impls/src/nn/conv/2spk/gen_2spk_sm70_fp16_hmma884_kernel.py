@@ -225,7 +225,7 @@ class KernelInfo:
         f.write("#define READ_sAv4(_A, _sm_base_v4, _sAv4_read)          READ_sUv4_K1_1x%d(_A, _sm_base_v4, _sAv4_read)\n"   % (self.warp_y / self.MMA_Y))
         f.write("#define READ_sBv4(_B, _sm_base_v4, _sBv4_read)          READ_sUv4_K1_1x%d(_B, _sm_base_v4, _sBv4_read)\n\n" % (self.warp_x / self.MMA_X))
 
-        f.write("#define WRITE_sRv1(_sm_base_v1, _sRv1_write_base, _C)   WRITE_sRv1_%dx%d(_sm_base_v1, _sRv1_write_base, _C)\n\n" % (self.warp_y / self.MMA_Y_HALF, self.warp_x /self.MMA_X))
+        f.write("#define WRITE_sRv4(_sm_base_v4, _sRv4_write_base, _C)   WRITE_sRv4_%dx%d(_sm_base_v4, _sRv4_write_base, _C)\n\n" % (self.warp_y / self.MMA_Y, self.warp_x /self.MMA_X))
 
         if self.buf_size <= 2:
             if self.flt_size == "f1" or self.flt_size == "fs":
@@ -446,9 +446,9 @@ def GenAllKernels(parent_path):
 
         for buf_size in [1, 2]:
             for s_size in [8, 16, 32]:
-                for k_num in [1, 2, 4]:
+                for k_num in [1]:
                     for warp_y in [16, 32, 64, 128]:
-                        for warp_x in [8, 16, 32, 64]:
+                        for warp_x in [16, 32, 64]:
                             for cta_y_num in [1, 2, 4]:
                                 for cta_x_num in [1, 2, 4]:
                                     if warp_y == 128 and warp_x == 64:
