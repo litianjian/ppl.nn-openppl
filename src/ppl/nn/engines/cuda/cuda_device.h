@@ -91,7 +91,9 @@ public:
     int GetDeviceId() const {
         return device_id_;
     }
-
+    cudaDeviceProp& GetDeviceProp() {
+        return device_prop_;
+    }
     std::map<edgeid_t, BufferDesc>* GetEdge2Buffer() {
         return &edge2buffer_;
     }
@@ -99,6 +101,7 @@ public:
 private:
     int device_id_ = INT_MAX;
     cudaStream_t stream_ = nullptr;
+    cudaDeviceProp device_prop_;
     CudaDataConverter data_converter_;
     std::map<edgeid_t, BufferDesc> edge2buffer_;
 
