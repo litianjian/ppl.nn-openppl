@@ -1,4 +1,4 @@
-option(PPLNN_ENABLE_CUDA_JIT "enable cuda JIT support" ON)
+option(PPLNN_ENABLE_CUDA_JIT "enable cuda JIT support" OFF)
 
 include(${HPCC_DEPS_DIR}/hpcc/cmake/cuda-common.cmake)
 

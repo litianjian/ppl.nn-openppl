@@ -30,7 +30,7 @@ RetCode ScatterNDOp::Init(const OptKernelOptions& options) {
     infer_type_func_ = [](InputOutputInfo* info, std::vector<CudaTensorQuant>* quant, datatype_t type) -> RetCode {
         ppl::common::RetCode status;
         if (type == DATATYPE_UNKNOWN) {
-            status = InferInheritedType(info);
+            status = InferHighestType(info, type, 2);
         } else if (type == DATATYPE_INT8) {
             status = CopyQuantType(info, quant);
         } else {
