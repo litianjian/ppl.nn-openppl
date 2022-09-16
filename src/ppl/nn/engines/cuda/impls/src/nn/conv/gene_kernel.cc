@@ -86,6 +86,10 @@ ppl::common::RetCode Fp16CodeGeneFactor::Gene2spkKernel(std::string& file_res, s
         MMA_Y = 16;
         MMA_X = 8;
         MMA_K = 16;
+    } else if (mma_shape == "hmma884") {
+        MMA_Y = 8;
+        MMA_X = 8;
+        MMA_K = 4;        
     }
 
     int MMA_Y_HALF = MMA_Y / 2;
@@ -185,12 +189,16 @@ ppl::common::RetCode Fp16CodeGeneFactor::Gene2spkKernel(std::string& file_res, s
     if (mma_shape == "hmma1688") {
         file_str << "#define READ_sAv1(_A, _sm_base_v1, _sAv1_read)          READ_sUv1_K1_2x" << warp_y / MMA_Y_HALF / 2 << "(_A, _sm_base_v1, _sAv1_read)\n";
         file_str << "#define READ_sBv1(_B, _sm_base_v1, _sBv1_read)          READ_sUv1_K1_1x" << warp_x / MMA_X << "(_B, _sm_base_v1, _sBv1_read)\n\n";
+        file_str << "#define WRITE_sRv1(_sm_base_v1, _sRv1_write_base, _C)   WRITE_sRv1_" << warp_y / MMA_Y_HALF << "x" << warp_x / MMA_X << "(_sm_base_v1, _sRv1_write_base, _C)\n\n";
     } else if (mma_shape == "hmma16816") {
         file_str << "#define READ_sAv1(_A, _sm_base_v1, _sAv1_read)          READ_sUv1_K2_2x" << warp_y / MMA_Y_HALF / 2 << "(_A, _sm_base_v1, _sAv1_read)\n";
         file_str << "#define READ_sBv1(_B, _sm_base_v1, _sBv1_read)          READ_sUv1_K2_1x" << warp_x / MMA_X << "(_B, _sm_base_v1, _sBv1_read)\n\n";
+        file_str << "#define WRITE_sRv1(_sm_base_v1, _sRv1_write_base, _C)   WRITE_sRv1_" << warp_y / MMA_Y_HALF << "x" << warp_x / MMA_X << "(_sm_base_v1, _sRv1_write_base, _C)\n\n";
+    } else if (mma_shape == "hmma884") {
+        file_str << "#define READ_sAv4(_A, _sm_base_v4, _sAv4_read)          READ_sUv4_K2_1x" << warp_y / MMA_Y_HALF / 2 << "(_A, _sm_base_v4, _sAv4_read)\n";
+        file_str << "#define READ_sBv4(_B, _sm_base_v4, _sBv4_read)          READ_sUv4_K2_1x" << warp_x / MMA_X << "(_B, _sm_base_v4, _sBv4_read)\n\n";
+        file_str << "#define WRITE_sRv4(_sm_base_v4, _sRv4_write_base, _C)   WRITE_sRv4_" << warp_y / MMA_Y_HALF << "x" << warp_x / MMA_X << "(_sm_base_v4, _sRv4_write_base, _C)\n\n";
     }
-
-    file_str << "#define WRITE_sRv1(_sm_base_v1, _sRv1_write_base, _C)   WRITE_sRv1_" << warp_y / MMA_Y_HALF << "x" << warp_x / MMA_X << "(_sm_base_v1, _sRv1_write_base, _C)\n\n";
 
     if (buf_size <= 2) {
         if (flt_size == 1 || flt_size == 11) {
@@ -252,6 +260,8 @@ ppl::common::RetCode Fp16CodeGeneFactor::Gene2spkKernel(std::string& file_res, s
         WriteIncludeFile(file_str, "/2spk/fp16/main_body1688.h");
     else if (mma_shape == "hmma16816")
         WriteIncludeFile(file_str, "/2spk/fp16/main_body16816.h");
+    else if (mma_shape == "hmma884")
+        WriteIncludeFile(file_str, "/2spk/fp16/main_body884.h");
     file_str << "}\n\n";
 
     WriteIncludeFile(file_str, "/2spk/fp16/uni_undefs.h");
