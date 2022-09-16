@@ -898,8 +898,8 @@ ppl::common::RetCode GetInt8ConvKernelNominees(
                         }
 
         if(nominees.size() == 0) {
-            // nvIdxnConv_b128x128_w64x64
-            nominee.SetIdxnKernelParam(128, 128, k_per_step, 64, 64, k_per_step, flt_pad_size, 128, 4096, 1, 1, mma_shape);
+            // nvIdxnConv_b128x64_w64x32
+            nominee.SetIdxnKernelParam(128, 64, k_per_step, 64, 32, k_per_step, flt_pad_size, 128, 4096, 1, 1, mma_shape);
             nominees.push_back(std::make_pair(nominee, 0.f));
         }
 
