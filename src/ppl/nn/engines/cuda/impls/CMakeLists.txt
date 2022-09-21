@@ -26,7 +26,7 @@ else()
     if(CUDA_VERSION VERSION_GREATER_EQUAL "10.2")
         execute_process(
             # sm70 kernels
-            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv/2spk/gen_2spk_sm70_fp16_hmma884_kernel.py  ${CMAKE_CURRENT_BINARY_DIR}/conv/2spk/sm70/fp16/hmma884
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/src/nn/conv/2spk/gen_2spk_sm70_fp16_hmma884_kernel.py  ${CMAKE_CURRENT_BINARY_DIR}/conv/2spk/sm70/fp16/hmma884 ${PPLNN_CUDA_ENABLE_KERNEL_CUT}
 
             OUTPUT_STRIP_TRAILING_WHITESPACE)
 
